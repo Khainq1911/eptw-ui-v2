@@ -1,34 +1,53 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { privateRoutes, protectedRoutes, publicRoutes } from "./router";
+import { lazy } from "react";
+import PrivateLayout from "./pages/layout/privateLayout.tsx";
+import ProtectedLayout from "./pages/layout/protectedLayout.tsx";
+
+const HomePage = lazy(() => import("./pages/home-page/home.tsx"));
+const AuthPage = lazy(() => import("./pages/auth-page/auth.tsx"));
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div className='bg-red-200'>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Router>
+      <Routes>
+        {publicRoutes.map((route, index) => {
+          const Page = route.component;
+          return <Route key={index} path={route.path} element={<Page />} />;
+        })}
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        {privateRoutes.map((route, index) => {
+          const Page = route.component;
+          return (
+            <Route
+              key={index}
+              path={route.path}
+              element={
+                <PrivateLayout>
+                  <Page />
+                </PrivateLayout>
+              }
+            />
+          );
+        })}
+        {protectedRoutes.map((route, index) => {
+          const Page = route.component;
+          return (
+            <Route
+              key={index}
+              path={route.path}
+              element={
+                <ProtectedLayout roleId={route?.roleId}>
+                  <Page />
+                </ProtectedLayout>
+              }
+            />
+          );
+        })}
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
