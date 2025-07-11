@@ -11,11 +11,9 @@ export default function ProtectedLayout({
   const routeId = roleId;
   const isAuth = false;
 
-  if (!isAuth || userId !== routeId) {
-    {
-      !isAuth ? <Navigate to="/auth" /> : <Navigate to="/home" />;
-    }
-  }
+  if (!isAuth) return <Navigate to="/auth" />;
+
+  if (userId !== routeId) return <Navigate to="/home" />;
 
   return children;
 }
