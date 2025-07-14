@@ -5,7 +5,7 @@ import PrivateLayout from "./pages/layout/privateLayout.tsx";
 import ProtectedLayout from "./pages/layout/protectedLayout.tsx";
 
 const HomePage = lazy(() => import("./pages/home-page/home.tsx"));
-const AuthPage = lazy(() => import("./pages/auth-page/auth.tsx"));
+const AuthPage = lazy(() => import("./pages/auth-page/auth-page.tsx"));
 
 function App() {
   return (
