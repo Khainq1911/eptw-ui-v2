@@ -1,3 +1,6 @@
+import { AuthRoute } from "./configs/routes";
+import AuthPage from "./pages/auth-page/auth-page";
+
 type Route = {
   path: string;
   component: React.FC;
@@ -5,7 +8,7 @@ type Route = {
   roleId?: number;
 };
 
-const privateRoutes: Route[] = [];
+const privateRoutes: Route[] = [{ path: AuthRoute, component: AuthPage }];
 const protectedRoutes: Route[] = [];
 const publicRoutes: Route[] = [];
 
