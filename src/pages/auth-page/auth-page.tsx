@@ -1,17 +1,26 @@
 import { Segmented } from "antd";
 import React from "react";
-import Login from "./components/login-page";
+import Login from "./components/login";
 import Register from "./components/register";
+import { useNavigate } from "react-router-dom";
+import { useNotification } from "../../components/notification";
 
 export default function AuthPage() {
   const [authOption, setAuthOption] = React.useState<"Login" | "Register">(
     "Login"
   );
-
+  const navigate = useNavigate();
+  const notify = useNotification();
   const authComponent = React.useMemo(() => {
     switch (authOption) {
       case "Login":
-        return <Login setAuthOption={setAuthOption} />;
+        return (
+          <Login
+            setAuthOption={setAuthOption}
+            navigate={navigate}
+            notify={notify}
+          />
+        );
       case "Register":
         return <Register setAuthOption={setAuthOption} />;
       default:
