@@ -1,6 +1,6 @@
 import type { NavigateFunction } from "react-router-dom";
-import type { LoginFormType, NotificationContextType } from "../../common/type";
-import { loginService } from "../../services/authService";
+import { loginService } from "@/services/authService";
+import type { LoginFormType, NotificationContextType } from "@/common/type";
 
 export const login = async (
   e: React.FormEvent<HTMLFormElement>,
