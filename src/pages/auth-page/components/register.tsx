@@ -7,9 +7,10 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { Button, Divider, Input } from "antd";
-import React from "react";
-import type { SetStateAction } from "react";
-import { register } from "../auth-page-service";
+import React, { type SetStateAction } from "react";
+import { authHandler } from "../auth-page-service";
+
+
 
 export default function Register({
   setAuthOption,
@@ -38,7 +39,7 @@ export default function Register({
       </p>
       <form
         className="gap-4 mt-4 flex flex-col"
-        onSubmit={(e) => register(e, registerForm, notify, setAuthOption)}
+        onSubmit={(e) => authHandler.register(e, registerForm, notify, setAuthOption)}
       >
         <div className="space-y-2">
           <label htmlFor="register-name" className="font-bold">
