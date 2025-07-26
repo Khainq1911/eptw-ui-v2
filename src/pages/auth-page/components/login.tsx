@@ -3,9 +3,8 @@ import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { Button, Divider, Input } from "antd";
 import { Link, type NavigateFunction } from "react-router-dom";
 import type { LoginFormType, NotificationContextType } from "@/common/type";
-import { login } from "../auth-page-service";
 import { handleChangeInput } from "@/services/common-services/single-input-change";
-
+import { authHandler } from "../auth-page-service";
 
 
 export default function Login({
@@ -35,7 +34,7 @@ export default function Login({
 
       <form
         className="gap-4 mt-4 flex flex-col"
-        onSubmit={(e) => login(e, loginForm, navigate, notify)}
+        onSubmit={(e) => authHandler.login(e, loginForm, navigate, notify)}
       >
         <div className="space-y-2">
           <label htmlFor="login-username" className="font-bold">
