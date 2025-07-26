@@ -1,15 +1,23 @@
 import React, { type SetStateAction } from "react";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { Button, Divider, Input } from "antd";
-import { Link } from "react-router-dom";
+import { Link, type NavigateFunction } from "react-router-dom";
 import { login } from "../auth-page-service";
-import type { LoginFormType } from "../../../common/type";
+import type { LoginFormType, NotificationContextType } from "../../../common/type";
 import { handleChangeInput } from "../../../common/single-input-change";
 
 export default function Login({
   setAuthOption,
+  navigate,
+  notify,
 }: {
   setAuthOption: React.Dispatch<SetStateAction<"Login" | "Register">>;
+  navigate: NavigateFunction;
+  notify: (
+    type: NotificationContextType,
+    message: string,
+    description?: string
+  ) => void;
 }) {
   const [loginForm, setLoginForm] = React.useState<LoginFormType>({
     username: "",
@@ -25,7 +33,7 @@ export default function Login({
 
       <form
         className="gap-4 mt-4 flex flex-col"
-        onSubmit={(e) => login(e, loginForm)}
+        onSubmit={(e) => login(e, loginForm, navigate, notify)}
       >
         <div className="space-y-2">
           <label htmlFor="login-username" className="font-bold">
