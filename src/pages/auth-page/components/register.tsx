@@ -1,3 +1,5 @@
+import type { NotificationContextType, RegisterFormType } from "@/common/type";
+import { handleChangeInput } from "@/services/common-services/single-input-change";
 import {
   MailOutlined,
   LockOutlined,
@@ -5,21 +7,39 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { Button, Divider, Input } from "antd";
-import type React from "react";
+import React from "react";
 import type { SetStateAction } from "react";
+import { register } from "../auth-page-service";
 
 export default function Register({
   setAuthOption,
+  notify,
 }: {
   setAuthOption: React.Dispatch<SetStateAction<"Login" | "Register">>;
+  notify: (
+    type: NotificationContextType,
+    message: string,
+    description?: string
+  ) => void;
 }) {
+  const [registerForm, setRegisterForm] = React.useState<RegisterFormType>({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
+
   return (
     <div className="w-full bg-white rounded-lg p-8">
       <h2 className="text-2xl text-center font-bold">Đăng ký</h2>
       <p className="text-center text-gray-500">
         Tạo tài khoản mới để sử dụng hệ thống
       </p>
-      <form className="gap-4 mt-4 flex flex-col">
+      <form
+        className="gap-4 mt-4 flex flex-col"
+        onSubmit={(e) => register(e, registerForm, notify, setAuthOption)}
+      >
         <div className="space-y-2">
           <label htmlFor="register-name" className="font-bold">
             Name
@@ -29,9 +49,13 @@ export default function Register({
             <Input
               id="register-name"
               type="text"
+              name="name"
               placeholder="Nguyễn Văn A"
               className="!pl-10"
               required
+              onChange={(e) =>
+                handleChangeInput<RegisterFormType>(e, setRegisterForm)
+              }
             />
           </div>
         </div>
@@ -45,9 +69,13 @@ export default function Register({
             <Input
               id="register-email"
               type="email"
+              name="email"
               placeholder="example@eptw.com"
               className="!pl-10"
               required
+              onChange={(e) =>
+                handleChangeInput<RegisterFormType>(e, setRegisterForm)
+              }
             />
           </div>
         </div>
@@ -61,9 +89,13 @@ export default function Register({
             <Input
               id="register-phone"
               type="tel"
+              name="phone"
               placeholder="0123456789"
               className="!pl-10"
               required
+              onChange={(e) =>
+                handleChangeInput<RegisterFormType>(e, setRegisterForm)
+              }
             />
           </div>
         </div>
@@ -77,8 +109,12 @@ export default function Register({
             <Input.Password
               id="register-password"
               placeholder="Mật khẩu"
+              name="password"
               className="!pl-10"
               required
+              onChange={(e) =>
+                handleChangeInput<RegisterFormType>(e, setRegisterForm)
+              }
             />
           </div>
         </div>
@@ -93,7 +129,11 @@ export default function Register({
               id="register-confirm-password"
               placeholder="Nhập lại mật khẩu"
               className="!pl-10"
+              name="confirmPassword"
               required
+              onChange={(e) =>
+                handleChangeInput<RegisterFormType>(e, setRegisterForm)
+              }
             />
           </div>
         </div>

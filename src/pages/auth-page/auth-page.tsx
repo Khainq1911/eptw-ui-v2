@@ -22,7 +22,7 @@ export default function AuthPage() {
           />
         );
       case "Register":
-        return <Register setAuthOption={setAuthOption} />;
+        return <Register setAuthOption={setAuthOption} notify={notify} />;
       default:
         return null;
     }
