@@ -13,6 +13,7 @@ const privateRoutes: Route[] = [
   { path: routesConfig.HomeRoute, component: HomePage },
 ];
 const protectedRoutes: Route[] = [];
+
 const publicRoutes: Route[] = [
   { path: routesConfig.AuthRoute, component: AuthPage },
 ];

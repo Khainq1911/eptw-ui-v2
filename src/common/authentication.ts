@@ -1,7 +1,9 @@
+import { jwtDecode } from "jwt-decode";
+
 export const AuthCommonService = {
   getAccessToken: () => {
     const accessToken = localStorage.getItem("accessToken");
-    return accessToken ? JSON.parse(accessToken) : null;
+    return accessToken 
   },
 
   isAuthenticated: () => {
@@ -12,7 +14,7 @@ export const AuthCommonService = {
   getRoleId: () => {
     const accessToken = AuthCommonService.getAccessToken();
     if (accessToken) {
-      const payload = JSON.parse(atob(accessToken.split(".")[1]));
+      const payload: { roleId: number } = jwtDecode(accessToken);
       return payload.roleId || null;
     }
     return null;
