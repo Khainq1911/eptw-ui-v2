@@ -40,21 +40,11 @@ axiosInstance.interceptors.response.use(
             "Dữ liệu gửi lên không đúng định dạng."
           );
           break;
-        case 401:
-          notify("error", "Chưa xác thực", "Vui lòng đăng nhập để tiếp tục.");
-          break;
         case 403:
           notify(
             "error",
             "Truy cập bị từ chối",
             "Bạn không có quyền thực hiện thao tác này."
-          );
-          break;
-        case 404:
-          notify(
-            "error",
-            "Không tìm thấy tài nguyên",
-            "Vui lòng kiểm tra lại URL hoặc thử lại sau."
           );
           break;
         case 405:
@@ -69,13 +59,6 @@ axiosInstance.interceptors.response.use(
             "error",
             "Hết thời gian chờ",
             "Máy chủ mất quá nhiều thời gian để phản hồi."
-          );
-          break;
-        case 409:
-          notify(
-            "warning",
-            "Xung đột dữ liệu",
-            "Dữ liệu bạn gửi đang bị trùng hoặc xung đột."
           );
           break;
         case 410:
@@ -134,12 +117,6 @@ axiosInstance.interceptors.response.use(
             "Không nhận được phản hồi từ máy chủ. Vui lòng thử lại."
           );
           break;
-        default:
-          notify(
-            "error",
-            `Lỗi không xác định (${error.status})`,
-            "Đã xảy ra lỗi không xác định. Vui lòng thử lại."
-          );
       }
     }
 

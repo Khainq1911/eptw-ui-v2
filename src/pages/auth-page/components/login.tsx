@@ -3,9 +3,8 @@ import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { Button, Divider, Input } from "antd";
 import { Link, type NavigateFunction } from "react-router-dom";
 import type { LoginFormType, NotificationContextType } from "@/common/type";
-import { handleChangeInput } from "@/services/common-services/single-input-change";
+import { handleChangeInput } from "@/common/common-services/single-input-change";
 import { authHandler } from "../auth-page-service";
-
 
 export default function Login({
   setAuthOption,

@@ -7,6 +7,8 @@ import type {
   RegisterFormType,
 } from "@/common/type";
 import type { SetStateAction } from "react";
+import { AxiosError } from "axios";
+import { routesConfig } from "@/configs/routes";
 
 export const authHandler = {
   login: async (
@@ -25,10 +27,10 @@ export const authHandler = {
       const res = await authService.login(loginForm);
       localStorage.setItem("accessToken", res.accessToken);
       localStorage.setItem("refreshToken", res.refreshToken);
-      navigate("/home");
+      navigate(routesConfig.HomeRoute);
       notify("success", "Đăng nhập thành công", "Chào mừng bạn trở lại!");
     } catch (error) {
-      console.error("Login failed:", error);
+      notify("error", "Đăng nhập thất bại", "Vui lòng kiểm tra lại thông tin.");
       throw error;
     }
   },
@@ -72,8 +74,13 @@ export const authHandler = {
         "Đăng ký thành công",
         "Bạn có thể đăng nhập ngay bây giờ."
       );
-    } catch (error) {
-      console.error("Registration failed:", error);
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        const errorMessage = error.response.data?.message || "Đã xảy ra lỗi";
+        notify("error", "Đăng ký thất bại", errorMessage);
+      } else {
+        notify("error", "Đăng ký thất bại", "Vui lòng thử lại sau.");
+      }
       throw error;
     }
   },
