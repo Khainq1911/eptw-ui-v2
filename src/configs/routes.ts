@@ -1,1 +1,4 @@
-export const AuthRoute = "/auth"
+export const routesConfig = {
+  HomeRoute: "/",
+  AuthRoute: "/auth",
+};

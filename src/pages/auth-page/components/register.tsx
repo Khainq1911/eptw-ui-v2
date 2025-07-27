@@ -1,5 +1,5 @@
 import type { NotificationContextType, RegisterFormType } from "@/common/type";
-import { handleChangeInput } from "@/services/common-services/single-input-change";
+import { handleChangeInput } from "@/common/common-services/single-input-change";
 import {
   MailOutlined,
   LockOutlined,
@@ -9,8 +9,6 @@ import {
 import { Button, Divider, Input } from "antd";
 import React, { type SetStateAction } from "react";
 import { authHandler } from "../auth-page-service";
-
-
 
 export default function Register({
   setAuthOption,
@@ -39,7 +37,9 @@ export default function Register({
       </p>
       <form
         className="gap-4 mt-4 flex flex-col"
-        onSubmit={(e) => authHandler.register(e, registerForm, notify, setAuthOption)}
+        onSubmit={(e) =>
+          authHandler.register(e, registerForm, notify, setAuthOption)
+        }
       >
         <div className="space-y-2">
           <label htmlFor="register-name" className="font-bold">
