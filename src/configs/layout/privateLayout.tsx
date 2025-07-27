@@ -1,6 +1,7 @@
 import { AuthCommonService } from "@/common/authentication";
 import { routesConfig } from "@/configs/routes";
 import { Navigate } from "react-router-dom";
+import DefaultLayout from "./defaultLayout";
 
 export default function PrivateLayout({
   children,
@@ -10,7 +11,7 @@ export default function PrivateLayout({
   const isAthenticated: boolean = AuthCommonService.isAuthenticated();
 
   if (isAthenticated) {
-    return children;
+    return <DefaultLayout>{children}</DefaultLayout>;
   }
 
   return <Navigate to={routesConfig.AuthRoute} />;

@@ -1,6 +1,7 @@
 import { AuthCommonService } from "@/common/authentication";
 import { routesConfig } from "@/configs/routes";
 import { Navigate } from "react-router-dom";
+import DefaultLayout from "./defaultLayout";
 
 export default function ProtectedLayout({
   children,
@@ -17,5 +18,5 @@ export default function ProtectedLayout({
 
   if (userId !== routeId) return <Navigate to={routesConfig.HomeRoute} />;
 
-  return children;
+  return <DefaultLayout>{children}</DefaultLayout>;
 }

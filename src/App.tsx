@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { privateRoutes, protectedRoutes, publicRoutes } from "./router";
-import PrivateLayout from "./components/layout/privateLayout.tsx";
-import ProtectedLayout from "./components/layout/protectedLayout.tsx";
+import PrivateLayout from "./configs/layout/privateLayout.tsx";
+import ProtectedLayout from "./configs/layout/protectedLayout.tsx";
 
 function App() {
   return (
@@ -26,6 +26,7 @@ function App() {
             />
           );
         })}
+
         {protectedRoutes.map((route, index) => {
           const Page = route.component;
           return (
