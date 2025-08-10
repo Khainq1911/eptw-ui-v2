@@ -2,7 +2,10 @@ import React, { type SetStateAction } from "react";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { Button, Divider, Input } from "antd";
 import { Link, type NavigateFunction } from "react-router-dom";
-import type { LoginFormType, NotificationContextType } from "@/common/type";
+import type {
+  LoginFormType,
+  NotificationContextType,
+} from "@/common/types/auth.type";
 import { handleChangeInput } from "@/common/common-services/single-input-change";
 import { authHandler } from "../auth-page-service";
 

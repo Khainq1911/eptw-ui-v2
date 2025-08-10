@@ -5,7 +5,7 @@ import type {
   NotificationContextType,
   RegisterDataType,
   RegisterFormType,
-} from "@/common/type";
+} from "@/common/types/auth.type";
 import type { SetStateAction } from "react";
 import { AxiosError } from "axios";
 import { routesConfig } from "@/configs/routes";
@@ -27,7 +27,7 @@ export const authHandler = {
       const res = await authService.login(loginForm);
       localStorage.setItem("accessToken", res.accessToken);
       localStorage.setItem("refreshToken", res.refreshToken);
-      navigate(routesConfig.HomeRoute);
+      navigate(routesConfig.DashboardRoute);
       notify("success", "Đăng nhập thành công", "Chào mừng bạn trở lại!");
     } catch (error) {
       notify("error", "Đăng nhập thất bại", "Vui lòng kiểm tra lại thông tin.");

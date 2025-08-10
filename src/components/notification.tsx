@@ -1,6 +1,6 @@
 import { notification } from "antd";
 import React, { useEffect } from "react";
-import type { NotificationContextType } from "../common/type";
+import type { NotificationContextType } from "../common/types/auth.type";
 import { setGlobalNotify } from "@/helpers/notification-helpers";
 
 const notiCreateContext = React.createContext<
@@ -34,8 +34,8 @@ export const NotificationProvider = ({
 
   useEffect(() => {
     setGlobalNotify(notify);
-  }, [])
-  
+  }, []);
+
   return (
     <notiCreateContext.Provider value={notify}>
       {contextHolder}

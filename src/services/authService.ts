@@ -1,4 +1,4 @@
-import type { LoginFormType, RegisterDataType } from "@/common/type";
+import type { LoginFormType, RegisterDataType } from "@/common/types/auth.type";
 import { axiosInstance } from "@/configs/axios";
 
 export const authService = {

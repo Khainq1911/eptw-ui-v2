@@ -1,4 +1,7 @@
 export const routesConfig = {
-  HomeRoute: "/",
   AuthRoute: "/auth",
+  DashboardRoute: "/dashboard",
+  DeviceRoute: "/device",
+  TemplateRoute: "/template",
+  PermitRoute: "/permit",
 };

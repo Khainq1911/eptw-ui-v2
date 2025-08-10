@@ -1,6 +1,10 @@
+import { Navigate } from "react-router-dom";
 import { routesConfig } from "./configs/routes";
 import AuthPage from "./pages/auth-page/auth-page";
-import HomePage from "./pages/home-page/home";
+import DashboardPage from "./pages/dashboard-page/dashboard-page";
+import DevicePage from "./pages/device-page/device-page";
+import PermitPage from "./pages/permit-page/permit-page";
+import TemplatePage from "./pages/template-page/template-page";
 
 type Route = {
   path: string;
@@ -10,7 +14,14 @@ type Route = {
 };
 
 const privateRoutes: Route[] = [
-  { path: routesConfig.HomeRoute, component: HomePage },
+  { path: routesConfig.DashboardRoute, component: DashboardPage },
+  { path: routesConfig.DeviceRoute, component: DevicePage },
+  { path: routesConfig.TemplateRoute, component: TemplatePage },
+  { path: routesConfig.PermitRoute, component: PermitPage },
+  {
+    path: "/",
+    component: () => <Navigate to={routesConfig.DashboardRoute} replace />,
+  },
 ];
 const protectedRoutes: Route[] = [];
 

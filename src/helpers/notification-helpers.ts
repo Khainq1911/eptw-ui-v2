@@ -1,4 +1,4 @@
-import type { NotificationContextType } from "@/common/type";
+import type { NotificationContextType } from "@/common/types/auth.type";
 
 type NotifyFn = (
   type: NotificationContextType,

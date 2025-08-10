@@ -2,8 +2,10 @@ import { Segmented } from "antd";
 import React from "react";
 import Login from "./components/login";
 import Register from "./components/register";
+
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../../components/notification";
+
 
 export default function AuthPage() {
   const [authOption, setAuthOption] = React.useState<"Login" | "Register">(
