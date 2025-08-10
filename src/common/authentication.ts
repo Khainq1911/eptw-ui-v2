@@ -3,7 +3,7 @@ import { jwtDecode } from "jwt-decode";
 export const AuthCommonService = {
   getAccessToken: () => {
     const accessToken = localStorage.getItem("accessToken");
-    return accessToken 
+    return accessToken;
   },
 
   isAuthenticated: () => {
@@ -11,11 +11,11 @@ export const AuthCommonService = {
     return accessToken ? true : false;
   },
 
-  getRoleId: () => {
+  getUser: () => {
     const accessToken = AuthCommonService.getAccessToken();
     if (accessToken) {
-      const payload: { roleId: number } = jwtDecode(accessToken);
-      return payload.roleId || null;
+      const payload: { roleId: number; name: string } = jwtDecode(accessToken);
+      return payload || null;
     }
     return null;
   },

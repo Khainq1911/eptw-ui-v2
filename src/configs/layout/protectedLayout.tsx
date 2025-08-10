@@ -11,7 +11,7 @@ export default function ProtectedLayout({
   roleId: number | undefined;
 }) {
   const isAuth = AuthCommonService.isAuthenticated();
-  const userId = AuthCommonService.getRoleId();
+  const userId = AuthCommonService.getUser()?.roleId;
   const routeId = roleId;
 
   if (!isAuth) return <Navigate to={routesConfig.AuthRoute} />;
