@@ -1,4 +1,3 @@
-import type { NotificationContextType, RegisterFormType } from "@/common/type";
 import { handleChangeInput } from "@/common/common-services/single-input-change";
 import {
   MailOutlined,
@@ -9,6 +8,7 @@ import {
 import { Button, Divider, Input } from "antd";
 import React, { type SetStateAction } from "react";
 import { authHandler } from "../auth-page-service";
+import type { NotificationContextType, RegisterFormType } from "@/common/types/auth.type";
 
 export default function Register({
   setAuthOption,
