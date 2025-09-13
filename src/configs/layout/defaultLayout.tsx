@@ -49,7 +49,7 @@ export default function DefaultLayout({
             <Button type="primary">Logout</Button>
           </div>
         </header>
-        <main className="p-5 mt-[60px] h-[calc(100vh-60px)]">
+        <main className="p-5 mt-[60px] h-[calc(100vh-60px)] bg-[#F5F7FB] overflow-y-auto">
           <div
             className={`absolute bottom-8 left-0 block md:hidden z-50 ${
               openSidebar ? "ml-[250px]" : "ml-0"
