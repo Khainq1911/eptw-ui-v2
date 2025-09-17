@@ -8,7 +8,7 @@ export interface DeviceType {
   action?: any;
 }
 
-export interface AddDeviceFormType {
+export interface DeviceFormType {
   name: string;
   code: string;
   description?: string;

@@ -1,21 +1,24 @@
 import { formatDate } from "@/common/common-services/formatTime";
-import type { AddDeviceFormType, DeviceType } from "@/common/types/device.type";
+import type { DeviceType } from "@/common/types/device.type";
+import { getGlobalNotify } from "@/helpers/notification-helpers";
 import { deviceService } from "@/services/deviceService";
 import { MoreOutlined } from "@ant-design/icons";
-import { Dropdown, Tag, type TableProps } from "antd";
-import React from "react";
+import { Dropdown, Form, Tag, type FormInstance, type TableProps } from "antd";
+import React, { act } from "react";
 
 export const useDevicePageHook = () => {
-  const [openAddDeviceModal, setOpenAddDeviceModal] =
-    React.useState<boolean>(false);
+  const [form] = Form.useForm();
+  const notify = getGlobalNotify();
+  const [action, setAction] = React.useState({
+    isEdit: false,
+    isView: false,
+  });
   const [totalDevices, setTotalDevices] = React.useState<number>(0);
   const [deviceTableData, setDeviceTableData] = React.useState<DeviceType[]>(
     []
   );
-
-   const [formAddDevice, setFormAddDevice] = React.useState<
-      AddDeviceFormType | undefined
-    >(undefined);
+  const [openAddDeviceModal, setOpenAddDeviceModal] =
+    React.useState<boolean>(false);
 
   const handleOpenAddDeviceModal = () => {
     setOpenAddDeviceModal(true);
@@ -34,6 +37,24 @@ export const useDevicePageHook = () => {
       console.error("Lỗi khi load danh sách thiết bị:", error);
     }
   }, []);
+
+  const handleCreateDevice = async (form: FormInstance<DeviceType>) => {
+    try {
+      await form.validateFields();
+      const payload = await form.getFieldsValue();
+      await deviceService.createDevice(payload);
+      await handleListDevices();
+      handleCloseAddDeviceModal();
+      notify(
+        "success",
+        "Thêm thiết bị thành công",
+        "Thiết bị đã được thêm vào hệ thống"
+      );
+      form.resetFields();
+    } catch (error) {
+      console.error("Lỗi khi tạo thiết bị:", error);
+    }
+  };
 
   React.useEffect(() => {
     handleListDevices();
@@ -121,12 +142,14 @@ export const useDevicePageHook = () => {
   }, []);
 
   return {
+    form,
+    action,
     deviceCardInfo,
     columns,
     deviceTableData,
     openAddDeviceModal,
-    formAddDevice, 
-    setFormAddDevice,
+    setAction,
+    handleCreateDevice,
     handleOpenAddDeviceModal,
     handleCloseAddDeviceModal,
     handleListDevices,
