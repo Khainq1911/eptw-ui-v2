@@ -10,7 +10,9 @@ export default function DevicePage() {
     deviceCardInfo,
     deviceTableData,
     columns,
+    form,
     openAddDeviceModal,
+    handleCreateDevice,
     handleCloseAddDeviceModal,
     handleOpenAddDeviceModal,
   } = useDevicePageHook();
@@ -22,7 +24,11 @@ export default function DevicePage() {
           Trang quản lý thiết bị
         </h1>
 
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAddDeviceModal}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={handleOpenAddDeviceModal}
+        >
           Thêm thiết bị
         </Button>
       </div>
@@ -57,7 +63,12 @@ export default function DevicePage() {
           columns={columns}
         />
       </div>
-      <AddDeviceModal open={openAddDeviceModal} onClose={handleCloseAddDeviceModal}/>
+      <AddDeviceModal
+        open={openAddDeviceModal}
+        form={form}
+        onClose={handleCloseAddDeviceModal}
+        handleCreateDevice={handleCreateDevice}
+      />
     </div>
   );
 }

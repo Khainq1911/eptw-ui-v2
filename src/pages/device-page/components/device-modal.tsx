@@ -1,56 +1,65 @@
-import { Input, Modal } from "antd";
-import { useDevicePageHook } from "../device-page-hooks";
-import type React from "react";
-import { handleChangeInput } from "@/common/common-services/single-input-change";
+import { Col, Form, Input, Modal, Row, type FormInstance } from "antd";
+
 export default function AddDeviceModal({
   open,
+  form,
   onClose,
+  handleCreateDevice,
 }: {
   open: boolean;
+  form: FormInstance;
   onClose: () => void;
+  handleCreateDevice: (form: FormInstance) => void;
 }) {
-  const { formAddDevice, setFormAddDevice } = useDevicePageHook();
+  
   return (
     <Modal
       title="Thêm thiết bị mới"
       open={open}
-      onCancel={onClose}
-      onOk={() => console.log(formAddDevice)}
+      onCancel={() => {
+        onClose();
+        form.resetFields();
+      }}
+      onOk={() => handleCreateDevice(form)}
     >
-      <form className="grid gap-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="font-semibold">Tên thiết bị</label>
-            <Input
-              placeholder="Nhập tên thiết bị"
+      <Form form={form} layout="vertical">
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              layout="vertical"
+              label="Tên thiết bị"
               name="name"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleChangeInput(e, setFormAddDevice)
-              }
-            />
-          </div>
-          <div>
-            <label className="font-semibold">Mã thiết bị</label>
-            <Input
-              placeholder="Nhập mã thiết bị"
+              rules={[
+                { required: true, message: "Vui lòng nhập tên thiết bị" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              layout="vertical"
+              label="Mã thiết bị"
               name="code"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleChangeInput(e, setFormAddDevice)
-              }
-            />
-          </div>
-        </div>
-        <div>
-          <label className="font-semibold">Mô tả (Tùy chọn)</label>
-          <Input.TextArea
-            placeholder="Thêm mô tả cho thiết bị..."
-            name="description"
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-              handleChangeInput(e, setFormAddDevice)
-            }
-          />
-        </div>
-      </form>
+              rules={[
+                { required: true, message: "Vui lòng nhập tên thiết bị" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item
+              layout="vertical"
+              label="Mô tả thiết bị (tùy chọn)"
+              name="description"
+              rules={[{ required: false }]}
+            >
+              <Input.TextArea placeholder="Mô tả thiết bị (tùy chọn)" />
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
     </Modal>
   );
 }

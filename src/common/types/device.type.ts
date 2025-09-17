@@ -5,10 +5,12 @@ export interface DeviceType {
   status: "active" | "inactive" | "maintenance";
   created_at: string;
   updated_at: string;
+
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
   action?: any;
 }
 
-export interface AddDeviceFormType {
+export interface DeviceFormType {
   name: string;
   code: string;
   description?: string;

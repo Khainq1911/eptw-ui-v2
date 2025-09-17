@@ -53,6 +53,7 @@ axiosInstance.interceptors.response.use(
 
           return axiosInstance(originalRequest);
         }
+        //eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.log("refreshToken is expired", error.response.status);
 

@@ -1,3 +1,4 @@
+import type { DeviceFormType } from "@/common/types/device.type";
 import { axiosInstance } from "@/configs/axios";
 
 export const deviceService = {
@@ -6,7 +7,12 @@ export const deviceService = {
         return response.data;
     },
 
-    updateDevice: async (id: string, updateData: any) => {
+    createDevice: async (deviceData: DeviceFormType) => {
+        const response = await axiosInstance.post("/device/create", deviceData);
+        return response.data;
+    },
+
+    updateDevice: async (id: string, updateData: DeviceFormType) => {
         const response = await axiosInstance.put(`/device/${id}`, updateData);
         return response.data;
     }

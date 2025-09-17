@@ -6,7 +6,7 @@ type NotifyFn = (
   description?: string
 ) => void;
 
-let globalNotify: NotifyFn | null = null;
+let globalNotify: NotifyFn;
 
 export const setGlobalNotify = (fn: NotifyFn) => {
   globalNotify = fn;
