@@ -28,8 +28,42 @@ axiosInstance.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  async (error) => {
     const notify = getGlobalNotify();
+    const originalRequest = error.config;
+    const isLoginEndpoint = originalRequest.url.includes("/auth");
+
+    if (error.response && error.response.status === 401 && !isLoginEndpoint) {
+      originalRequest._retry = true;
+      try {
+        console.log("accessToken is expired, refreshing...");
+
+        const refreshToken = localStorage.getItem("refreshToken");
+        const response = await axiosInstance.post(
+          `${import.meta.env.VITE_API_URL}/auth/refresh-token`,
+          { refreshToken }
+        );
+        if (response?.data) {
+          const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+            response.data;
+          localStorage.setItem("accessToken", newAccessToken);
+          localStorage.setItem("refreshToken", newRefreshToken);
+
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+          return axiosInstance(originalRequest);
+        }
+      } catch (err: any) {
+        console.log("refreshToken is expired", error.response.status);
+
+        if (err.response && err.response.status === 400) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          window.location.href = "/auth";
+        }
+        return Promise.reject(err);
+      }
+    }
 
     if (notify) {
       switch (error.status) {
