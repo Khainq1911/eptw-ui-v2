@@ -4,7 +4,7 @@ import { getGlobalNotify } from "@/helpers/notification-helpers";
 import { deviceService } from "@/services/deviceService";
 import { MoreOutlined } from "@ant-design/icons";
 import { Dropdown, Form, Tag, type FormInstance, type TableProps } from "antd";
-import React, { act } from "react";
+import React from "react";
 
 export const useDevicePageHook = () => {
   const [form] = Form.useForm();

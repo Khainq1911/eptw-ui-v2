@@ -16,7 +16,7 @@ export default function ProtectedLayout({
 
   if (!isAuth) return <Navigate to={routesConfig.AuthRoute} />;
 
-  if (userId !== routeId) return <Navigate to={routesConfig.HomeRoute} />;
+  if (userId !== routeId) return <Navigate to={routesConfig.DashboardRoute} />;
 
   return <DefaultLayout>{children}</DefaultLayout>;
 }
