@@ -1,21 +1,23 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, Card } from "antd";
+import { Button, Card, Form } from "antd";
 import { useDevicePageHook } from "./device-page-hooks";
 import StandardTable from "@/components/standardTable";
 import type { DeviceType } from "@/common/types/device.type";
 import AddDeviceModal from "./components/device-modal";
 
 export default function DevicePage() {
+  const [form] = Form.useForm();
   const {
     deviceCardInfo,
     deviceTableData,
     columns,
-    form,
+    action,
     openAddDeviceModal,
     handleCreateDevice,
+    handleUpdateDevice,
     handleCloseAddDeviceModal,
     handleOpenAddDeviceModal,
-  } = useDevicePageHook();
+  } = useDevicePageHook(form);
 
   return (
     <div>
@@ -64,9 +66,11 @@ export default function DevicePage() {
         />
       </div>
       <AddDeviceModal
-        open={openAddDeviceModal}
         form={form}
+        action={action}
+        open={openAddDeviceModal}
         onClose={handleCloseAddDeviceModal}
+        handleUpdateDevice={handleUpdateDevice}
         handleCreateDevice={handleCreateDevice}
       />
     </div>

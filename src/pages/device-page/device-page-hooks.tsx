@@ -1,17 +1,23 @@
 import { formatDate } from "@/common/common-services/formatTime";
-import type { DeviceType } from "@/common/types/device.type";
+import type { DeviceActionType, DeviceType } from "@/common/types/device.type";
 import { getGlobalNotify } from "@/helpers/notification-helpers";
 import { deviceService } from "@/services/deviceService";
 import { MoreOutlined } from "@ant-design/icons";
-import { Dropdown, Form, Tag, type FormInstance, type TableProps } from "antd";
+import {
+  Button,
+  Dropdown,
+  Tag,
+  type FormInstance,
+  type TableProps,
+} from "antd";
 import React from "react";
 
-export const useDevicePageHook = () => {
-  const [form] = Form.useForm();
+export const useDevicePageHook = (form: FormInstance) => {
   const notify = getGlobalNotify();
-  const [action, setAction] = React.useState({
+  const [action, setAction] = React.useState<DeviceActionType>({
     isEdit: false,
     isView: false,
+    isCreate: false,
   });
   const [totalDevices, setTotalDevices] = React.useState<number>(0);
   const [deviceTableData, setDeviceTableData] = React.useState<DeviceType[]>(
@@ -22,10 +28,12 @@ export const useDevicePageHook = () => {
 
   const handleOpenAddDeviceModal = () => {
     setOpenAddDeviceModal(true);
+    setAction({ isEdit: false, isView: false, isCreate: true });
   };
 
   const handleCloseAddDeviceModal = () => {
     setOpenAddDeviceModal(false);
+    setAction({ isEdit: false, isView: false, isCreate: false });
   };
 
   const handleListDevices = React.useCallback(async () => {
@@ -37,6 +45,24 @@ export const useDevicePageHook = () => {
       console.error("Lỗi khi load danh sách thiết bị:", error);
     }
   }, []);
+
+  const handleGetDeviceById = async (
+    id: string,
+    form: FormInstance<DeviceType>,
+    key: string
+  ) => {
+    try {
+      const res = await deviceService.getDeviceById(id);
+      await form.setFieldsValue(res);
+      setAction({
+        isEdit: key === "edit",
+        isView: key === "view",
+        isCreate: false,
+      });
+      setOpenAddDeviceModal(true);
+      return res;
+    } catch (err: any) {}
+  };
 
   const handleCreateDevice = async (form: FormInstance<DeviceType>) => {
     try {
@@ -56,6 +82,45 @@ export const useDevicePageHook = () => {
     }
   };
 
+  const handleUpdateDevice = async (
+    id: string,
+    form: FormInstance<DeviceType>
+  ) => {
+    try {
+      await form.validateFields();
+      const payload = await form.getFieldsValue();
+      await deviceService.updateDevice(id, {
+        status: payload.status,
+        name: payload.name,
+        code: payload.code,
+        description: payload.description,
+      });
+      await handleListDevices();
+      handleCloseAddDeviceModal();
+      notify(
+        "success",
+        "Cập nhật thiết bị thành công",
+        "Thiết bị đã được cập nhật vào hệ thống"
+      );
+      form.resetFields();
+    } catch (error) {
+      console.error("Lỗi khi tạo thiết bị:", error);
+    }
+  };
+
+  const handleDeleteDevice = async (id: string) => {
+    try {
+      await deviceService.deleteDevice(id);
+      await handleListDevices();
+      notify(
+        "success",
+        "Xóa thiết bị thành công",
+        "Thiết bị đã được xóa khỏi hệ thống"
+      );
+    } catch (error) {
+      console.error("Lỗi khi xóa thiết bị:", error);
+    }
+  };
   React.useEffect(() => {
     handleListDevices();
   }, [handleListDevices]);
@@ -86,9 +151,9 @@ export const useDevicePageHook = () => {
 
   const DropdownMenu = React.useMemo(() => {
     return [
-      { key: "view", label: "Xem" },
-      { key: "edit", label: "Chỉnh sửa" },
-      { key: "delete", label: "Xóa" },
+      { key: "view", label: <p>Xem</p> },
+      { key: "edit", label: <p>Chỉnh sửa</p> },
+      { key: "delete", label: <p>Xóa</p> },
     ];
   }, []);
 
@@ -104,11 +169,19 @@ export const useDevicePageHook = () => {
         width: 150,
         render: (status: string) => {
           const colorMap: Record<string, string> = {
-            Available: "green",
-            Inactive: "red",
-            Maintenance: "orange",
+            active: "green",
+            maintain: "red",
+            delete: "orange",
           };
-          return <Tag color={colorMap[status] || "gray"}>{status}</Tag>;
+
+          const labelMap: Record<string, string> = {
+            active: "Hoạt động",
+            maintain: "Bảo trì",
+            delete: "Không thể sử dụng",
+          };
+          return (
+            <Tag color={colorMap[status] || "gray"}>{labelMap[status]}</Tag>
+          );
         },
       },
       {
@@ -130,10 +203,22 @@ export const useDevicePageHook = () => {
         key: "action",
         width: 150,
         align: "center",
-        render: () => {
+        render: (_, record) => {
           return (
-            <Dropdown menu={{ items: DropdownMenu }} trigger={["click"]}>
-              <MoreOutlined />
+            <Dropdown
+              menu={{
+                items: DropdownMenu,
+                onClick: (e: any) => {
+                  if (e.key !== "delete") {
+                    handleGetDeviceById(record.id, form, e.key);
+                  } else {
+                    handleDeleteDevice(record.id);
+                  }
+                },
+              }}
+              trigger={["click"]}
+            >
+              <Button type="primary" icon={<MoreOutlined />} />
             </Dropdown>
           );
         },
@@ -142,7 +227,6 @@ export const useDevicePageHook = () => {
   }, []);
 
   return {
-    form,
     action,
     deviceCardInfo,
     columns,
@@ -150,6 +234,7 @@ export const useDevicePageHook = () => {
     openAddDeviceModal,
     setAction,
     handleCreateDevice,
+    handleUpdateDevice,
     handleOpenAddDeviceModal,
     handleCloseAddDeviceModal,
     handleListDevices,

@@ -1,17 +1,25 @@
-import { Col, Form, Input, Modal, Row, type FormInstance } from "antd";
+import type { DeviceActionType, DeviceType } from "@/common/types/device.type";
+import { Col, Form, Input, Modal, Row, Select, type FormInstance } from "antd";
+import { useEffect } from "react";
 
 export default function AddDeviceModal({
   open,
   form,
+  action,
   onClose,
   handleCreateDevice,
+  handleUpdateDevice,
 }: {
   open: boolean;
+  action: DeviceActionType;
   form: FormInstance;
   onClose: () => void;
   handleCreateDevice: (form: FormInstance) => void;
+  handleUpdateDevice: (id: string, form: FormInstance<DeviceType>) => void;
 }) {
-  
+  useEffect(() => {
+    form.setFieldValue("active", "DVC001");
+  });
   return (
     <Modal
       title="Thêm thiết bị mới"
@@ -20,7 +28,15 @@ export default function AddDeviceModal({
         onClose();
         form.resetFields();
       }}
-      onOk={() => handleCreateDevice(form)}
+      onOk={() => {
+        if (action.isCreate) {
+          handleCreateDevice(form);
+        } else if (action.isEdit) {
+          handleUpdateDevice(form.getFieldValue("id"), form);
+        } else {
+          onClose();
+        }
+      }}
     >
       <Form form={form} layout="vertical">
         <Row gutter={16}>
@@ -46,6 +62,24 @@ export default function AddDeviceModal({
               ]}
             >
               <Input />
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item
+              layout="vertical"
+              label="Trạng thái thiết bị"
+              name="status"
+              rules={[
+                { required: true, message: "Vui lòng nhập tên thiết bị" },
+              ]}
+              hidden={action?.isCreate}
+            >
+              <Select
+                options={[
+                  { value: "active", label: "Hoạt Động" },
+                  { value: "maintain", label: "Bảo trì" },
+                ]}
+              />
             </Form.Item>
           </Col>
           <Col span={24}>
