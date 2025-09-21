@@ -24,6 +24,7 @@ export interface DeviceActionType {
   isEdit: boolean;
   isView: boolean;
   isCreate: boolean;
+}
 
 export interface filterType {
   query?: string;

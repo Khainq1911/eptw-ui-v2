@@ -66,23 +66,6 @@ export const useDevicePageHook = (
     }
   };
 
-  const handleGetDeviceById = async (
-    id: string,
-    form: FormInstance<DeviceType>,
-    key: string
-  ) => {
-    try {
-      const res = await deviceService.getDeviceById(id);
-      await form.setFieldsValue(res);
-      setAction({
-        isEdit: key === "edit",
-        isView: key === "view",
-        isCreate: false,
-      });
-      setOpenAddDeviceModal(true);
-      return res;
-    } catch (err: any) {}
-  };
 
   const handleCreateDevice = async (form: FormInstance<DeviceType>) => {
     try {
