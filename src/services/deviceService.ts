@@ -1,9 +1,10 @@
-import type { DeviceFormType } from "@/common/types/device.type";
+import type { DeviceFormType, filterType } from "@/common/types/device.type";
 import { axiosInstance } from "@/configs/axios";
+import { useQuery } from "@tanstack/react-query";
 
 export const deviceService = {
-  getDevices: async () => {
-    const response = await axiosInstance.get("/device/list");
+  getDevices: async (filter: filterType) => {
+    const response = await axiosInstance.post("/device/list", filter);
     return response.data;
   },
 
@@ -29,4 +30,13 @@ export const deviceService = {
     const response = await axiosInstance.patch(`/device/delete/${id}`);
     return response.data;
   },
+};
+
+
+export const useGetDeviceService = (filter: filterType) => {
+  return useQuery({
+    queryKey: ["get-list-device", filter],
+    queryFn: () => deviceService.getDevices(filter), 
+    enabled: true,
+  });
 };

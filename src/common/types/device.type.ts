@@ -3,10 +3,10 @@ export interface DeviceType {
   name: string;
   code: string;
   description?: string;
-  status: "active" | "inactive" | "maintenance";
-  created_at: string;
-  updated_at: string;
-
+  status: "active" | "maintain" | "delete";
+  createdAt: string;
+  updatedAt: string;
+  isUsed: boolean;
   //eslint-disable-next-line @typescript-eslint/no-explicit-any
   action?: any;
 }
@@ -18,9 +18,16 @@ export interface DeviceFormType {
   description?: string;
 }
 
-
 export interface DeviceActionType {
   isEdit: boolean;
   isView: boolean;
   isCreate: boolean;
+}
+
+export interface filterType {
+  query?: string;
+  status?: string;
+  isUsed?: boolean;
+  limit: number;
+  page: number;
 }
