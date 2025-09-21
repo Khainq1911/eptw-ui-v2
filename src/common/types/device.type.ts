@@ -3,10 +3,12 @@ export interface DeviceType {
   name: string;
   code: string;
   description?: string;
+
   status: "active" | "maintain" | "delete";
   createdAt: string;
   updatedAt: string;
   isUsed: boolean;
+
   //eslint-disable-next-line @typescript-eslint/no-explicit-any
   action?: any;
 }
@@ -22,7 +24,6 @@ export interface DeviceActionType {
   isEdit: boolean;
   isView: boolean;
   isCreate: boolean;
-}
 
 export interface filterType {
   query?: string;
@@ -31,3 +32,4 @@ export interface filterType {
   limit: number;
   page: number;
 }
+

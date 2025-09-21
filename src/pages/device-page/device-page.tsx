@@ -30,6 +30,7 @@ export default function DevicePage() {
     handleOpenAddDeviceModal,
   } = useDevicePageHook(form, data, refetch);
 
+
   return (
     <div>
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">

@@ -16,9 +16,8 @@ export default function AddDeviceModal({
   handleCreateDevice: (form: FormInstance) => void;
   handleUpdateDevice: (id: string, form: FormInstance<DeviceType>) => void;
 }) {
- 
-  const isView = action?.isView;
 
+  const isView = action?.isView;
   return (
     <Modal
       title={

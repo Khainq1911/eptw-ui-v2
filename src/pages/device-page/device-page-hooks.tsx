@@ -15,6 +15,7 @@ import {
 } from "antd";
 import React from "react";
 
+
 export const useDevicePageHook = (
   form: FormInstance,
   // eslint-disable-next-line
@@ -23,6 +24,7 @@ export const useDevicePageHook = (
   refetch: any
 ) => {
   const notify = useNotification();
+
   const [action, setAction] = React.useState<DeviceActionType>({
     isEdit: false,
     isView: false,
@@ -64,6 +66,24 @@ export const useDevicePageHook = (
     }
   };
 
+  const handleGetDeviceById = async (
+    id: string,
+    form: FormInstance<DeviceType>,
+    key: string
+  ) => {
+    try {
+      const res = await deviceService.getDeviceById(id);
+      await form.setFieldsValue(res);
+      setAction({
+        isEdit: key === "edit",
+        isView: key === "view",
+        isCreate: false,
+      });
+      setOpenAddDeviceModal(true);
+      return res;
+    } catch (err: any) {}
+  };
+
   const handleCreateDevice = async (form: FormInstance<DeviceType>) => {
     try {
       await form.validateFields();
@@ -94,7 +114,6 @@ export const useDevicePageHook = (
         code: payload.code,
         description: payload.description,
       });
-
       handleCloseAddDeviceModal();
       notify(
         "success",
@@ -103,6 +122,7 @@ export const useDevicePageHook = (
       );
       form.resetFields();
       await refetch();
+
     } catch (error) {
       console.error("Lỗi khi tạo thiết bị:", error);
     }
@@ -111,14 +131,13 @@ export const useDevicePageHook = (
   const handleDeleteDevice = async (id: string) => {
     try {
       await deviceService.deleteDevice(id);
-
       notify(
         "success",
         "Xóa thiết bị thành công",
         "Thiết bị đã được xóa khỏi hệ thống"
       );
-
       await refetch();
+
     } catch (error) {
       console.error("Lỗi khi xóa thiết bị:", error);
     }
@@ -189,6 +208,7 @@ export const useDevicePageHook = (
             active: "Hoạt động",
             maintain: "Bảo trì",
             delete: "Đã Xóa",
+
           };
           return (
             <Tag color={colorMap[status] || "gray"}>{labelMap[status]}</Tag>

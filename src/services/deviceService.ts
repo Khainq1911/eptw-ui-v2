@@ -32,7 +32,6 @@ export const deviceService = {
   },
 };
 
-
 export const useGetDeviceService = (filter: filterType) => {
   return useQuery({
     queryKey: ["get-list-device", filter],
@@ -40,3 +39,4 @@ export const useGetDeviceService = (filter: filterType) => {
     enabled: true,
   });
 };
+
