@@ -19,4 +19,12 @@ export const AuthCommonService = {
     }
     return null;
   },
+  isAdmin: () => {
+    const accessToken = AuthCommonService.getAccessToken();
+    if (accessToken) {
+      const payload: { roleId: number; name: string } = jwtDecode(accessToken);
+      return payload.roleId === 4;
+    }
+    return false;
+  },
 };
