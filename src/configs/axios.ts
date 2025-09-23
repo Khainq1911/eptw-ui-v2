@@ -1,4 +1,3 @@
-import { useNotification } from "@/common/hooks/useNotification";
 import axios from "axios";
 
 export const axiosInstance = axios.create({
@@ -29,7 +28,7 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error) => {
-    const notify = useNotification();
+    //const notify = useNotification();
     const originalRequest = error.config;
     const isLoginEndpoint = originalRequest.url.includes("/auth");
 
@@ -66,7 +65,7 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    if (notify) {
+    /* if (notify) {
       switch (error.status) {
         case 400:
           notify(
@@ -153,7 +152,7 @@ axiosInstance.interceptors.response.use(
           );
           break;
       }
-    }
+    } */
 
     return Promise.reject(error);
   }

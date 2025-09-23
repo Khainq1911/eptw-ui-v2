@@ -30,13 +30,15 @@ export default function DevicePage() {
     handleOpenAddDeviceModal,
   } = useDevicePageHook(form, data, refetch);
 
-
   return (
     <div>
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
-        <h1 className="text-3xl font-bold text-slate-800 mb-6 md:mb-0 align-center">
-          Trang quản lý thiết bị
-        </h1>
+        <div>
+          <h1 className="text-3xl font-bold text-slate-800 mb-6 md:mb-0 align-center">
+            Trang quản lý thiết bị
+          </h1>
+          <p>Theo dõi và quản lý danh sách thiết bị</p>
+        </div>
 
         <Button
           disabled={!AuthCommonService.isAdmin()}

@@ -6,6 +6,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { routesConfig } from "../routes";
 import logo from "@/assets/logo.jpg";
+import Logo from "@/components/logo";
 
 export default function DefaultLayout({
   children,
@@ -33,14 +34,7 @@ export default function DefaultLayout({
       <div className="relative ml-0 md:ml-[250px]">
         <header className="fixed top-0 w-full h-[60px] flex justify-between items-center shadow-sm p-5 ">
           <div className="flex items-center justify-between w-full md:w-[calc(100%-250px)] ">
-            <Link
-              to={routesConfig.DashboardRoute}
-              className="flex items-center space-x-2 md:hidden"
-            >
-              <img src={logo} alt="App Logo" className="w-10 h-10 rounded" />
-
-              <span className="text-xl font-bold text-gray-800">EPTW</span>
-            </Link>
+          
             <div className="hidden md:block"></div>
             <p className="hidden md:block ml-4 text-gray-800 font-semibold text-sm md:text-base truncate">
               Welcome {AuthCommonService.getUser()?.name} to EPTW website!
