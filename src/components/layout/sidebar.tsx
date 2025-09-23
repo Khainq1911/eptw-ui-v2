@@ -1,9 +1,8 @@
 import type { MenuType } from "@/common/types/sidebar.type";
 import { menuItems } from "@/configs/menu";
-import { routesConfig } from "@/configs/routes";
 import React, { useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import logo from "@/assets/logo.jpg";
+import { useLocation, useNavigate } from "react-router-dom";
+import Logo from "../logo";
 
 export default function Sidebar() {
   const [menu, setMenu] = React.useState<MenuType[]>(menuItems);
@@ -13,11 +12,7 @@ export default function Sidebar() {
 
   const handleShowMenu = (path: string) => {
     menu.forEach((item) => {
-      if (item.path.includes(path)) {
-        item.isActive = true;
-      } else {
-        item.isActive = false;
-      }
+      item.isActive = item.path.includes(path);
     });
     setMenu([...menu]);
   };
@@ -28,21 +23,28 @@ export default function Sidebar() {
 
   return (
     <div className="bg-white w-full h-screen">
-      <div className="h-[60px] shadow-sm flex items-center pl-2 border-gray-200 gap-2">
-        <Link
-          to={routesConfig.DashboardRoute}
-          className="flex items-center space-x-2"
-        >
-          <img src={logo} alt="App Logo" className="w-10 h-10 rounded" />
-        </Link>
-        <h1 className="text-lg font-bold">Permit To Work</h1>
+      <div className="h-[60px] flex items-center pl-2 gap-2">
+        <div className="flex items-center justify-center">
+          <div className="flex items-center space-x-3">
+            <Logo />
+            <div className="text-xl font-bold text-gray-800">
+              Permit To Work
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Thêm chữ Menu ở đây */}
+      <div className="px-4 mt-4 text-gray-500 font-semibold uppercase tracking-wide">
+        Menu
+      </div>
+
       <div className="mt-2 space-y-2">
         {menu.map((item) => (
           <div
             key={item.name}
             onClick={() => navigate(item.path)}
-            className={`cursor-pointer flex items-center gap-4 rounded-2xl transition-colors duration-150 hover:bg-gray-100 px-4 py-2 mx-1 ${
+            className={`cursor-pointer flex items-center gap-4 rounded-lg transition-colors duration-150 hover:bg-gray-100 px-4 py-2 mx-2 ${
               item.isActive ? "bg-[#E6F4FE] text-[#5599FA]" : ""
             }`}
           >
