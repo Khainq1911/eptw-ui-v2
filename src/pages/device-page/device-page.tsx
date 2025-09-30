@@ -127,7 +127,6 @@ export default function DevicePage() {
                   </div>
                 </Form>
 
-                {/* Export button */}
                 <div className="shrink-0">
                   <Button type="primary" icon={<DownloadOutlined />}>
                     Export
@@ -139,6 +138,7 @@ export default function DevicePage() {
           pagination={{
             pageSizeOptions: ["5", "10", "20"],
             pageSize: filter.limit,
+            total: data?.countAll,
             showSizeChanger: true,
             onChange: (page: number, pageSize: number) =>
               setFilter((pre) => ({ ...pre, page: page, limit: pageSize })),
