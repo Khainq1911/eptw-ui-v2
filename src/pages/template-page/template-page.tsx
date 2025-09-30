@@ -5,9 +5,12 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { Button, Form, Input, Select, Table } from "antd";
+import AddTemplateModal from "./components/add-template-modal";
+import { TemplateService } from "./template-services";
 
 export default function TemplatePage() {
   const [form] = Form.useForm();
+  const { openAddTemplateModal, setOpenAddTemplateModal } = TemplateService();
   return (
     <div>
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
@@ -21,6 +24,9 @@ export default function TemplatePage() {
           disabled={!AuthCommonService.isAdmin()}
           type="primary"
           icon={<PlusOutlined />}
+          onClick={() => {
+            setOpenAddTemplateModal(true);
+          }}
         >
           Thêm mẫu
         </Button>
@@ -50,6 +56,10 @@ export default function TemplatePage() {
         </Button>
       </div>
       <Table />
+      <AddTemplateModal
+        openAddTemplateModal={openAddTemplateModal}
+        setOpenAddTemplateModal={setOpenAddTemplateModal}
+      />
     </div>
   );
 }

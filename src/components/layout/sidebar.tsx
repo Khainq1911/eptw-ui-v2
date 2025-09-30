@@ -45,11 +45,27 @@ export default function Sidebar() {
             key={item.name}
             onClick={() => navigate(item.path)}
             className={`cursor-pointer flex items-center gap-4 rounded-lg transition-colors duration-150 hover:bg-gray-100 px-4 py-2 mx-2 ${
-              item.isActive ? "bg-[#E6F4FE] text-[#5599FA]" : ""
+              item.isActive ? "bg-[#E6F4FE] text-[#1D4ED8]" : "text-gray-700"
             }`}
           >
-            {item.icon}
-            <p>{item.name}</p>
+            <span
+              className={`text-lg ${
+                item.isActive
+                  ? "text-[#1D4ED8]"
+                  : "text-gray-500 group-hover:text-gray-700"
+              }`}
+            >
+              {item.icon}
+            </span>
+            <p
+              className={`font-medium ${
+                item.isActive
+                  ? "text-[#1D4ED8]"
+                  : "text-gray-700 group-hover:text-gray-900"
+              }`}
+            >
+              {item.name}
+            </p>
           </div>
         ))}
       </div>
