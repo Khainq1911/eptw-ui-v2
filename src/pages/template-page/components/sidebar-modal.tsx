@@ -69,7 +69,10 @@ export default function SidebarModal() {
           </h2>
           <div className="space-y-3">
             {fieldTemplates.map((template) => (
-              <div className="p-4 bg-white border border-slate-200 rounded-lg cursor-move hover:shadow-md hover:border-blue-400 transition-all duration-200 active:opacity-50">
+              <div
+                key={template.id}
+                className="p-4 bg-white border border-slate-200 rounded-lg cursor-move hover:shadow-md hover:border-blue-400 transition-all duration-200 active:opacity-50"
+              >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl flex-shrink-0">
                     {template.icon}

@@ -5,7 +5,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { Button, Form, Input, Select, Table } from "antd";
-import AddTemplateModal from "./components/create-template-drawer";
+import AddTemplateModal from "./components/create-template/create-template-drawer";
 import { TemplateService } from "./template-services";
 
 export default function TemplatePage() {

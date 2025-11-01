@@ -3,10 +3,6 @@ import Sidebar from "@/components/layout/sidebar";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import React from "react";
-import { Link } from "react-router-dom";
-import { routesConfig } from "../routes";
-import logo from "@/assets/logo.jpg";
-import Logo from "@/components/logo";
 
 export default function DefaultLayout({
   children,
