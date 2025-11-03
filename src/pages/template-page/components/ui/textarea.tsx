@@ -1,15 +1,15 @@
 import { Checkbox, Col, Input, Row } from "antd";
-import type { Field } from "../../template.type";
+import type { props } from "./single-input";
 
-export interface props {
-  field: Field;
-}
-
-export default function TextArea({ field }: props) {
+export default function TextArea({ field, section, handleUpdateField }: props) {
   return (
     <Row gutter={16}>
       <Col span={8}>
-        <Input placeholder="Nhập label" value={field.label} />
+        <Input
+          placeholder="Nhập label"
+          value={field.label}
+          onChange={(e) => handleUpdateField(e, section, field, "label")}
+        />
       </Col>
 
       <Col span={8}>
@@ -17,7 +17,12 @@ export default function TextArea({ field }: props) {
       </Col>
 
       <Col span={8}>
-        <Checkbox />
+        <Checkbox
+          checked={field.required}
+          onChange={(e) => {
+            handleUpdateField(e, section, field, "required");
+          }}
+        />
       </Col>
     </Row>
   );

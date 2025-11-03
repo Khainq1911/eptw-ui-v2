@@ -69,7 +69,53 @@ const reducer = (state: Template, action: any) => {
             : s
         ),
       };
-
+    case "ADD_FIELD":
+      return {
+        ...state,
+        sections: state.sections.map((s) =>
+          s.id === action.payload.section.id
+            ? {
+                ...s,
+                fields: [
+                  ...s.fields,
+                  {
+                    ...action.payload.data,
+                    id: s.fields.length + 1,
+                  },
+                ],
+              }
+            : s
+        ),
+      };
+    case "DELETE_FIELD":
+      return {
+        ...state,
+        sections: state.sections.map((s) =>
+          s.id === action.payload.section.id
+            ? {
+                ...s,
+                fields: s.fields
+                  .filter((f) => f.id !== action.payload.field.id)
+                  .map((f, index) => ({ ...f, id: index + 1 })),
+              }
+            : s
+        ),
+      };
+    case "UPDATE_FIELD":
+      const { section, field, ...data } = action.payload;
+      return {
+        ...state,
+        sections: state.sections.map((s) =>
+          s.id === section.id
+            ? {
+                ...s,
+                fields: s.fields.map((f) =>
+                  f.id === field.id ? { ...f, ...data } : f
+                ),
+              }
+            : s
+        ),
+      };
     case "REORDER_SECTIONS":
       return {
         ...state,
