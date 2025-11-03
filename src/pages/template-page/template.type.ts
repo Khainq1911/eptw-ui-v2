@@ -2,14 +2,14 @@ export interface Field {
   label: string;
   type: "input" | "date" | "textarea" | "select" | "checkbox" | string;
   required: boolean;
-  order: number;
+  id: number;
 }
 
 export interface Section {
   name: string;
   description?: string;
   fields: Field[];
-  sequence: number;
+  id: number;
 }
 
 export interface Template {

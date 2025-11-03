@@ -1,45 +1,42 @@
 import { DeleteFilled, PlusOutlined } from "@ant-design/icons";
-import { Button, Form, Input, type FormInstance } from "antd";
-import { debounce } from "lodash";
-import { useEffect, type JSX } from "react";
-import type { ChangedValues, Field, Section, Template, TemplateType } from "../template.type";
+import { Button, Input } from "antd";
+import { useEffect, type ChangeEvent, type JSX } from "react";
+import type { Field, Section, Template } from "../template.type";
+import { closestCorners, DndContext } from "@dnd-kit/core";
+import { arrayMove, SortableContext } from "@dnd-kit/sortable";
+import SortableItem from "./ui/sort-item";
 
 interface props {
   state: Template;
-  dispatch: React.Dispatch<TemplateType>;
-  form: FormInstance;
-  handleRenderField: (
-    type: string,
-    index: number,
-    sequence: number
-  ) => JSX.Element | null;
+  dispatch: React.Dispatch<any>;
+  handleRenderField: (type: string, field: Field) => JSX.Element | null;
 }
 
 export default function ContentModal({
   state,
   dispatch,
-  form,
   handleRenderField,
 }: props) {
   useEffect(() => {
     console.log(state);
   }, [state]);
 
-  const handleValuesChange = debounce((changedValues: ChangedValues) => {
-    const key = Object.keys(changedValues)[0];
-    const newValue = changedValues[key];
-    const fieldName = key.split("_")[1];
-    const sectionIndex = parseInt(key.split("_")[2], 10);
+  const handleValuesChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    section: Section,
+    field: string
+  ) => {
+    console.log(event.target.value);
+    console.log(section);
 
     dispatch({
       type: "UPDATE_SECTION",
       payload: {
-        ...state.sections[sectionIndex],
-        [fieldName]: newValue,
+        section,
+        [field]: event.target.value,
       },
     });
-  }, 300);
-
+  };
   return (
     <main className="flex-1 overflow-y-auto p-8 bg-slate-50 h-full">
       <div className="max-w-4xl mx-auto">
@@ -52,77 +49,118 @@ export default function ContentModal({
           </p>
         </div>
 
-        <Form
-          form={form}
-          className="space-y-6 !mb-8"
-          layout="vertical"
-          onValuesChange={handleValuesChange}
-        >
-          {state.sections.map((section: Section, index: number) => (
-            <div
-              key={section.sequence}
-              className="w-full bg-white rounded-lg shadow-sm p-6 border border-gray-200"
-            >
-              <div className="flex justify-between !items-start gap-10 mb-4">
-                <Form.Item
-                  name={`section_name_${index}`}
-                  label="Tên nhóm thông tin:"
-                  initialValue={section.name}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập tên của nhóm thông tin",
-                    },
-                  ]}
-                >
-                  <Input placeholder="Nhập tên nhóm thông tin" />
-                </Form.Item>
-                <Form.Item
-                  name={`section_description_${index}`}
-                  label="Mô tả nhóm thông tin:"
-                  initialValue={section.description}
-                >
-                  <Input.TextArea placeholder="Nhập mô tả nhóm thông tin" />
-                </Form.Item>
-                <Button
-                  size="large"
-                  icon={<DeleteFilled />}
-                  style={{ fontSize: 18 }}
-                  danger
-                  type="text"
-                  onClick={() =>
-                    dispatch({
-                      type: "DELETE_SECTION",
-                      payload: section.sequence,
-                    })
-                  }
-                />
-              </div>
+        <div className="space-y-6 !mb-8">
+          <DndContext
+            collisionDetection={closestCorners}
+            onDragEnd={(event) => {
+              const { active, over } = event;
+              if (!over || active.id === over.id) return;
 
-              <div className="grid grid-col-1 gap-6">
-                {section.fields.map((field: Field, i: number) => (
+              const oldIndex = state.sections.findIndex(
+                (s) => s.id === active.id
+              );
+              const newIndex = state.sections.findIndex(
+                (s) => s.id === over.id
+              );
+              const newSections = arrayMove(state.sections, oldIndex, newIndex);
+              console.log(newSections);
+
+              dispatch({
+                type: "REORDER_SECTIONS",
+                payload: newSections,
+              });
+            }}
+          >
+            <SortableContext items={state.sections.map((s) => s)}>
+              {state.sections.map((section: Section, index: number) => (
+                <SortableItem props={section} key={index}>
                   <div
-                    key={i}
-                    className="relative group border border-gray-300 rounded-lg p-4 shadow-sm transition-all duration-200 hover:border-blue-500"
+                    key={section.id}
+                    className="w-full bg-white rounded-lg shadow-sm p-6 border border-gray-200"
                   >
-                    {handleRenderField(
-                      field.type,
-                      field.order,
-                      section.sequence
-                    )}
+                    <div className="flex justify-between !items-start gap-10 mb-4">
+                      <Input
+                        placeholder="Nhập tên nhóm thông tin"
+                        value={section.name}
+                        onChange={(e) => handleValuesChange(e, section, "name")}
+                      />
 
-                    <Button
-                      icon={<DeleteFilled />}
-                      danger
-                      type="primary"
-                      className="!absolute top-[-16px] right-[20px] opacity-0 group-hover:opacity-100"
-                    />
+                      <Input.TextArea
+                        placeholder="Nhập mô tả nhóm thông tin"
+                        value={section.description}
+                        onChange={(e) =>
+                          handleValuesChange(e, section, "description")
+                        }
+                      />
+
+                      <Button
+                        size="large"
+                        icon={<DeleteFilled />}
+                        style={{ fontSize: 18 }}
+                        danger
+                        type="text"
+                        onClick={() =>
+                          dispatch({
+                            type: "DELETE_SECTION",
+                            payload: section.id,
+                          })
+                        }
+                      />
+                    </div>
+
+                    <DndContext
+                      collisionDetection={closestCorners}
+                      onDragEnd={(event) => {
+                        const { active, over } = event;
+                        if (!over || active.id === over.id) return;
+
+                        const oldIndex = section.fields.findIndex(
+                          (f) => f.id === active.id
+                        );
+                        const newIndex = section.fields.findIndex(
+                          (f) => f.id === over.id
+                        );
+                        const newFields = arrayMove(
+                          section.fields,
+                          oldIndex,
+                          newIndex
+                        );
+                        dispatch({
+                          type: "REORDER_FIELDS",
+                          payload: {
+                            sectionId: section.id,
+                            fields: newFields,
+                          },
+                        });
+                      }}
+                    >
+                      <SortableContext
+                        items={section.fields.map((field: Field) => field)}
+                      >
+                        <div className="grid grid-col-1 gap-6">
+                          {section.fields.map((field: Field, i: number) => (
+                            <SortableItem props={field} key={i}>
+                              <div className="relative group border border-gray-300 rounded-lg p-4 shadow-sm transition-all duration-200 hover:border-blue-500">
+                                {handleRenderField(field.type, field)}
+
+                                <Button
+                                  icon={<DeleteFilled />}
+                                  danger
+                                  type="primary"
+                                  className="!absolute top-[-16px] right-[20px] opacity-0 group-hover:opacity-100"
+                                />
+                              </div>
+                            </SortableItem>
+                          ))}
+                        </div>
+                      </SortableContext>
+                    </DndContext>
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </Form>
+                </SortableItem>
+              ))}
+            </SortableContext>
+          </DndContext>
+        </div>
 
         <Button
           className="w-full"
@@ -135,7 +173,7 @@ export default function ContentModal({
                 name: "",
                 description: "",
                 fields: [],
-                sequence: state.sections.length + 1,
+                id: state.sections.length + 1,
               },
             })
           }
