@@ -1,15 +1,21 @@
 import { DeleteFilled, PlusOutlined } from "@ant-design/icons";
-import { Button, Input } from "antd";
-import { useEffect, type ChangeEvent, type JSX } from "react";
+import { Button, Checkbox, Form, Input, Modal, Select } from "antd";
+import { useEffect, useState, type ChangeEvent, type JSX } from "react";
 import type { Field, Section, Template } from "../template.type";
 import { closestCorners, DndContext } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import SortableItem from "./ui/sort-item";
+import { fieldTemplates } from "./sidebar-modal";
 
 interface props {
   state: Template;
   dispatch: React.Dispatch<any>;
-  handleRenderField: (type: string, field: Field) => JSX.Element | null;
+  handleRenderField: (
+    type: string,
+    field: Field,
+    section: Section,
+    handleUpdateField: any
+  ) => JSX.Element | null;
 }
 
 export default function ContentModal({
@@ -17,24 +23,38 @@ export default function ContentModal({
   dispatch,
   handleRenderField,
 }: props) {
+  const [openAddFieldModal, setOpenAddFieldModal] = useState(false);
+  const [currentSection, setCurrentSection] = useState<Section | null>(null);
+  const [signCheck, setSignCheck] = useState(false);
+
   useEffect(() => {
     console.log(state);
   }, [state]);
-
+  const [form] = Form.useForm();
   const handleValuesChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     section: Section,
-    field: string
+    fieldName: string
   ) => {
-    console.log(event.target.value);
-    console.log(section);
-
     dispatch({
       type: "UPDATE_SECTION",
       payload: {
         section,
-        [field]: event.target.value,
+        [fieldName]: event.target.value,
       },
+    });
+  };
+
+  const handleUpdateField = (
+    event: ChangeEvent<HTMLInputElement>,
+    section: Section,
+    field: Field,
+    fieldName: string
+  ) => {
+    const value = event.target.value || event.target.checked;
+    dispatch({
+      type: "UPDATE_FIELD",
+      payload: { section, field, [fieldName]: value },
     });
   };
   return (
@@ -63,7 +83,6 @@ export default function ContentModal({
                 (s) => s.id === over.id
               );
               const newSections = arrayMove(state.sections, oldIndex, newIndex);
-              console.log(newSections);
 
               dispatch({
                 type: "REORDER_SECTIONS",
@@ -141,13 +160,24 @@ export default function ContentModal({
                           {section.fields.map((field: Field, i: number) => (
                             <SortableItem props={field} key={i}>
                               <div className="relative group border border-gray-300 rounded-lg p-4 shadow-sm transition-all duration-200 hover:border-blue-500">
-                                {handleRenderField(field.type, field)}
+                                {handleRenderField(
+                                  field.type,
+                                  field,
+                                  section,
+                                  handleUpdateField
+                                )}
 
                                 <Button
                                   icon={<DeleteFilled />}
                                   danger
                                   type="primary"
                                   className="!absolute top-[-16px] right-[20px] opacity-0 group-hover:opacity-100"
+                                  onClick={() =>
+                                    dispatch({
+                                      type: "DELETE_FIELD",
+                                      payload: { section, field },
+                                    })
+                                  }
                                 />
                               </div>
                             </SortableItem>
@@ -155,6 +185,40 @@ export default function ContentModal({
                         </div>
                       </SortableContext>
                     </DndContext>
+                    <Button
+                      type="primary"
+                      ghost
+                      icon={<PlusOutlined />}
+                      className="w-full mt-6"
+                      onClick={() => {
+                        setOpenAddFieldModal(true);
+                        setCurrentSection(section);
+                      }}
+                    >
+                      Thêm trường mới
+                    </Button>
+                    <Checkbox
+                      checked={signCheck}
+                      onChange={() => setSignCheck(!signCheck)}
+                      className="!my-6"
+                    >
+                      Yêu cầu ký
+                    </Checkbox>
+                    {signCheck && (
+                      <Form>
+                        <Form.Item
+                          label="Vai trò ký"
+                          rules={[
+                            {
+                              required: signCheck,
+                              message: "Vui lòng chọn vai trò ký",
+                            },
+                          ]}
+                        >
+                          <Select />
+                        </Form.Item>
+                      </Form>
+                    )}
                   </div>
                 </SortableItem>
               ))}
@@ -181,6 +245,54 @@ export default function ContentModal({
           Thêm phần mới
         </Button>
       </div>
+      <Modal
+        open={openAddFieldModal}
+        title="Thêm trường mới"
+        onCancel={() => {
+          setOpenAddFieldModal(false);
+          setCurrentSection(null);
+          form.resetFields();
+        }}
+        onOk={async () => {
+          try {
+            const values = await form.validateFields();
+
+            dispatch({
+              type: "ADD_FIELD",
+              payload: {
+                section: currentSection,
+                data: {
+                  ...values,
+                },
+              },
+            });
+            form.resetFields();
+            setOpenAddFieldModal(false);
+            setCurrentSection(null);
+          } catch (errorInfo) {
+            console.log("❌ Validation failed:", errorInfo);
+          }
+        }}
+      >
+        <Form layout="vertical" form={form}>
+          <Form.Item
+            label="Chọn trường"
+            name="type"
+            rules={[
+              { required: true, message: "Vui lòng chọn trường để thêm" },
+            ]}
+          >
+            <Select
+              allowClear
+              optionFilterProp="label"
+              options={fieldTemplates.map((field) => ({
+                value: field.type,
+                label: `${field.icon} ${field.name}`,
+              }))}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </main>
   );
 }

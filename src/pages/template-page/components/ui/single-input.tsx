@@ -1,15 +1,25 @@
 import { Checkbox, Col, Input, Row } from "antd";
-import type { Field } from "../../template.type";
+import type { Field, Section } from "../../template.type";
 
 export interface props {
   field: Field;
+  section: Section;
+  handleUpdateField: any;
 }
 
-export default function SingleInput({ field }: props) {
+export default function SingleInput({
+  field,
+  section,
+  handleUpdateField,
+}: props) {
   return (
     <Row gutter={16}>
       <Col span={8}>
-        <Input placeholder="Nhập label" value={field.label} />
+        <Input
+          placeholder="Nhập label"
+          value={field.label}
+          onChange={(e) => handleUpdateField(e, section, field, "label")}
+        />
       </Col>
 
       <Col span={8}>
@@ -17,7 +27,12 @@ export default function SingleInput({ field }: props) {
       </Col>
 
       <Col span={8}>
-        <Checkbox />
+        <Checkbox
+          checked={field.required}
+          onChange={(e) => {
+            handleUpdateField(e, section, field, "required");
+          }}
+        />
       </Col>
     </Row>
   );

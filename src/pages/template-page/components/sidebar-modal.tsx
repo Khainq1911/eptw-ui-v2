@@ -1,4 +1,4 @@
-const fieldTemplates = [
+export const fieldTemplates = [
   {
     id: "field-text",
     name: "Text Input",
