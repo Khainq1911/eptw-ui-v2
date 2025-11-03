@@ -1,41 +1,24 @@
-import { Checkbox, Col, Form, Input, Row, type FormInstance } from "antd";
+import { Checkbox, Col, Input, Row } from "antd";
+import type { Field } from "../../template.type";
 
 export interface props {
-  form: FormInstance;
-  index: number;
-  sequence: number;
+  field: Field;
 }
 
-export default function SingleInput({ form, index, sequence }: props) {
+export default function SingleInput({ field }: props) {
   return (
-    <Form layout="vertical" form={form}>
-      <Row gutter={16}>
-        <Col span={8}>
-          <Form.Item
-            label="Label"
-            name={`label_${index}_${sequence}`}
-            rules={[{ required: true, message: "Vui lòng nhập trường này" }]}
-          >
-            <Input placeholder="Nhập label" />
-          </Form.Item>
-        </Col>
+    <Row gutter={16}>
+      <Col span={8}>
+        <Input placeholder="Nhập label" value={field.label} />
+      </Col>
 
-        <Col span={8}>
-          <Form.Item label="Placeholder" name="placeholder">
-            <Input placeholder="Nhập placeholder" disabled />
-          </Form.Item>
-        </Col>
+      <Col span={8}>
+        <Input placeholder="Input field" disabled />
+      </Col>
 
-        <Col span={8}>
-          <Form.Item
-            label="Bắt buộc"
-            name={`required_${index}_${sequence}`}
-            valuePropName="checked"
-          >
-            <Checkbox />
-          </Form.Item>
-        </Col>
-      </Row>
-    </Form>
+      <Col span={8}>
+        <Checkbox />
+      </Col>
+    </Row>
   );
 }

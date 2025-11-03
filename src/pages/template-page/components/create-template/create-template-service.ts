@@ -1,5 +1,5 @@
 import React from "react";
-import type { Section, Template, TemplateType } from "../../template.type";
+import type { Section, Template } from "../../template.type";
 
 const initialState = {
   name: "Biểu mẫu yêu cầu bảo trì",
@@ -12,29 +12,29 @@ const initialState = {
           label: "Họ và tên người yêu cầu",
           type: "input",
           required: true,
-          order: 1,
+          id: 1,
         },
         {
           label: "Họ và tên người yêu cầu",
           type: "input",
           required: true,
-          order: 2,
+          id: 2,
         },
-        { label: "Đơn vị", type: "input", required: true, order: 3 },
-        { label: "Ngày yêu cầu", type: "date", required: true, order: 4 },
+        { label: "Đơn vị", type: "input", required: true, id: 3 },
+        { label: "Ngày yêu cầu", type: "date", required: true, id: 4 },
         {
           label: "Mức độ ưu tiên",
           type: "textarea",
           required: false,
-          order: 5,
+          id: 5,
         },
       ],
-      sequence: 1,
+      id: 1,
     },
   ],
 };
 
-const reducer = (state: Template, action: TemplateType) => {
+const reducer = (state: Template, action: any) => {
   switch (action.type) {
     case "ADD_SECTION":
       return {
@@ -43,24 +43,39 @@ const reducer = (state: Template, action: TemplateType) => {
       };
     case "DELETE_SECTION": {
       const filtered = state.sections
-        .filter((section: Section) => section.sequence !== action.payload)
+        .filter((section: Section) => section.id !== action.payload)
         .map((section: Section, index: number) => ({
           ...section,
-          sequence: index + 1,
+          id: index + 1,
         }));
 
       return { ...state, sections: filtered };
     }
     case "UPDATE_SECTION": {
+      const { section, ...data } = action.payload;
       return {
         ...state,
-        sections: state.sections.map((section: Section) =>
-          section.sequence === action.payload.sequence
-            ? { ...section, ...action.payload }
-            : section
+        sections: state.sections.map((item: Section) =>
+          item.id === section.id ? { ...item, ...data } : item
         ),
       };
     }
+    case "REORDER_FIELDS":
+      return {
+        ...state,
+        sections: state.sections.map((s) =>
+          s.id === action.payload.sectionId
+            ? { ...s, fields: action.payload.fields }
+            : s
+        ),
+      };
+
+    case "REORDER_SECTIONS":
+      return {
+        ...state,
+        sections: action.payload,
+      };
+
     default:
       return state;
   }

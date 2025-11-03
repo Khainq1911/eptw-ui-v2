@@ -6,6 +6,7 @@ import ContentModal from "../content-modal";
 import SingleInput from "../ui/single-input";
 import Date from "../ui/date";
 import TextArea from "../ui/textarea";
+import type { Field } from "../../template.type";
 
 export default function AddTemplateModal({
   openAddTemplateModal,
@@ -17,22 +18,19 @@ export default function AddTemplateModal({
   const { state, dispatch } = useCreateTemplate();
   const [form] = Form.useForm();
 
-  const handleRenderField = useCallback(
-    (type: string, index: number, sequence: number) => {
-      switch (type) {
-        case "input":
-          return <SingleInput form={form} index={index} sequence={sequence} />;
-        case "date": 
-          return <Date form={form} index={index} sequence={sequence} />;
-        case "textarea":
-          return <TextArea form={form} index={index} sequence={sequence} />;
+  const handleRenderField = useCallback((type: string, field: Field) => {
+    switch (type) {
+      case "input":
+        return <SingleInput field={field} />;
+      case "date":
+        return <Date field={field} />;
+      case "textarea":
+        return <TextArea field={field} />;
 
-        default:
-          return null;
-      }
-    },
-    [form]
-  );
+      default:
+        return null;
+    }
+  }, []);
 
   return (
     <Drawer
@@ -83,7 +81,6 @@ export default function AddTemplateModal({
         <SidebarModal />
         <ContentModal
           state={state}
-          form={form}
           dispatch={dispatch}
           handleRenderField={handleRenderField}
         />
