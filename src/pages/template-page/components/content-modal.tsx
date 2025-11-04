@@ -32,6 +32,7 @@ export default function ContentModal({
   }, [state]);
   const [form] = Form.useForm();
   const [inforForm] = Form.useForm();
+
   const handleValuesChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     section: Section,
