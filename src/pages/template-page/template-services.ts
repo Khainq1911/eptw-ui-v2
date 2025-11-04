@@ -6,3 +6,5 @@ export const TemplateService = () => {
 
   return { openAddTemplateModal, setOpenAddTemplateModal };
 };
+
+

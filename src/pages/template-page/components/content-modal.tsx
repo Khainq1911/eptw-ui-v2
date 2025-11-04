@@ -31,6 +31,7 @@ export default function ContentModal({
     console.log(state);
   }, [state]);
   const [form] = Form.useForm();
+  const [inforForm] = Form.useForm();
   const handleValuesChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     section: Section,
@@ -69,7 +70,54 @@ export default function ContentModal({
           </p>
         </div>
 
-        <div className="space-y-6 !mb-8">
+        <div className="w-full bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+          <h2 className="text-xl font-bold text-slate-900 mb-2">
+            Thông tin chung
+          </h2>
+          <Form
+            layout="horizontal"
+            form={inforForm}
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            labelAlign="left"
+          >
+            <Form.Item
+              label="Tên mẫu giấy phép"
+              name="name"
+              rules={[
+                { required: true, message: "Vui lòng nhập tên mẫu giấy phép" },
+              ]}
+            >
+              <Input placeholder="Nhập tên mẫu giấy phép" />
+            </Form.Item>
+
+            <Form.Item
+              label="Loại giấy phép"
+              name="type"
+              rules={[
+                { required: true, message: "Vui lòng chọn loại giấy phép" },
+              ]}
+            >
+              <Select />
+            </Form.Item>
+
+            <Form.Item
+              label="Kiểu ký giấy phép"
+              name="approveTypeId"
+              rules={[
+                { required: true, message: "Vui lòng chọn kiểu ký giấy phép" },
+              ]}
+            >
+              <Select />
+            </Form.Item>
+
+            <Form.Item label="Mô tả mẫu giấy phép" name="description">
+              <Input.TextArea />
+            </Form.Item>
+          </Form>
+        </div>
+
+        <div className="space-y-6 my-8">
           <DndContext
             collisionDetection={closestCorners}
             onDragEnd={(event) => {
