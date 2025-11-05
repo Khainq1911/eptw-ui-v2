@@ -1,37 +1,10 @@
 import React from "react";
-import type { Section, Template } from "../../template.type";
+import type { Section, Template } from "../../template-type";
 
 const initialState = {
-  name: "Biểu mẫu yêu cầu bảo trì",
-  description: "Form dùng để ghi nhận thông tin yêu cầu bảo trì thiết bị.",
-  sections: [
-    {
-      name: "Thông tin yêu cầu",
-      fields: [
-        {
-          label: "Họ và tên người yêu cầu",
-          type: "input",
-          required: true,
-          id: 1,
-        },
-        {
-          label: "Họ và tên người yêu cầu",
-          type: "input",
-          required: true,
-          id: 2,
-        },
-        { label: "Đơn vị", type: "input", required: true, id: 3 },
-        { label: "Ngày yêu cầu", type: "date", required: true, id: 4 },
-        {
-          label: "Mức độ ưu tiên",
-          type: "textarea",
-          required: false,
-          id: 5,
-        },
-      ],
-      id: 1,
-    },
-  ],
+  name: "",
+  description: "",
+  sections: [],
 };
 
 const reducer = (state: Template, action: any) => {
@@ -101,7 +74,7 @@ const reducer = (state: Template, action: any) => {
             : s
         ),
       };
-    case "UPDATE_FIELD":
+    case "UPDATE_FIELD": {
       const { section, field, ...data } = action.payload;
       return {
         ...state,
@@ -116,11 +89,51 @@ const reducer = (state: Template, action: any) => {
             : s
         ),
       };
+    }
     case "REORDER_SECTIONS":
       return {
         ...state,
         sections: action.payload,
       };
+
+    case "SET_SIGN": {
+      const { section, data, fieldName } = action.payload;
+      return {
+        ...state,
+        sections: state.sections.map((s) =>
+          s.id === section.id
+            ? {
+                ...s,
+                sign: {
+                  [fieldName]: data,
+                  roleIdAllowed: data ? null : section.sign.roleIdAllowed,
+                },
+              }
+            : s
+        ),
+      };
+    }
+
+    case "SET_ROLES": {
+      const { section, data } = action.payload;
+      return {
+        ...state,
+        sections: state.sections.map((s) =>
+          s.id === section.id
+            ? {
+                ...s,
+                sign: {
+                  ...s.sign,
+                  roleIdAllowed: data,
+                },
+              }
+            : s
+        ),
+      };
+    }
+
+    case "RESET_STATE":
+      return initialState;
 
     default:
       return state;
