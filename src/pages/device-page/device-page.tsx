@@ -7,7 +7,7 @@ import { Button, Card, Form, Input, Select, Table } from "antd";
 import { useDevicePageHook } from "./device-page-hooks";
 import type { DeviceType } from "@/common/types/device.type";
 import AddDeviceModal from "./components/device-modal";
-import { useGetDeviceService } from "@/services/deviceService";
+import { useGetDeviceService } from "@/services/device.service";
 import React from "react";
 import { AuthCommonService } from "@/common/authentication";
 

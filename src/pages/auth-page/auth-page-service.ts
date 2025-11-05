@@ -1,4 +1,3 @@
-import { authService } from "@/services/authService";
 import type { NavigateFunction } from "react-router-dom";
 import type {
   LoginFormType,
@@ -9,6 +8,7 @@ import type {
 import type { SetStateAction } from "react";
 import { AxiosError } from "axios";
 import { routesConfig } from "@/configs/routes";
+import { authService } from "@/services/auth.service";
 
 export const authHandler = {
   login: async (

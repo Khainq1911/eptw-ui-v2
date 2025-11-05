@@ -10,6 +10,10 @@ export interface Section {
   description?: string;
   fields: Field[];
   id: number;
+  sign: {
+    required: boolean;
+    roleIdAllowed: number[] | null;
+  };
 }
 
 export interface Template {
@@ -20,7 +24,7 @@ export interface Template {
 
 export type TemplateType =
   | { type: "ADD_SECTION"; payload: Section }
-  | { type: "DELETE_SECTION"; payload: number } 
+  | { type: "DELETE_SECTION"; payload: number }
   | { type: "UPDATE_SECTION"; payload: Section };
 
 export type ChangedValues = Record<string, string | number | boolean | null>;

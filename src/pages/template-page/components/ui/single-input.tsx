@@ -1,5 +1,5 @@
 import { Checkbox, Col, Input, Row } from "antd";
-import type { Field, Section } from "../../template.type";
+import type { Field, Section } from "../../template-type";
 
 export interface props {
   field: Field;

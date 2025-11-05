@@ -3,7 +3,8 @@ import { formatDate } from "@/common/common-services/formatTime";
 import { useNotification } from "@/common/hooks/useNotification";
 import { useShowConfirm } from "@/common/hooks/useShowConfirm";
 import type { DeviceActionType, DeviceType } from "@/common/types/device.type";
-import { deviceService } from "@/services/deviceService";
+import { deviceService } from "@/services/device.service";
+
 import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
 import {
   Button,

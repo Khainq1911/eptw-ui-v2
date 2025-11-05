@@ -1,15 +1,31 @@
 import { DeleteFilled, PlusOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Form, Input, Modal, Select } from "antd";
+import {
+  Button,
+  Checkbox,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  type FormInstance,
+} from "antd";
 import { useEffect, useState, type ChangeEvent, type JSX } from "react";
-import type { Field, Section, Template } from "../template.type";
+import type { Field, Section, Template } from "../template-type";
 import { closestCorners, DndContext } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import SortableItem from "./ui/sort-item";
 import { fieldTemplates } from "./sidebar-modal";
+import {
+  useGetListApprovalTypes,
+  useGetListRoles,
+  useGetListTemplateTypes,
+} from "../template-services";
 
 interface props {
   state: Template;
   dispatch: React.Dispatch<any>;
+  inforForm: FormInstance;
   handleRenderField: (
     type: string,
     field: Field,
@@ -21,17 +37,17 @@ interface props {
 export default function ContentModal({
   state,
   dispatch,
+  inforForm,
   handleRenderField,
 }: props) {
   const [openAddFieldModal, setOpenAddFieldModal] = useState(false);
   const [currentSection, setCurrentSection] = useState<Section | null>(null);
-  const [signCheck, setSignCheck] = useState(false);
 
-  useEffect(() => {
-    console.log(state);
-  }, [state]);
   const [form] = Form.useForm();
-  const [inforForm] = Form.useForm();
+
+  const { data: roleData } = useGetListRoles();
+  const { data: templateTypeData } = useGetListTemplateTypes();
+  const { data: approvalTypeData } = useGetListApprovalTypes();
 
   const handleValuesChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -59,6 +75,9 @@ export default function ContentModal({
       payload: { section, field, [fieldName]: value },
     });
   };
+
+  useEffect(() => console.log(state), [state]);
+
   return (
     <main className="flex-1 overflow-y-auto p-8 bg-slate-50 h-full">
       <div className="max-w-4xl mx-auto">
@@ -94,22 +113,48 @@ export default function ContentModal({
 
             <Form.Item
               label="Loại giấy phép"
-              name="type"
+              name="templateTypeId"
               rules={[
                 { required: true, message: "Vui lòng chọn loại giấy phép" },
               ]}
             >
-              <Select />
+              <Select
+                placeholder="Chọn kiểu ký giấy phép"
+                allowClear
+                showSearch
+                optionFilterProp="label"
+                options={
+                  templateTypeData?.map(
+                    (type: { id: number; name: string }) => ({
+                      value: type.id,
+                      label: type.name,
+                    })
+                  ) || []
+                }
+              />
             </Form.Item>
 
             <Form.Item
               label="Kiểu ký giấy phép"
-              name="approveTypeId"
+              name="approvalTypeId"
               rules={[
                 { required: true, message: "Vui lòng chọn kiểu ký giấy phép" },
               ]}
             >
-              <Select />
+              <Select
+                placeholder="Chọn kiểu ký giấy phép"
+                allowClear
+                showSearch
+                optionFilterProp="label"
+                options={
+                  approvalTypeData?.map(
+                    (type: { id: number; name: string }) => ({
+                      value: type.id,
+                      label: type.name,
+                    })
+                  ) || []
+                }
+              />
             </Form.Item>
 
             <Form.Item label="Mô tả mẫu giấy phép" name="description">
@@ -146,35 +191,59 @@ export default function ContentModal({
                     key={section.id}
                     className="w-full bg-white rounded-lg shadow-sm p-6 border border-gray-200"
                   >
-                    <div className="flex justify-between !items-start gap-10 mb-4">
-                      <Input
-                        placeholder="Nhập tên nhóm thông tin"
-                        value={section.name}
-                        onChange={(e) => handleValuesChange(e, section, "name")}
-                      />
+                    <Row gutter={16} align="top" className="mb-4">
+                      <Col span={8}>
+                        <div className="flex flex-col gap-1">
+                          <label className="font-medium text-gray-700">
+                            Tên nhóm thông tin
+                          </label>
+                          <Input
+                            placeholder="Nhập tên nhóm thông tin"
+                            value={section.name}
+                            onChange={(e) =>
+                              handleValuesChange(e, section, "name")
+                            }
+                          />
+                        </div>
+                      </Col>
 
-                      <Input.TextArea
-                        placeholder="Nhập mô tả nhóm thông tin"
-                        value={section.description}
-                        onChange={(e) =>
-                          handleValuesChange(e, section, "description")
-                        }
-                      />
+                      <Col span={12}>
+                        <div className="flex flex-col gap-1">
+                          <label className="font-medium text-gray-700">
+                            Mô tả nhóm thông tin
+                          </label>
+                          <Input.TextArea
+                            placeholder="Nhập mô tả nhóm thông tin"
+                            value={section.description}
+                            onChange={(e) =>
+                              handleValuesChange(e, section, "description")
+                            }
+                            autoSize={{ minRows: 1, maxRows: 3 }}
+                          />
+                        </div>
+                      </Col>
 
-                      <Button
-                        size="large"
-                        icon={<DeleteFilled />}
-                        style={{ fontSize: 18 }}
-                        danger
-                        type="text"
-                        onClick={() =>
-                          dispatch({
-                            type: "DELETE_SECTION",
-                            payload: section.id,
-                          })
-                        }
-                      />
-                    </div>
+                      <Col span={4}>
+                        <div className="flex flex-col gap-1">
+                          <label className="font-medium text-gray-700">
+                            Thao tác
+                          </label>
+                          <Button
+                            size="large"
+                            icon={<DeleteFilled />}
+                            style={{ fontSize: 18 }}
+                            danger
+                            type="text"
+                            onClick={() =>
+                              dispatch({
+                                type: "DELETE_SECTION",
+                                payload: section.id,
+                              })
+                            }
+                          />
+                        </div>
+                      </Col>
+                    </Row>
 
                     <DndContext
                       collisionDetection={closestCorners}
@@ -247,24 +316,54 @@ export default function ContentModal({
                       Thêm trường mới
                     </Button>
                     <Checkbox
-                      checked={signCheck}
-                      onChange={() => setSignCheck(!signCheck)}
+                      checked={section.sign.required}
+                      onChange={(value) => {
+                        dispatch({
+                          type: "SET_SIGN",
+                          payload: {
+                            section,
+                            data: value.target.checked,
+                            fieldName: "required",
+                          },
+                        });
+                      }}
                       className="!my-6"
                     >
                       Yêu cầu ký
                     </Checkbox>
-                    {signCheck && (
+                    {section.sign.required && (
                       <Form>
                         <Form.Item
                           label="Vai trò ký"
                           rules={[
                             {
-                              required: signCheck,
+                              required: section.sign.required,
                               message: "Vui lòng chọn vai trò ký",
                             },
                           ]}
                         >
-                          <Select />
+                          <Select
+                            mode="multiple"
+                            showSearch
+                            optionFilterProp="label"
+                            placeholder="Chọn vai trò ký"
+                            allowClear
+                            options={roleData.map(
+                              (role: { id: number; name: string }) => ({
+                                value: role.id,
+                                label: role.name,
+                              })
+                            )}
+                            onChange={(value) => {
+                              dispatch({
+                                type: "SET_ROLES",
+                                payload: {
+                                  section,
+                                  data: value,
+                                },
+                              });
+                            }}
+                          />
                         </Form.Item>
                       </Form>
                     )}
@@ -286,6 +385,10 @@ export default function ContentModal({
                 name: "",
                 description: "",
                 fields: [],
+                sign: {
+                  required: false,
+                  roleIdAllowed: null,
+                },
                 id: state.sections.length + 1,
               },
             })
