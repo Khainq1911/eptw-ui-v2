@@ -1,7 +1,7 @@
 import { getListApprovalTypes } from "@/services/approval-type.service";
 import { getListRoles } from "@/services/role.service";
 import { getListTemplateTypes } from "@/services/template-type.service";
-import { createTemplate } from "@/services/template.service";
+import { createTemplate, listTemplate } from "@/services/template.service";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import React from "react";
 
@@ -36,5 +36,12 @@ export const useGetListApprovalTypes = () => {
 export const useCreateTemplateMutation = () => {
   return useMutation({
     mutationFn: (data: any) => createTemplate(data),
+  });
+};
+
+export const useListTemplates = (filter: any) => {
+  return useQuery({
+    queryKey: ["list-template", filter],
+    queryFn: () => listTemplate(filter),
   });
 };

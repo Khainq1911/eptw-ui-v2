@@ -1,16 +1,178 @@
 import { AuthCommonService } from "@/common/authentication";
 import {
+  DeleteOutlined,
   DownloadOutlined,
+  EditOutlined,
+  EyeOutlined,
   PlusOutlined,
+  ReloadOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Button, Form, Input, Select, Table } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Tooltip,
+} from "antd";
 import AddTemplateModal from "./components/create-template/create-template-drawer";
-import { TemplateService } from "./template-services";
+import {
+  TemplateService,
+  useGetListTemplateTypes,
+  useListTemplates,
+} from "./template-services";
+import { debounce } from "lodash";
+import { useMemo, useState } from "react";
+import type { ColumnsType } from "antd/es/table";
+import { formatDate } from "@/common/common-services/formatTime";
+import { useShowConfirm } from "@/common/hooks/useShowConfirm";
 
 export default function TemplatePage() {
+  const confirm = useShowConfirm();
   const [form] = Form.useForm();
   const { openAddTemplateModal, setOpenAddTemplateModal } = TemplateService();
+  const [filter, setFilter] = useState({ limit: 5, page: 1 });
+  const { data: templateData, isLoading } = useListTemplates(filter);
+  const { data: templateTypeData } = useGetListTemplateTypes();
+
+  const debounceUpdateFilter = useMemo(
+    () =>
+      debounce((values) => {
+        setFilter((pre) => ({ ...pre, ...values }));
+      }, 300),
+    [setFilter]
+  );
+
+  const tableDatasource = useMemo(() => {
+    if (!templateData) return [];
+
+    return templateData?.data?.map((item: any) => {
+      return {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        templateType: item.templateType.name,
+        approvalType: item.approvalType.name,
+        deletedAt: item.deletedAt,
+        createdAt: formatDate(item.createdAt),
+        updatedAt: formatDate(item.updatedAt),
+      };
+    });
+  }, [templateData]);
+
+  const columns: ColumnsType<any> = [
+    {
+      title: "STT",
+      dataIndex: "index",
+      key: "index",
+      render: (_: any, _record: any, index: number) => index + 1,
+      width: 80,
+    },
+    {
+      title: "Tên mẫu",
+      dataIndex: "name",
+      key: "name",
+      width: 200,
+    },
+    {
+      title: "Mô tả",
+      dataIndex: "description",
+      key: "description",
+      width: 200,
+    },
+    {
+      title: "Loại mẫu",
+      dataIndex: "templateType",
+      key: "templateType",
+      width: 150,
+    },
+    {
+      title: "Loại ký",
+      dataIndex: "approvalType",
+      key: "signType",
+      width: 150,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      width: 120,
+      render: (_: any, record: any) =>
+        record.deletedAt ? (
+          <Tag color="red">Không hoạt động</Tag>
+        ) : (
+          <Tag color="green">Hoạt động</Tag>
+        ),
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 180,
+    },
+    {
+      title: "Ngày cập nhật",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      width: 180,
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      fixed: "right",
+      render: (_: any, record: any) => (
+        <Space size={"small"}>
+          <Tooltip title={"Xem"}>
+            <Button
+              type="primary"
+              size="small"
+              icon={<EyeOutlined />}
+              style={{ backgroundColor: "#1890ff", borderColor: "#1890ff" }}
+            />
+          </Tooltip>
+
+          <Tooltip title={"Sửa"}>
+            <Button
+              size="small"
+              disabled={record.deletedAt || !AuthCommonService.isAdmin()}
+              icon={<EditOutlined />}
+              style={
+                !(record.deletedAt || !AuthCommonService.isAdmin())
+                  ? {
+                      backgroundColor: "#fa8c16",
+                      borderColor: "#fa8c16",
+                      color: "white",
+                    }
+                  : {}
+              }
+            />
+          </Tooltip>
+          <Tooltip title={"Xóa"}>
+            <Button
+              danger
+              type="primary"
+              disabled={record.deletedAt || !AuthCommonService.isAdmin()}
+              size="small"
+              icon={<DeleteOutlined />}
+              onClick={() =>
+                confirm(
+                  "Xác nhận xóa",
+                  "Bạn có chắc chắn muốn xóa không?",
+                  () => console.log(record.id)
+                )
+              }
+            />
+          </Tooltip>
+        </Space>
+      ),
+    },
+  ];
+
   return (
     <div>
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
@@ -32,30 +194,91 @@ export default function TemplatePage() {
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 flex justify-between items-center mb-6">
-        <Form form={form} layout="inline">
-          <Form.Item>
-            <Input
-              placeholder="Tìm kiếm mẫu"
-              variant="filled"
-              prefix={<SearchOutlined />}
-              allowClear
-            />
-          </Form.Item>
+      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200  mb-6">
+        <Form
+          form={form}
+          layout="vertical"
+          onValuesChange={(_, values) => debounceUpdateFilter(values)}
+        >
+          <Row gutter={[16, 16]} align="middle">
+            <Col xs={24} sm={12} md={8}>
+              <Form.Item name="search" label="Tìm kiếm mẫu">
+                <Input
+                  placeholder="Nhập từ khóa..."
+                  prefix={<SearchOutlined />}
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
 
-          <Form.Item>
-            <Select />
-          </Form.Item>
+            <Col xs={24} sm={12} md={8}>
+              <Form.Item name="templateTypeId" label="Danh mục">
+                <Select
+                  placeholder="Chọn danh mục"
+                  options={templateTypeData?.map((item: any) => ({
+                    label: item.name,
+                    value: item.id,
+                  }))}
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
 
-          <Form.Item>
-            <Select />
-          </Form.Item>
+            <Col xs={24} sm={12} md={8}>
+              <Form.Item name="status" label="Trạng thái">
+                <Select
+                  placeholder="Chọn trạng thái"
+                  options={[
+                    { label: "Hoạt động", value: "active" },
+                    { label: "Không hoạt động", value: "inactive" },
+                  ]}
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
-        <Button type="primary" icon={<DownloadOutlined />}>
-          Export
-        </Button>
+        <Space className="flex justify-end w-full ">
+          <Button
+            onClick={() => {
+              form.resetFields();
+              const value = form.getFieldsValue();
+              setFilter((pre) => ({ ...pre, ...value }));
+            }}
+            type="primary"
+            icon={<ReloadOutlined />}
+          >
+            Làm mới
+          </Button>
+          <Button
+            type="primary"
+            icon={<DownloadOutlined />}
+            style={{
+              backgroundColor: "#218A55",
+              color: "white",
+              borderColor: "#218A55",
+            }}
+          >
+            Export
+          </Button>
+        </Space>
       </div>
-      <Table />
+      <Table
+        columns={columns}
+        rowKey={"id"}
+        loading={isLoading}
+        dataSource={tableDatasource}
+        scroll={{ x: "max-content" }}
+        pagination={{
+          pageSizeOptions: ["1", "5", "10", "20", "50", "100"],
+          pageSize: filter.limit,
+          total: templateData?.count,
+          current: filter.page,
+          showSizeChanger: true,
+          onChange: (page: number, pageSize: number) =>
+            setFilter((pre) => ({ ...pre, page: page, limit: pageSize })),
+        }}
+      />
       <AddTemplateModal
         openAddTemplateModal={openAddTemplateModal}
         setOpenAddTemplateModal={setOpenAddTemplateModal}
