@@ -348,7 +348,8 @@ export default function ContentModal({
                             optionFilterProp="label"
                             placeholder="Chọn vai trò ký"
                             allowClear
-                            options={roleData.map(
+                            value={section.sign.roleIdAllowed}
+                            options={roleData?.map(
                               (role: { id: number; name: string }) => ({
                                 value: role.id,
                                 label: role.name,
