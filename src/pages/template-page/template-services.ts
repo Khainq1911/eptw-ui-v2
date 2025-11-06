@@ -1,7 +1,13 @@
 import { getListApprovalTypes } from "@/services/approval-type.service";
 import { getListRoles } from "@/services/role.service";
 import { getListTemplateTypes } from "@/services/template-type.service";
-import { createTemplate, listTemplate } from "@/services/template.service";
+import {
+  createTemplate,
+  deleteTemplate,
+  getTemplateById,
+  listTemplate,
+  updateTemplate,
+} from "@/services/template.service";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import React from "react";
 
@@ -39,9 +45,28 @@ export const useCreateTemplateMutation = () => {
   });
 };
 
+export const useUpdateTemplateMutation = () => {
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      updateTemplate(id, data),
+  });
+};
+
 export const useListTemplates = (filter: any) => {
   return useQuery({
     queryKey: ["list-template", filter],
     queryFn: () => listTemplate(filter),
+  });
+};
+
+export const useDeleteTemplate = () => {
+  return useMutation({
+    mutationFn: (id: number) => deleteTemplate(id),
+  });
+};
+
+export const useGetTemplateById = () => {
+  return useMutation({
+    mutationFn: (id: number) => getTemplateById(id),
   });
 };

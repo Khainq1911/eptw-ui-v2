@@ -1,27 +1,50 @@
 import { Button, Drawer, Form, Space } from "antd";
-import { useCallback, type SetStateAction } from "react";
-import { useCreateTemplate } from "./create-template-service";
+import { useCallback, useEffect, type SetStateAction } from "react";
 import SidebarModal from "../sidebar-modal";
 import ContentModal from "../content-modal";
 import SingleInput from "../ui/single-input";
 import Date from "../ui/date";
 import TextArea from "../ui/textarea";
 import type { Field, Section } from "../../template-type";
-import { useCreateTemplateMutation } from "../../template-services";
+import {
+  useCreateTemplateMutation,
+  useUpdateTemplateMutation,
+} from "../../template-services";
 import { useNotification } from "@/common/hooks/useNotification";
 import type { AxiosError } from "axios";
 
 export default function AddTemplateModal({
+  action,
+  state,
+  dispatch,
+  setAction,
   openAddTemplateModal,
   setOpenAddTemplateModal,
 }: {
+  action: { create: boolean; edit: boolean };
+  state: any;
+  setAction: React.Dispatch<
+    React.SetStateAction<{ create: boolean; edit: boolean }>
+  >;
+  dispatch: React.Dispatch<any>;
   openAddTemplateModal: boolean;
   setOpenAddTemplateModal: React.Dispatch<SetStateAction<boolean>>;
 }) {
-  const { state, dispatch } = useCreateTemplate();
   const notify = useNotification();
   const [inforForm] = Form.useForm();
   const createTemplateMutation = useCreateTemplateMutation();
+  const updateTemplateMutation = useUpdateTemplateMutation();
+
+  useEffect(() => {
+    if (action.edit) {
+      inforForm.setFieldsValue({
+        name: state.name,
+        description: state.description,
+        templateTypeId: state.templateTypeId,
+        approvalTypeId: state.approvalTypeId,
+      });
+    }
+  }, [action]);
 
   const handleRenderField = useCallback(
     (type: string, field: Field, section: Section, handleUpdateField: any) => {
@@ -105,14 +128,23 @@ export default function AddTemplateModal({
                     ...data,
                   };
 
-                  await createTemplateMutation.mutateAsync(payload);
+                  if (action.create) {
+                    await createTemplateMutation.mutateAsync(payload);
+                  } else {
+                    const { templateType, approvalType, ...rest } = payload;
+                    await updateTemplateMutation.mutateAsync({
+                      id: payload.id,
+                      data: rest,
+                    });
+                  }
 
                   notify(
                     "success",
-                    "Tạo mẫu thành công",
+                    "Lưu mẫu thành công",
                     "Mẫu giấy phép mới đã được lưu vào hệ thống."
                   );
 
+                  setAction({ create: false, edit: false });
                   setOpenAddTemplateModal(false);
                   inforForm.resetFields();
                   dispatch({
@@ -123,7 +155,7 @@ export default function AddTemplateModal({
                   const msg =
                     axiosError.response?.data?.message || "Đã có lỗi xảy ra";
 
-                  notify("error", "Tạo mẫu thất bại", msg);
+                  notify("error", "Lưu mẫu thất bại", msg);
                 }
               }}
             >

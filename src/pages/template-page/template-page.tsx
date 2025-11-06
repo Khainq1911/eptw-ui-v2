@@ -23,7 +23,9 @@ import {
 import AddTemplateModal from "./components/create-template/create-template-drawer";
 import {
   TemplateService,
+  useDeleteTemplate,
   useGetListTemplateTypes,
+  useGetTemplateById,
   useListTemplates,
 } from "./template-services";
 import { debounce } from "lodash";
@@ -31,15 +33,23 @@ import { useMemo, useState } from "react";
 import type { ColumnsType } from "antd/es/table";
 import { formatDate } from "@/common/common-services/formatTime";
 import { useShowConfirm } from "@/common/hooks/useShowConfirm";
+import { useNotification } from "@/common/hooks/useNotification";
+import type { AxiosError } from "axios";
+import { useCreateTemplate } from "./components/create-template/create-template-service";
 
 export default function TemplatePage() {
+  const { state, dispatch } = useCreateTemplate();
   const confirm = useShowConfirm();
+  const notify = useNotification();
+  const [action, setAction] = useState({ create: false, edit: false });
   const [form] = Form.useForm();
   const { openAddTemplateModal, setOpenAddTemplateModal } = TemplateService();
   const [filter, setFilter] = useState({ limit: 5, page: 1 });
   const { data: templateData, isLoading } = useListTemplates(filter);
   const { data: templateTypeData } = useGetListTemplateTypes();
+  const getTemplateByIdMutation = useGetTemplateById();
 
+  const deleteMutation = useDeleteTemplate();
   const debounceUpdateFilter = useMemo(
     () =>
       debounce((values) => {
@@ -139,6 +149,21 @@ export default function TemplatePage() {
           <Tooltip title={"Sửa"}>
             <Button
               size="small"
+              onClick={async () => {
+                const res = await getTemplateByIdMutation.mutateAsync(
+                  record.id
+                );
+                dispatch({
+                  type: "SET_DATA",
+                  payload: {
+                    ...res,
+                    templateTypeId: res.templateType.id,
+                    approvalTypeId: res.approvalType.id,
+                  },
+                });
+                setAction({ create: false, edit: true });
+                setOpenAddTemplateModal(true);
+              }}
               disabled={record.deletedAt || !AuthCommonService.isAdmin()}
               icon={<EditOutlined />}
               style={
@@ -163,7 +188,23 @@ export default function TemplatePage() {
                 confirm(
                   "Xác nhận xóa",
                   "Bạn có chắc chắn muốn xóa không?",
-                  () => console.log(record.id)
+                  async () => {
+                    try {
+                      await deleteMutation.mutateAsync(record.id);
+
+                      notify("success", "Xóa mẫu thành công", "");
+                      form.resetFields();
+                    } catch (error: unknown) {
+                      const axiosError = error as AxiosError<{
+                        message?: string;
+                      }>;
+                      const msg =
+                        axiosError.response?.data?.message ||
+                        "Đã có lỗi xảy ra";
+                      notify("error", "Xóa mẫu thất bại", msg);
+                    }
+                  }
+                  //
                 )
               }
             />
@@ -188,6 +229,7 @@ export default function TemplatePage() {
           icon={<PlusOutlined />}
           onClick={() => {
             setOpenAddTemplateModal(true);
+            setAction({ create: true, edit: false });
           }}
         >
           Thêm mẫu
@@ -280,6 +322,10 @@ export default function TemplatePage() {
         }}
       />
       <AddTemplateModal
+        setAction={setAction}
+        action={action}
+        state={state}
+        dispatch={dispatch}
         openAddTemplateModal={openAddTemplateModal}
         setOpenAddTemplateModal={setOpenAddTemplateModal}
       />

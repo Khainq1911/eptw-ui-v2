@@ -9,6 +9,12 @@ const initialState = {
 
 const reducer = (state: Template, action: any) => {
   switch (action.type) {
+    case "SET_DATA": {
+      return {
+        ...state,
+        ...action.payload,
+      };
+    }
     case "ADD_SECTION":
       return {
         ...state,
