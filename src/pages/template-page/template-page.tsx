@@ -3,7 +3,6 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   EditOutlined,
-  EyeOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
@@ -137,15 +136,6 @@ export default function TemplatePage() {
       fixed: "right",
       render: (_: any, record: any) => (
         <Space size={"small"}>
-          <Tooltip title={"Xem"}>
-            <Button
-              type="primary"
-              size="small"
-              icon={<EyeOutlined />}
-              style={{ backgroundColor: "#1890ff", borderColor: "#1890ff" }}
-            />
-          </Tooltip>
-
           <Tooltip title={"Sửa"}>
             <Button
               size="small"

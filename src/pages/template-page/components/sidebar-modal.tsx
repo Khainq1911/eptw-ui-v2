@@ -14,6 +14,13 @@ export const fieldTemplates = [
     label: "Lựa chọn",
   },
   {
+    id: "field-radio",
+    name: "Radio",
+    type: "radio",
+    icon: "🔘",
+    label: "Lựa chọn",
+  },
+  {
     id: "field-textarea",
     name: "Textarea",
     type: "textarea",

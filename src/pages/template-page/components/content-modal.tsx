@@ -25,6 +25,7 @@ import {
 interface props {
   state: Template;
   dispatch: React.Dispatch<any>;
+  isPreview: boolean;
   inforForm: FormInstance;
   handleRenderField: (
     type: string,
@@ -36,6 +37,7 @@ interface props {
 
 export default function ContentModal({
   state,
+  isPreview,
   dispatch,
   inforForm,
   handleRenderField,

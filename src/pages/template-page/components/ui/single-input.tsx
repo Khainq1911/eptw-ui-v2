@@ -1,10 +1,12 @@
 import { Checkbox, Col, Input, Row } from "antd";
 import type { Field, Section } from "../../template-type";
+import { upperCase } from "lodash";
 
 export interface props {
   field: Field;
-  section: Section;
-  handleUpdateField: any;
+  section?: Section;
+  handleUpdateField?: any;
+  dispatch?: any;
 }
 
 export default function SingleInput({
@@ -13,27 +15,45 @@ export default function SingleInput({
   handleUpdateField,
 }: props) {
   return (
-    <Row gutter={16}>
-      <Col span={8}>
-        <Input
-          placeholder="Nhập label"
-          value={field.label}
-          onChange={(e) => handleUpdateField(e, section, field, "label")}
-        />
-      </Col>
+    <div>
+      <div className="mb-2 text-base font-semibold text-gray-700">
+        {upperCase(field.type) || "Chưa đặt tên trường"}
+      </div>
 
-      <Col span={8}>
-        <Input placeholder="Input field" disabled />
-      </Col>
+      <Row gutter={16} className="items-center">
+        <Col span={9}>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-semibold text-gray-600">Nhãn</span>
+            <Input
+              size="small"
+              placeholder="Nhập label"
+              value={field.label}
+              onChange={(e) => handleUpdateField(e, section, field, "label")}
+            />
+          </div>
+        </Col>
 
-      <Col span={8}>
-        <Checkbox
-          checked={field.required}
-          onChange={(e) => {
-            handleUpdateField(e, section, field, "required");
-          }}
-        />
-      </Col>
-    </Row>
+        <Col span={9}>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-semibold text-gray-600">Input</span>
+            <Input size="small" placeholder="Input field" disabled />
+          </div>
+        </Col>
+
+        <Col span={6}>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-semibold text-gray-600">
+              Bắt buộc
+            </span>
+            <Checkbox
+              checked={field.required}
+              onChange={(e) => handleUpdateField(e, section, field, "required")}
+            >
+              Bắt buộc
+            </Checkbox>
+          </div>
+        </Col>
+      </Row>
+    </div>
   );
 }
