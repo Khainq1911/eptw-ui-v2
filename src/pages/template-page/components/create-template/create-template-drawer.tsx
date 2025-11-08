@@ -1,5 +1,5 @@
 import { Button, Drawer, Form, Space } from "antd";
-import { useCallback, useEffect, type SetStateAction } from "react";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import SidebarModal from "../sidebar-modal";
 import ContentModal from "../content-modal";
 import SingleInput from "../ui/single-input";
@@ -12,6 +12,10 @@ import {
 } from "../../template-services";
 import { useNotification } from "@/common/hooks/useNotification";
 import type { AxiosError } from "axios";
+import CheckboxField from "../ui/checkbox";
+import RadioField from "../ui/radio";
+import HeadingField from "../ui/heading";
+import ParagraphField from "../ui/paragraph";
 
 export default function AddTemplateModal({
   action,
@@ -34,6 +38,7 @@ export default function AddTemplateModal({
   const [inforForm] = Form.useForm();
   const createTemplateMutation = useCreateTemplateMutation();
   const updateTemplateMutation = useUpdateTemplateMutation();
+  const [isPreview, setIsPreview] = useState(false);
 
   useEffect(() => {
     if (action.edit) {
@@ -73,7 +78,32 @@ export default function AddTemplateModal({
               handleUpdateField={handleUpdateField}
             />
           );
-
+        case "checkbox": {
+          return (
+            <CheckboxField
+              field={field}
+              section={section}
+              handleUpdateField={handleUpdateField}
+              dispatch={dispatch}
+            />
+          );
+        }
+        case "radio": {
+          return (
+            <RadioField
+              field={field}
+              section={section}
+              handleUpdateField={handleUpdateField}
+              dispatch={dispatch}
+            />
+          );
+        }
+        case "heading": {
+          return <HeadingField field={field} />;
+        }
+        case "paragraph": {
+          return <ParagraphField field={field} />;
+        }
         default:
           return null;
       }
@@ -103,10 +133,20 @@ export default function AddTemplateModal({
       extra={
         <div style={{ textAlign: "right" }}>
           <Space>
-            <Button icon={<span>✏️</span>} type="primary">
+            <Button
+              icon={<span>✏️</span>}
+              onClick={() => setIsPreview(false)}
+              type={`${isPreview ? "default" : "primary"}`}
+            >
               Chỉnh sửa
             </Button>
-            <Button icon={<span>👁️</span>}>Xem trước</Button>
+            <Button
+              type={`${isPreview ? "primary" : "default"}`}
+              icon={<span>👁️</span>}
+              onClick={() => setIsPreview(true)}
+            >
+              Xem trước
+            </Button>
           </Space>
         </div>
       }
@@ -168,6 +208,7 @@ export default function AddTemplateModal({
       <div className="flex h-full">
         <SidebarModal />
         <ContentModal
+          isPreview={isPreview}
           state={state}
           inforForm={inforForm}
           dispatch={dispatch}

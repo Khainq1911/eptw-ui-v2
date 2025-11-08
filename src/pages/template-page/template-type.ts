@@ -2,6 +2,7 @@ export interface Field {
   label: string;
   type: "input" | "date" | "textarea" | "select" | "checkbox" | string;
   required: boolean;
+  options?: string[];
   id: number;
 }
 

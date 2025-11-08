@@ -138,6 +138,49 @@ const reducer = (state: Template, action: any) => {
       };
     }
 
+    case "ADD_OPTION": {
+      const { section, field, data } = action.payload;
+      return {
+        ...state,
+        sections: state.sections.map((s) =>
+          s.id === section.id
+            ? {
+                ...s,
+                fields: s.fields.map((f) =>
+                  f.id === field.id
+                    ? { ...f, options: [...(f.options || []), data] }
+                    : f
+                ),
+              }
+            : s
+        ),
+      };
+    }
+
+    case "REMOVE_OPTION": {
+      const { section, field, index } = action.payload; 
+      return {
+        ...state,
+        sections: state.sections.map((s) =>
+          s.id === section.id
+            ? {
+                ...s,
+                fields: s.fields.map((f) =>
+                  f.id === field.id
+                    ? {
+                        ...f,
+                        options: (f.options || []).filter(
+                          (_, i) => i !== index
+                        ),
+                      }
+                    : f
+                ),
+              }
+            : s
+        ),
+      };
+    }
+
     case "RESET_STATE":
       return initialState;
 
