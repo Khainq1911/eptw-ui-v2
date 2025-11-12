@@ -208,7 +208,7 @@ export default function TemplatePage() {
     <div>
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800 mb-6 md:mb-0 align-center">
+          <h1 className="text-3xl font-bold text-slate-800 mb-6 md:mb-2 align-center">
             Trang quản lý mẫu giấy phép
           </h1>
           <p>Theo dõi và quản lý danh sách mẫu giấy phép</p>

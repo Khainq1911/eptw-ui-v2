@@ -1,0 +1,311 @@
+import {
+  Button,
+  Col,
+  Collapse,
+  DatePicker,
+  Drawer,
+  Form,
+  Input,
+  InputNumber,
+  Row,
+  Select,
+  Space,
+} from "antd";
+import DetailSection from "./detail-section";
+import { useGetFreeAndActive } from "@/services/device.service";
+import { useGetWorkActivities } from "@/services/work-activity.service";
+
+const { Panel } = Collapse;
+
+export default function CreatePermitDrawer({
+  state,
+  dispatch,
+  openCreatePermit,
+  handleCloseCreatePermit,
+}: any) {
+  const [form] = Form.useForm();
+
+  const { data: devicesData } = useGetFreeAndActive();
+  const { data: workActivitiesData } = useGetWorkActivities();
+
+  return (
+    <Drawer
+      open={openCreatePermit}
+      onClose={() => {
+        handleCloseCreatePermit();
+        form.resetFields();
+      }}
+      width={"100%"}
+      height={"100%"}
+      title="Thêm mới giấy phép"
+      placement="top"
+      destroyOnHidden
+      footer={
+        <Space>
+          <Button
+            onClick={() => {
+              handleCloseCreatePermit();
+              form.resetFields();
+            }}
+          >
+            Hủy
+          </Button>
+          <Button
+            type="primary"
+            onClick={async () => {
+              const value = await form.validateFields();
+              console.log("value: ", value);
+              console.log("state: ", state);
+              console.log("group: ", { ...state, ...value });
+            }}
+          >
+            Lưu
+          </Button>
+        </Space>
+      }
+      styles={{
+        body: {
+          padding: 0,
+          backgroundColor: "#F1F3F6",
+        },
+        footer: {
+          display: "flex",
+          justifyContent: "flex-end",
+        },
+      }}
+    >
+      <div className="w-[70%] bg-white p-2 mx-auto rounded-lg shadow-lg mt-6">
+        <Collapse
+          defaultActiveKey={["1"]}
+          expandIconPosition="end"
+          className="!bg-white !px-0"
+          bordered={false}
+        >
+          <Panel
+            header={<h2 className="font-bold">Thông tin chung</h2>}
+            key="1"
+          >
+            <Form form={form} layout="vertical">
+              <Row gutter={[16, 8]}>
+                {/* 1 */}
+
+                {/* 2 */}
+                <Col span={8}>
+                  <Form.Item label="Tên mẫu giấy phép">
+                    <Input value={state?.template?.name} disabled />
+                  </Form.Item>
+                </Col>
+
+                {/* 3 */}
+                <Col span={8}>
+                  <Form.Item label="Hình thức ký">
+                    <Input
+                      value={state?.template?.approvalType?.name}
+                      disabled
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col span={8}>
+                  <Form.Item label="Loại mẫu">
+                    <Input
+                      value={state?.template?.templateType?.name}
+                      disabled
+                    />
+                  </Form.Item>
+                </Col>
+                {/* 4 */}
+                <Col span={8}>
+                  <Form.Item
+                    label="Tên giấy phép"
+                    name="name"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập tên giấy phép",
+                      },
+                    ]}
+                  >
+                    <Input placeholder="Nhập tên giấy phép" />
+                  </Form.Item>
+                </Col>
+
+                {/* 5 */}
+                <Col span={8}>
+                  <Form.Item
+                    label="Trạng thái"
+                    name="status"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập trạng thái" },
+                    ]}
+                    initialValue={"Pending"}
+                  >
+                    <Input placeholder="Nhập trạng thái" disabled />
+                  </Form.Item>
+                </Col>
+
+                {/* 6 */}
+                <Col span={8}>
+                  <Form.Item
+                    label="Tên công ty"
+                    name="companyName"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập tên công ty" },
+                    ]}
+                  >
+                    <Input placeholder="Nhập tên công ty" />
+                  </Form.Item>
+                </Col>
+
+                {/* 7 */}
+                <Col span={8}>
+                  <Form.Item
+                    label="Địa chỉ"
+                    name="location"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập địa chỉ" },
+                    ]}
+                  >
+                    <Input placeholder="Nhập địa chỉ" />
+                  </Form.Item>
+                </Col>
+
+                {/* 8 */}
+                <Col span={8}>
+                  <Form.Item
+                    label="Bắt đầu"
+                    name="startTime"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn thời gian bắt đầu",
+                      },
+                    ]}
+                  >
+                    <DatePicker
+                      showTime
+                      style={{ width: "100%" }}
+                      placeholder="Chọn thời gian bắt đầu"
+                    />
+                  </Form.Item>
+                </Col>
+
+                {/* 9 */}
+                <Col span={8}>
+                  <Form.Item
+                    label="Kết thúc"
+                    name="endTime"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn thời gian kết thúc",
+                      },
+                    ]}
+                  >
+                    <DatePicker
+                      showTime
+                      style={{ width: "100%" }}
+                      placeholder="Chọn thời gian kết thúc"
+                    />
+                  </Form.Item>
+                </Col>
+
+                {/* 10 */}
+                <Col span={8}>
+                  <Form.Item
+                    label="Số lượng người tham gia"
+                    name="peopleNumber"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập số lượng người tham gia",
+                      },
+                      { type: "number", min: 1, message: "Phải lớn hơn 0" },
+                    ]}
+                  >
+                    <InputNumber
+                      style={{ width: "100%" }}
+                      placeholder="Nhập số lượng"
+                    />
+                  </Form.Item>
+                </Col>
+
+                {/* 11 */}
+                <Col span={8}>
+                  <Form.Item
+                    label="Thiết bị tham gia"
+                    name="deviceIds"
+                    rules={[
+                      { required: true, message: "Vui lòng chọn thiết bị" },
+                    ]}
+                  >
+                    <Select
+                      mode="multiple"
+                      allowClear
+                      maxTagCount="responsive"
+                      showSearch
+                      placeholder="Chọn thiết bị"
+                      optionFilterProp="children"
+                      options={
+                        devicesData?.map((item: any) => {
+                          return { label: item.name, value: item.id };
+                        }) || []
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+
+                {/* 12 */}
+                <Col span={8}>
+                  <Form.Item
+                    label="Công việc"
+                    name="workActivityIds"
+                    rules={[
+                      { required: true, message: "Vui lòng chọn công việc" },
+                    ]}
+                  >
+                    <Select
+                      mode="multiple"
+                      allowClear
+                      maxTagCount="responsive"
+                      showSearch
+                      placeholder="Chọn công việc"
+                      optionFilterProp="children"
+                      options={
+                        workActivitiesData?.map((item: any) => {
+                          return { label: item.name, value: item.id };
+                        }) || []
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+
+                {/* 13 */}
+                <Col span={24}>
+                  <Form.Item label="Mô tả" name="description">
+                    <Input.TextArea
+                      rows={4}
+                      placeholder="Nhập mô tả chi tiết"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Form>
+          </Panel>
+        </Collapse>
+      </div>
+
+      <div className="mb-6">
+        {state?.sections?.map((section: any) => {
+          return (
+            <DetailSection
+              section={section}
+              key={section.id}
+              dispatch={dispatch}
+            />
+          );
+        })}
+      </div>
+    </Drawer>
+  );
+}
