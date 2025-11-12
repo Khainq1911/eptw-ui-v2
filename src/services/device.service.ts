@@ -18,6 +18,11 @@ export const deviceService = {
     return response.data;
   },
 
+  getFreeAndActive: async () => {
+    const response = await axiosInstance.get("/device/free-and-active");
+    return response.data;
+  },
+
   updateDevice: async (id: string, updateData: DeviceFormType) => {
     const response = await axiosInstance.post(
       `/device/update/${id}`,
@@ -35,8 +40,15 @@ export const deviceService = {
 export const useGetDeviceService = (filter: filterType) => {
   return useQuery({
     queryKey: ["get-list-device", filter],
-    queryFn: () => deviceService.getDevices(filter), 
+    queryFn: () => deviceService.getDevices(filter),
     enabled: true,
   });
 };
 
+export const useGetFreeAndActive = () => {
+  return useQuery({
+    queryKey: ["get-free-and-active"],
+    queryFn: deviceService.getFreeAndActive,
+    enabled: true,
+  });
+};

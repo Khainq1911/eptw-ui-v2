@@ -122,8 +122,9 @@ export default function AddTemplateModal({
       open={openAddTemplateModal}
       onClose={handleClose}
       title="Thêm mẫu giấy phép mới"
-      placement="right"
+      placement="top"
       width="100vw"
+      height="100vh"
       destroyOnHidden
       styles={{
         body: {

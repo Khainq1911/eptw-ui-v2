@@ -31,3 +31,8 @@ export const updateTemplate = async (id: number, body: Template) => {
   const res = await axiosInstance.put(`template/${id}`, body);
   return res.data;
 };
+
+export const getTemplateDdl = async () => {
+  const res = await axiosInstance.get("template/data/ddl");
+  return res.data;
+};
