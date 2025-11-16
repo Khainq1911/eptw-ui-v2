@@ -37,7 +37,6 @@ interface props {
 
 export default function ContentModal({
   state,
-  isPreview,
   dispatch,
   inforForm,
   handleRenderField,
