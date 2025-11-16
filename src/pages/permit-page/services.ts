@@ -1,15 +1,46 @@
 import { getTemplateDdl } from "@/services/template.service";
 import { useQuery } from "@tanstack/react-query";
 import { Form } from "antd";
-import {  useReducer, useState } from "react";
+import { useReducer, useState } from "react";
 import { initialState, reducer } from "./reducer";
 import { listUsers } from "@/services/user.service";
+import { useListPermits } from "@/services/permit.service";
+import { useGetWorkActivities } from "@/services/work-activity.service";
+import { useListAllDevices } from "@/services/device.service";
+import { debounce } from "lodash";
+import dayjs from "dayjs";
 
 export const usePermitHooks = () => {
+  const [modalForm] = Form.useForm();
+  const [searchForm] = Form.useForm();
+
+  const [filter, setFilter] = useState({ page: 1, limit: 5 });
   const [state, dispatch] = useReducer(reducer, initialState);
   const [openModalSelect, setOpenModalSelect] = useState(false);
   const [openCreatePermit, setOpenCreatePermit] = useState(false);
-  const [modalForm] = Form.useForm();
+  const { data: listPermits, isLoading } = useListPermits(filter);
+  const { data: listTemplates } = useGetTemplateDdl();
+  const { data: listUsers } = useGetListUsers();
+  const { data: listDevices } = useListAllDevices();
+  const { data: listWorkActivities } = useGetWorkActivities();
+
+  const handleFilter = debounce((values) => {
+    if (values.startTime) {
+      values.startTime = dayjs(values.startTime).format("YYYY-MM-DD");
+    }
+
+    if (values.endTime) {
+      values.endTime = dayjs(values.endTime).format("YYYY-MM-DD");
+    }
+
+    setFilter((prev) => ({ ...prev, ...values }));
+  }, 300);
+
+  const handleRefreshSearch = () => {
+    searchForm.resetFields();
+    const values = searchForm.getFieldsValue();
+    setFilter((prev) => ({ ...prev, ...values }));
+  };
 
   const handleOpenModalSelect = () => {
     setOpenModalSelect(true);
@@ -27,12 +58,59 @@ export const usePermitHooks = () => {
     setOpenCreatePermit(false);
   };
 
+  const PERMIT_STATUS = [
+    {
+      label: "PENDING",
+      value: "pending",
+    },
+    {
+      label: "APPROVED",
+      value: "approved",
+    },
+    {
+      label: "REJECTED",
+      value: "rejected",
+    },
+    {
+      label: "CANCELED",
+      value: "canceled",
+    },
+    {
+      label: "EXPIRED",
+      value: "expired",
+    },
+    {
+      label: "CLOSED",
+      value: "closed",
+    },
+  ];
+
+  const statusColor = {
+    pending: "gold",
+    approved: "green",
+    rejected: "red",
+    canceled: "volcano",
+    expired: "purple",
+    closed: "blue",
+  };
+
   return {
+    PERMIT_STATUS,
     state,
     modalForm,
     openModalSelect,
     openCreatePermit,
+    listPermits,
+    listTemplates,
+    listUsers,
+    listWorkActivities,
+    listDevices,
+    handleFilter,
+    isLoading,
+    statusColor,
+    searchForm,
     dispatch,
+    handleRefreshSearch,
     handleOpenCreatePermit,
     handleCloseCreatePermit,
     handleOpenModalSelect,

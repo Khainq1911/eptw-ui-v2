@@ -7,6 +7,7 @@ import {
   Form,
   Input,
   InputNumber,
+  Modal,
   Row,
   Select,
   Space,
@@ -14,6 +15,9 @@ import {
 import DetailSection from "./detail-section";
 import { useGetFreeAndActive } from "@/services/device.service";
 import { useGetWorkActivities } from "@/services/work-activity.service";
+import { useCreatePermit } from "@/services/permit.service";
+import { useState } from "react";
+import { useNotification } from "@/common/hooks/useNotification";
 
 const { Panel } = Collapse;
 
@@ -24,9 +28,56 @@ export default function CreatePermitDrawer({
   handleCloseCreatePermit,
 }: any) {
   const [form] = Form.useForm();
-
+  const [modal, contextHolder] = Modal.useModal();
   const { data: devicesData } = useGetFreeAndActive();
   const { data: workActivitiesData } = useGetWorkActivities();
+  const [loading, setLoading] = useState(false);
+  const createPermitMutation = useCreatePermit();
+  const notify = useNotification();
+
+  const handleSave = () => {
+    modal.confirm({
+      title: "Xác nhận lưu giấy phép?",
+      content: "Bạn có chắc muốn lưu giấy phép này không?",
+      okText: "Lưu",
+      cancelText: "Hủy",
+      async onOk() {
+        setLoading(true);
+        try {
+          const value = await form.validateFields();
+
+          const { template, ...rest } = state;
+          //need to handle validate
+          const payload = {
+            ...rest,
+            ...value,
+            templateId: template.id,
+          };
+
+          await createPermitMutation.mutateAsync(payload);
+
+          notify(
+            "success",
+            "Lưu giấy phép thành công",
+            "Giấy phép đã được lưu vào hệ thống."
+          );
+
+          form.resetFields();
+          handleCloseCreatePermit();
+        } catch (error) {
+          notify(
+            "error",
+            "Lưu giấy phép thất bại",
+            "Vui lòng kiểm tra lại thông tin và thử lại."
+          );
+
+          throw error;
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
+  };
 
   return (
     <Drawer
@@ -50,15 +101,7 @@ export default function CreatePermitDrawer({
           >
             Hủy
           </Button>
-          <Button
-            type="primary"
-            onClick={async () => {
-              const value = await form.validateFields();
-              console.log("value: ", value);
-              console.log("state: ", state);
-              console.log("group: ", { ...state, ...value });
-            }}
-          >
+          <Button type="primary" onClick={handleSave} loading={loading}>
             Lưu
           </Button>
         </Space>
@@ -81,6 +124,7 @@ export default function CreatePermitDrawer({
           className="!bg-white !px-0"
           bordered={false}
         >
+          {contextHolder}
           <Panel
             header={<h2 className="font-bold">Thông tin chung</h2>}
             key="1"

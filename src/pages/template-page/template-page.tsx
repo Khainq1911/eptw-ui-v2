@@ -47,6 +47,7 @@ export default function TemplatePage() {
   const { data: templateData, isLoading } = useListTemplates(filter);
   const { data: templateTypeData } = useGetListTemplateTypes();
   const getTemplateByIdMutation = useGetTemplateById();
+  const [loading, setLoading] = useState(false);
 
   const deleteMutation = useDeleteTemplate();
   const debounceUpdateFilter = useMemo(
@@ -59,19 +60,16 @@ export default function TemplatePage() {
 
   const tableDatasource = useMemo(() => {
     if (!templateData) return [];
-
-    return templateData?.data?.map((item: any) => {
-      return {
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        templateType: item.templateType.name,
-        approvalType: item.approvalType.name,
-        deletedAt: item.deletedAt,
-        createdAt: formatDate(item.createdAt),
-        updatedAt: formatDate(item.updatedAt),
-      };
-    });
+    return templateData?.data?.map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      templateType: item.templateType.name,
+      approvalType: item.approvalType.name,
+      deletedAt: item.deletedAt,
+      createdAt: formatDate(item.createdAt),
+      updatedAt: formatDate(item.updatedAt),
+    }));
   }, [templateData]);
 
   const columns: ColumnsType<any> = [
@@ -82,12 +80,7 @@ export default function TemplatePage() {
       render: (_: any, _record: any, index: number) => index + 1,
       width: 80,
     },
-    {
-      title: "Tên mẫu",
-      dataIndex: "name",
-      key: "name",
-      width: 200,
-    },
+    { title: "Tên mẫu", dataIndex: "name", key: "name", width: 200 },
     {
       title: "Mô tả",
       dataIndex: "description",
@@ -118,12 +111,7 @@ export default function TemplatePage() {
           <Tag color="green">Hoạt động</Tag>
         ),
     },
-    {
-      title: "Ngày tạo",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      width: 180,
-    },
+    { title: "Ngày tạo", dataIndex: "createdAt", key: "createdAt", width: 180 },
     {
       title: "Ngày cập nhật",
       dataIndex: "updatedAt",
@@ -140,19 +128,27 @@ export default function TemplatePage() {
             <Button
               size="small"
               onClick={async () => {
-                const res = await getTemplateByIdMutation.mutateAsync(
-                  record.id
-                );
-                dispatch({
-                  type: "SET_DATA",
-                  payload: {
-                    ...res,
-                    templateTypeId: res.templateType.id,
-                    approvalTypeId: res.approvalType.id,
-                  },
-                });
                 setAction({ create: false, edit: true });
-                setOpenAddTemplateModal(true);
+                setOpenAddTemplateModal(true); // mở drawer ngay
+                setLoading(true); // bật spinner trong drawer
+                try {
+                  const res = await getTemplateByIdMutation.mutateAsync(
+                    record.id
+                  );
+                  dispatch({
+                    type: "SET_DATA",
+                    payload: {
+                      ...res,
+                      templateTypeId: res.templateType.id,
+                      approvalTypeId: res.approvalType.id,
+                    },
+                  });
+                } catch (error) {
+                  console.error(error);
+                  notify("error", "Lấy dữ liệu thất bại", "Vui lòng thử lại");
+                } finally {
+                  setLoading(false);
+                }
               }}
               disabled={record.deletedAt || !AuthCommonService.isAdmin()}
               icon={<EditOutlined />}
@@ -181,7 +177,6 @@ export default function TemplatePage() {
                   async () => {
                     try {
                       await deleteMutation.mutateAsync(record.id);
-
                       notify("success", "Xóa mẫu thành công", "");
                       form.resetFields();
                     } catch (error: unknown) {
@@ -194,7 +189,6 @@ export default function TemplatePage() {
                       notify("error", "Xóa mẫu thất bại", msg);
                     }
                   }
-                  //
                 )
               }
             />
@@ -218,14 +212,17 @@ export default function TemplatePage() {
           type="primary"
           icon={<PlusOutlined />}
           onClick={() => {
-            setOpenAddTemplateModal(true);
             setAction({ create: true, edit: false });
+            setOpenAddTemplateModal(true); // mở drawer ngay
+            setLoading(true); // bật spinner
+            setTimeout(() => setLoading(false), 200); // mô phỏng delay cho UX mượt
           }}
         >
           Thêm mẫu
         </Button>
       </div>
 
+      {/* Filter */}
       <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200  mb-6">
         <Form
           form={form}
@@ -242,7 +239,6 @@ export default function TemplatePage() {
                 />
               </Form.Item>
             </Col>
-
             <Col xs={24} sm={12} md={8}>
               <Form.Item name="templateTypeId" label="Danh mục">
                 <Select
@@ -255,7 +251,6 @@ export default function TemplatePage() {
                 />
               </Form.Item>
             </Col>
-
             <Col xs={24} sm={12} md={8}>
               <Form.Item name="status" label="Trạng thái">
                 <Select
@@ -295,6 +290,8 @@ export default function TemplatePage() {
           </Button>
         </Space>
       </div>
+
+      {/* Table */}
       <Table
         columns={columns}
         rowKey={"id"}
@@ -308,10 +305,13 @@ export default function TemplatePage() {
           current: filter.page,
           showSizeChanger: true,
           onChange: (page: number, pageSize: number) =>
-            setFilter((pre) => ({ ...pre, page: page, limit: pageSize })),
+            setFilter((pre) => ({ ...pre, page, limit: pageSize })),
         }}
       />
+
+      {/* Drawer */}
       <AddTemplateModal
+        loading={loading}
         setAction={setAction}
         action={action}
         state={state}

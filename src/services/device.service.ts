@@ -35,6 +35,19 @@ export const deviceService = {
     const response = await axiosInstance.patch(`/device/delete/${id}`);
     return response.data;
   },
+
+  listAllDevices: async () => {
+    const response = await axiosInstance.get("/device/list-devices");
+    return response.data;
+  },
+};
+
+export const useListAllDevices = () => {
+  return useQuery({
+    queryKey: ["list-all-devices"],
+    queryFn: deviceService.listAllDevices,
+    enabled: true,
+  });
 };
 
 export const useGetDeviceService = (filter: filterType) => {

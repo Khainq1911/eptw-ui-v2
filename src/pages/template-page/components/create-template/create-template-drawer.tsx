@@ -21,12 +21,14 @@ export default function AddTemplateModal({
   action,
   state,
   dispatch,
+  loading,
   setAction,
   openAddTemplateModal,
   setOpenAddTemplateModal,
 }: {
   action: { create: boolean; edit: boolean };
   state: any;
+  loading: boolean;
   setAction: React.Dispatch<
     React.SetStateAction<{ create: boolean; edit: boolean }>
   >;
@@ -125,6 +127,7 @@ export default function AddTemplateModal({
       placement="top"
       width="100vw"
       height="100vh"
+      loading={loading}
       destroyOnHidden
       styles={{
         body: {
