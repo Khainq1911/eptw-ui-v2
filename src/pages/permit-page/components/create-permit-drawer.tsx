@@ -18,6 +18,7 @@ import { useGetWorkActivities } from "@/services/work-activity.service";
 import { useCreatePermit } from "@/services/permit.service";
 import { useState } from "react";
 import { useNotification } from "@/common/hooks/useNotification";
+import AttachmentFile from "./attachment";
 
 const { Panel } = Collapse;
 
@@ -47,7 +48,6 @@ export default function CreatePermitDrawer({
           const value = await form.validateFields();
 
           const { template, ...rest } = state;
-          //need to handle validate
           const payload = {
             ...rest,
             ...value,
@@ -64,6 +64,9 @@ export default function CreatePermitDrawer({
 
           form.resetFields();
           handleCloseCreatePermit();
+          dispatch({
+            type: "RESET_STATE",
+          });
         } catch (error) {
           notify(
             "error",
@@ -85,13 +88,16 @@ export default function CreatePermitDrawer({
       onClose={() => {
         handleCloseCreatePermit();
         form.resetFields();
+        dispatch({
+          type: "RESET_STATE",
+        });
       }}
       width={"100%"}
       height={"100%"}
       title="Thêm mới giấy phép"
       placement="top"
       destroyOnHidden
-      footer={
+      extra={
         <Space>
           <Button
             onClick={() => {
@@ -350,6 +356,8 @@ export default function CreatePermitDrawer({
           );
         })}
       </div>
+
+      <AttachmentFile dispatch={dispatch} state={state} />
     </Drawer>
   );
 }

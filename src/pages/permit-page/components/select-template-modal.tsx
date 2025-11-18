@@ -9,12 +9,13 @@ export default function SelectTemplateModal({
   handleOpenCreatePermit,
   dispatch,
 }: any) {
-  const { data: templateDdl } = useGetTemplateDdl();
+  const { data: templateDdl, isLoading } = useGetTemplateDdl();
   const getTemplateMutation = useGetTemplateById();
   return (
     <Modal
       open={openModalSelect}
       onCancel={handleCloseModalSelect}
+      loading={isLoading}
       onOk={async () => {
         const value = await modalForm.validateFields();
         const res = await getTemplateMutation.mutateAsync(value.template);
