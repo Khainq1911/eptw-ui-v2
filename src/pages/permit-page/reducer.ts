@@ -54,6 +54,23 @@ export const reducer = (state: any, action: any) => {
             action.payload.error,
         },
       };
+    case "ADD_ATTACHMENTS":
+      return {
+        ...state,
+        attachments: [...(state?.attachments || []), action.payload],
+      };
+    case "REMOVE_ATTACHMENT": {
+      return {
+        ...state,
+        attachments: state.attachments.filter(
+          (item: any) => item.file[0].uid !== action.payload.uid
+        ),
+      };
+    }
+
+    case "RESET_STATE":
+      return initialState;
+
     default:
       return state;
   }

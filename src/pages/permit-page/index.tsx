@@ -1,7 +1,9 @@
 import { AuthCommonService } from "@/common/authentication";
 import {
+  DeleteOutlined,
   DownloadOutlined,
   EditOutlined,
+  EyeOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 import {
@@ -22,7 +24,6 @@ import { usePermitHooks } from "./services";
 import CreatePermitDrawer from "./components/create-permit-drawer";
 import type { ColumnsType } from "antd/es/table";
 import { formatDate } from "@/common/common-services/formatTime";
-
 export default function PermitPage() {
   const {
     state,
@@ -45,6 +46,7 @@ export default function PermitPage() {
     handleCloseCreatePermit,
     handleCloseModalSelect,
     handleOpenModalSelect,
+    deletePermitMutation,
   } = usePermitHooks();
 
   const columns: ColumnsType = [
@@ -105,6 +107,13 @@ export default function PermitPage() {
       ),
     },
     {
+      title: "Người tạo",
+      dataIndex: "createdBy",
+      key: "createdBy",
+      width: 180,
+      ellipsis: true,
+    },
+    {
       title: "Ngày bắt đầu",
       dataIndex: "startTime",
       key: "startTime",
@@ -137,12 +146,12 @@ export default function PermitPage() {
       ellipsis: true,
       render: (
         text:
-          | "pending"
-          | "approved"
-          | "rejected"
-          | "expired"
-          | "canceled"
-          | "closed"
+          | "Pending"
+          | "Approved"
+          | "Rejected"
+          | "Expired"
+          | "Cancelled"
+          | "Closed"
       ) => {
         const status = PERMIT_STATUS.find((x) => x.value === text);
         return (
@@ -169,10 +178,41 @@ export default function PermitPage() {
       key: "action",
       fixed: "right",
       width: 150,
-      render: (_: any, __: any) => (
-        <Space>
-          <Tooltip title="Chỉnh sửa giấy phép">
-            <Button icon={<EditOutlined />} />
+      render: (_: any, record: any) => (
+        <Space size={"small"}>
+          <Tooltip title={"Xem"}>
+            <Button
+              type="primary"
+              disabled={record.deletedAt}
+              size="small"
+              icon={<EyeOutlined />}
+            />
+          </Tooltip>
+          <Tooltip title={"Sửa"}>
+            <Button
+              size="small"
+              disabled={record.deletedAt}
+              icon={<EditOutlined />}
+              style={
+                !record.deletedAt
+                  ? {
+                      backgroundColor: "#fa8c16",
+                      borderColor: "#fa8c16",
+                      color: "white",
+                    }
+                  : {}
+              }
+            />
+          </Tooltip>
+          <Tooltip title={"Xóa"}>
+            <Button
+              danger
+              type="primary"
+              disabled={record.status !== "Pending"}
+              size="small"
+              icon={<DeleteOutlined />}
+              onClick={() => deletePermitMutation.mutate(record.id)}
+            />
           </Tooltip>
         </Space>
       ),
@@ -197,7 +237,6 @@ export default function PermitPage() {
           }
         >
           <Button
-            disabled={!AuthCommonService.isAdmin()}
             type="primary"
             icon={<PlusOutlined />}
             onClick={handleOpenModalSelect}
@@ -358,7 +397,7 @@ export default function PermitPage() {
       <Table
         columns={columns}
         bordered
-        loading={isLoading}
+        loading={isLoading || deletePermitMutation.isPending}
         scroll={{ x: "max-content" }}
         dataSource={
           listPermits?.map((item: any) => ({

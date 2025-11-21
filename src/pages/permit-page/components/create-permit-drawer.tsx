@@ -18,6 +18,8 @@ import { useGetWorkActivities } from "@/services/work-activity.service";
 import { useCreatePermit } from "@/services/permit.service";
 import { useState } from "react";
 import { useNotification } from "@/common/hooks/useNotification";
+import AttachmentFile from "./attachment";
+import { uploadFiles } from "@/services/upload-file.service";
 
 const { Panel } = Collapse;
 
@@ -46,12 +48,19 @@ export default function CreatePermitDrawer({
         try {
           const value = await form.validateFields();
 
-          const { template, ...rest } = state;
-          //need to handle validate
+          const { template, attachments, ...rest } = state;
+
+          let fileResults;
+          console.log(attachments);
+          if (attachments && attachments.length > 0) {
+            fileResults = await uploadFiles(attachments);
+          }
+
           const payload = {
             ...rest,
             ...value,
             templateId: template.id,
+            attachments: fileResults || null,
           };
 
           await createPermitMutation.mutateAsync(payload);
@@ -64,6 +73,9 @@ export default function CreatePermitDrawer({
 
           form.resetFields();
           handleCloseCreatePermit();
+          dispatch({
+            type: "RESET_STATE",
+          });
         } catch (error) {
           notify(
             "error",
@@ -85,13 +97,16 @@ export default function CreatePermitDrawer({
       onClose={() => {
         handleCloseCreatePermit();
         form.resetFields();
+        dispatch({
+          type: "RESET_STATE",
+        });
       }}
       width={"100%"}
       height={"100%"}
       title="Thêm mới giấy phép"
       placement="top"
       destroyOnHidden
-      footer={
+      extra={
         <Space>
           <Button
             onClick={() => {
@@ -276,13 +291,7 @@ export default function CreatePermitDrawer({
 
                 {/* 11 */}
                 <Col span={8}>
-                  <Form.Item
-                    label="Thiết bị tham gia"
-                    name="deviceIds"
-                    rules={[
-                      { required: true, message: "Vui lòng chọn thiết bị" },
-                    ]}
-                  >
+                  <Form.Item label="Thiết bị tham gia" name="deviceIds">
                     <Select
                       mode="multiple"
                       allowClear
@@ -350,6 +359,8 @@ export default function CreatePermitDrawer({
           );
         })}
       </div>
+
+      <AttachmentFile dispatch={dispatch} state={state} />
     </Drawer>
   );
 }
