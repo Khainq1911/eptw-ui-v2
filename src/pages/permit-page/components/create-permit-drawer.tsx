@@ -19,6 +19,7 @@ import { useCreatePermit } from "@/services/permit.service";
 import { useState } from "react";
 import { useNotification } from "@/common/hooks/useNotification";
 import AttachmentFile from "./attachment";
+import { uploadFiles } from "@/services/upload-file.service";
 
 const { Panel } = Collapse;
 
@@ -47,11 +48,19 @@ export default function CreatePermitDrawer({
         try {
           const value = await form.validateFields();
 
-          const { template, ...rest } = state;
+          const { template, attachments, ...rest } = state;
+
+          let fileResults;
+          console.log(attachments);
+          if (attachments && attachments.length > 0) {
+            fileResults = await uploadFiles(attachments);
+          }
+
           const payload = {
             ...rest,
             ...value,
             templateId: template.id,
+            attachments: fileResults || null,
           };
 
           await createPermitMutation.mutateAsync(payload);
@@ -282,13 +291,7 @@ export default function CreatePermitDrawer({
 
                 {/* 11 */}
                 <Col span={8}>
-                  <Form.Item
-                    label="Thiết bị tham gia"
-                    name="deviceIds"
-                    rules={[
-                      { required: true, message: "Vui lòng chọn thiết bị" },
-                    ]}
-                  >
+                  <Form.Item label="Thiết bị tham gia" name="deviceIds">
                     <Select
                       mode="multiple"
                       allowClear

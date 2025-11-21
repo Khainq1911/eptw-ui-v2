@@ -95,7 +95,7 @@ export default function AttachmentFile({ dispatch, state }: any) {
     }
     return state.attachments.map((item: any) => ({
       uid: item.file[0].uid,
-      type: item.type,
+      type: item.file[0].type,
       name: item.file[0].name,
       size: item.file[0].size,
       createdAt: item.file[0].createdAt,
@@ -115,7 +115,7 @@ export default function AttachmentFile({ dispatch, state }: any) {
         </Button>
       </div>
       <Divider />
-      <Table columns={columns} dataSource={dataSource} pagination={false} />
+      <Table columns={columns} dataSource={dataSource} pagination={false} rowKey={"uid"}/>
       <AddFileModal
         open={openAddFileModal}
         onClose={handleCloseAddFileModal}

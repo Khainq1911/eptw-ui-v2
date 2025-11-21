@@ -4,7 +4,7 @@ import { Form } from "antd";
 import { useReducer, useState } from "react";
 import { initialState, reducer } from "./reducer";
 import { listUsers } from "@/services/user.service";
-import { useListPermits } from "@/services/permit.service";
+import { useDeletePermit, useListPermits } from "@/services/permit.service";
 import { useGetWorkActivities } from "@/services/work-activity.service";
 import { useListAllDevices } from "@/services/device.service";
 import { debounce } from "lodash";
@@ -23,6 +23,7 @@ export const usePermitHooks = () => {
   const { data: listUsers } = useGetListUsers();
   const { data: listDevices } = useListAllDevices();
   const { data: listWorkActivities } = useGetWorkActivities();
+  const deletePermitMutation = useDeletePermit();
 
   const handleFilter = debounce((values) => {
     if (values.startTime) {
@@ -61,37 +62,37 @@ export const usePermitHooks = () => {
   const PERMIT_STATUS = [
     {
       label: "PENDING",
-      value: "pending",
+      value: "Pending",
     },
     {
       label: "APPROVED",
-      value: "approved",
+      value: "Approved",
     },
     {
       label: "REJECTED",
-      value: "rejected",
+      value: "Rejected",
     },
     {
       label: "CANCELED",
-      value: "canceled",
+      value: "Cancelled",
     },
     {
       label: "EXPIRED",
-      value: "expired",
+      value: "Expired",
     },
     {
       label: "CLOSED",
-      value: "closed",
+      value: "Closed",
     },
   ];
 
   const statusColor = {
-    pending: "gold",
-    approved: "green",
-    rejected: "red",
-    canceled: "volcano",
-    expired: "purple",
-    closed: "blue",
+    Pending: "gold",
+    Approved: "green",
+    Rejected: "red",
+    Cancelled: "volcano",
+    Expired: "purple",
+    Closed: "blue",
   };
 
   return {
@@ -115,6 +116,7 @@ export const usePermitHooks = () => {
     handleCloseCreatePermit,
     handleOpenModalSelect,
     handleCloseModalSelect,
+    deletePermitMutation,
   };
 };
 
