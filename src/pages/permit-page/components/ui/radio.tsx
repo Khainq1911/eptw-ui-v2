@@ -1,5 +1,7 @@
 import { Col, Radio, Row } from "antd";
-import React, { useState } from "react";
+import { debounce } from "lodash";
+import React, { useState, useCallback, useMemo } from "react";
+
 
 function RadioField({ field, section, dispatch }: any) {
   const [touched, setTouched] = useState(false);
@@ -10,6 +12,25 @@ function RadioField({ field, section, dispatch }: any) {
     (field.value === undefined || field.value === null);
 
   const errorMsg = showError ? "Vui lòng chọn một tùy chọn" : "";
+
+  // debounce 300ms
+  const debouncedDispatch = useMemo(
+    () =>
+      debounce((value) => {
+        dispatch({
+          type: "SET_FIELD_VALUE",
+          payload: { section, field, value },
+        });
+      }, 300),
+    [dispatch, field, section]
+  );
+
+  const handleChange = useCallback(
+    (e: any) => {
+      debouncedDispatch(e.target.value);
+    },
+    [debouncedDispatch]
+  );
 
   return (
     <Row gutter={16} className="mb-2">
@@ -25,12 +46,7 @@ function RadioField({ field, section, dispatch }: any) {
           <Radio.Group
             options={field.options}
             value={field.value}
-            onChange={(e) =>
-              dispatch({
-                type: "SET_FIELD_VALUE",
-                payload: { section, field, value: e.target.value },
-              })
-            }
+            onChange={handleChange}
             onBlur={() => setTouched(true)}
             style={{
               display: "flex",
@@ -47,4 +63,5 @@ function RadioField({ field, section, dispatch }: any) {
     </Row>
   );
 }
+
 export default React.memo(RadioField);
