@@ -4,7 +4,11 @@ import { Form } from "antd";
 import { useReducer, useState } from "react";
 import { initialState, reducer } from "./reducer";
 import { listUsers } from "@/services/user.service";
-import { useDeletePermit, useListPermits } from "@/services/permit.service";
+import {
+  useDeletePermit,
+  useGetDetailPermit,
+  useListPermits,
+} from "@/services/permit.service";
 import { useGetWorkActivities } from "@/services/work-activity.service";
 import { useListAllDevices } from "@/services/device.service";
 import { debounce } from "lodash";
@@ -24,6 +28,7 @@ export const usePermitHooks = () => {
   const { data: listDevices } = useListAllDevices();
   const { data: listWorkActivities } = useGetWorkActivities();
   const deletePermitMutation = useDeletePermit();
+  const getDetailPermitMutation = useGetDetailPermit();
 
   const handleFilter = debounce((values) => {
     if (values.startTime) {
@@ -117,6 +122,7 @@ export const usePermitHooks = () => {
     handleOpenModalSelect,
     handleCloseModalSelect,
     deletePermitMutation,
+    getDetailPermitMutation,
   };
 };
 

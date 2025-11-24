@@ -4,4 +4,5 @@ export const routesConfig = {
   DeviceRoute: "/device",
   TemplateRoute: "/template",
   PermitRoute: "/permit",
+  DetailPermitRoute: "/permit/:id",
 };

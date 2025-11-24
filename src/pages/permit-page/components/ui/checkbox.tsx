@@ -1,15 +1,29 @@
 import { Checkbox, Col, Row } from "antd";
-import React, { useState } from "react";
+import { debounce } from "lodash";
+import React, { useState, useMemo, useCallback } from "react";
+
 
 function CheckboxField({ section, field, dispatch }: any) {
   const [touched, setTouched] = useState(false);
 
-  const handleChange = (value: any[]) => {
-    dispatch({
-      type: "SET_FIELD_VALUE",
-      payload: { section, field, value },
-    });
-  };
+  // debounce dispatch 300ms
+  const debouncedDispatch = useMemo(
+    () =>
+      debounce((value: any[]) => {
+        dispatch({
+          type: "SET_FIELD_VALUE",
+          payload: { section, field, value },
+        });
+      }, 300),
+    [dispatch, field, section]
+  );
+
+  const handleChange = useCallback(
+    (value: any[]) => {
+      debouncedDispatch(value);
+    },
+    [debouncedDispatch]
+  );
 
   const showError =
     touched && field.required && (!field.value || field.value.length === 0);
@@ -42,4 +56,5 @@ function CheckboxField({ section, field, dispatch }: any) {
     </Row>
   );
 }
+
 export default React.memo(CheckboxField);

@@ -1,7 +1,13 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { privateRoutes, protectedRoutes, publicRoutes } from "./router";
+import {
+  permitRoutes,
+  privateRoutes,
+  protectedRoutes,
+  publicRoutes,
+} from "./router";
 import PrivateLayout from "./configs/layout/privateLayout.tsx";
 import ProtectedLayout from "./configs/layout/protectedLayout.tsx";
+import PermitLayout from "./configs/layout/permitLayout.tsx";
 
 function App() {
   return (
@@ -11,7 +17,7 @@ function App() {
           const Page = route.component;
           return <Route key={index} path={route.path} element={<Page />} />;
         })}
-      
+
         {privateRoutes.map((route, index) => {
           const Page = route.component;
           return (
@@ -37,6 +43,21 @@ function App() {
                 <ProtectedLayout roleId={route?.roleId}>
                   <Page />
                 </ProtectedLayout>
+              }
+            />
+          );
+        })}
+
+        {permitRoutes.map((route, index) => {
+          const Page = route.component;
+          return (
+            <Route
+              key={index}
+              path={route.path}
+              element={
+                <PermitLayout>
+                  <Page />
+                </PermitLayout>
               }
             />
           );

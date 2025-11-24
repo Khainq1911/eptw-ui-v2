@@ -7,6 +7,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import {
+  App,
   Button,
   Col,
   DatePicker,
@@ -24,6 +25,7 @@ import { usePermitHooks } from "./services";
 import CreatePermitDrawer from "./components/create-permit-drawer";
 import type { ColumnsType } from "antd/es/table";
 import { formatDate } from "@/common/common-services/formatTime";
+import { useNavigate } from "react-router-dom";
 export default function PermitPage() {
   const {
     state,
@@ -47,7 +49,11 @@ export default function PermitPage() {
     handleCloseModalSelect,
     handleOpenModalSelect,
     deletePermitMutation,
+    getDetailPermitMutation,
   } = usePermitHooks();
+
+  const { modal } = App.useApp();
+  const navigate = useNavigate();
 
   const columns: ColumnsType = [
     {
@@ -186,6 +192,7 @@ export default function PermitPage() {
               disabled={record.deletedAt}
               size="small"
               icon={<EyeOutlined />}
+              onClick={() => navigate(`/permit/${record.id}`)}
             />
           </Tooltip>
           <Tooltip title={"Sửa"}>
@@ -211,7 +218,16 @@ export default function PermitPage() {
               disabled={record.status !== "Pending"}
               size="small"
               icon={<DeleteOutlined />}
-              onClick={() => deletePermitMutation.mutate(record.id)}
+              onClick={() =>
+                modal.confirm({
+                  title: "Xác nhận xóa",
+                  content: "Bạn có chắc chắn muốn xóa giấy phép này?",
+                  async onOk() {
+                    await deletePermitMutation.mutateAsync(record.id);
+                    console.log("Đã xóa");
+                  },
+                })
+              }
             />
           </Tooltip>
         </Space>
@@ -397,7 +413,11 @@ export default function PermitPage() {
       <Table
         columns={columns}
         bordered
-        loading={isLoading || deletePermitMutation.isPending}
+        loading={
+          isLoading ||
+          deletePermitMutation.isPending ||
+          getDetailPermitMutation.isPending
+        }
         scroll={{ x: "max-content" }}
         dataSource={
           listPermits?.map((item: any) => ({

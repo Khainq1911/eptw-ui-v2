@@ -17,6 +17,17 @@ export const deletePermit = async (id: number) => {
   return res.data;
 };
 
+export const getDetailPermit = async (id: number) => {
+  const res = await axiosInstance.get(`permit/${id}`);
+  return res.data;
+};
+
+export const useGetDetailPermit = () => {
+  return useMutation({
+    mutationFn: getDetailPermit,
+  });
+};
+
 export const useCreatePermit = () => {
   return useMutation({
     mutationFn: createPermit,
@@ -37,7 +48,7 @@ export const useDeletePermit = () => {
     mutationFn: deletePermit,
     onSuccess: () => {
       message.success("Xóa giấy phép thành công");
-      queryClient.invalidateQueries({ queryKey: ["list-permits"] }); 
+      queryClient.invalidateQueries({ queryKey: ["list-permits"] });
     },
     onError: () => {
       message.error("Xóa giấy phép thất bại");
