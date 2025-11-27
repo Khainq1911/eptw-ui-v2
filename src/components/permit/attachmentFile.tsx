@@ -1,3 +1,4 @@
+import AddFileModal from "@/pages/permit-page/components/add-file-modal";
 import {
   DeleteOutlined,
   DownloadOutlined,
@@ -5,10 +6,10 @@ import {
 } from "@ant-design/icons";
 import { Button, Divider, Space, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import AddFileModal from "./add-file-modal";
+
 import { useMemo, useState } from "react";
 
-export default function AttachmentFile({ dispatch, state }: any) {
+export default function AttachmentFile({ dispatch, state, isDisable }: any) {
   const [openAddFileModal, setOpenAddFileModal] = useState(false);
 
   const handleOpenAddFileModal = () => {
@@ -76,6 +77,7 @@ export default function AttachmentFile({ dispatch, state }: any) {
           <Button
             icon={<DeleteOutlined />}
             type="primary"
+            disabled={isDisable}
             danger
             onClick={() =>
               dispatch({
@@ -90,15 +92,15 @@ export default function AttachmentFile({ dispatch, state }: any) {
   ];
 
   const dataSource = useMemo(() => {
-    if (!state?.attachments) {
+    if (!state) {
       return [];
     }
-    return state.attachments.map((item: any) => ({
-      uid: item.file[0].uid,
-      type: item.file[0].type,
-      name: item.file[0].name,
-      size: item.file[0].size,
-      createdAt: item.file[0].createdAt,
+    return state?.map((item: any) => ({
+      uid: item.id,
+      type: item.type,
+      name: item.name,
+      size: item.size,
+      createdAt: item.createdAt,
     }));
   }, [state]);
 
@@ -108,6 +110,7 @@ export default function AttachmentFile({ dispatch, state }: any) {
         <h2 className="font-bold">File đính kèm</h2>
         <Button
           type="primary"
+          disabled={isDisable}
           icon={<PlusOutlined />}
           onClick={handleOpenAddFileModal}
         >

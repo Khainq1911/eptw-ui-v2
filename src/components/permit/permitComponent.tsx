@@ -1,12 +1,15 @@
+import { handleRender } from "@/pages/permit-page/components/field-list";
 import { useGetFreeAndActive } from "@/services/device.service";
 import { useGetDetailPermit } from "@/services/permit.service";
 import { useGetWorkActivities } from "@/services/work-activity.service";
 import { ArrowLeftOutlined, EditOutlined } from "@ant-design/icons";
 import {
+  App,
   Button,
   Col,
   Collapse,
   DatePicker,
+  Divider,
   Form,
   Input,
   InputNumber,
@@ -15,13 +18,22 @@ import {
   Spin,
 } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import AttachmentFile from "./attachmentFile";
+import { formatDate } from "@/common/common-services/formatTime";
+import SignButton from "./signButton";
 
 const { Panel } = Collapse;
 
-export default function PermitComponent() {
+export default function PermitComponent({
+  state,
+  dispatch,
+  fileState,
+  fileDispatch,
+}: any) {
   const [form] = Form.useForm();
+  const { notification } = App.useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const getDetailPermitMutation = useGetDetailPermit();
@@ -29,17 +41,23 @@ export default function PermitComponent() {
   const { data: devicesData } = useGetFreeAndActive();
   const { data: workActivitiesData } = useGetWorkActivities();
 
-  const [state, setState] = useState(null);
+  const isDisable = useMemo(() => {
+    return location.pathname.split("/")[2] === "view";
+  }, [location?.pathname]);
 
   const handleGetPermit = async () => {
     setLoading(true);
     try {
-      const permitId = Number(location?.pathname?.split("/")[2]);
+      const permitId = Number(location?.pathname?.split("/")[3]);
 
-      if (permitId) {
-        getDetailPermitMutation.mutateAsync(permitId);
-      }
-    } catch (error) {
+      if (!permitId) throw new Error("Không tồn tại giấy phép này");
+
+      await getDetailPermitMutation.mutateAsync(permitId);
+    } catch (error: any) {
+      notification.error({
+        message: "Lỗi",
+        description: error?.message || "Có lỗi xảy ra",
+      });
     } finally {
       setLoading(false);
     }
@@ -52,7 +70,12 @@ export default function PermitComponent() {
   useEffect(() => {
     if (getDetailPermitMutation.data) {
       const payload = getDetailPermitMutation.data;
-      console.log(getDetailPermitMutation.data);
+
+      const workActivityIds = payload.workActivities.map(
+        (item: any) => item.id
+      );
+      const deviceIds = payload.devices.map((item: any) => item.id);
+
       const values = {
         templateName: payload.template.name,
         companyName: payload.companyName,
@@ -61,15 +84,27 @@ export default function PermitComponent() {
         endTime: payload.endTime ? dayjs(payload.endTime) : null,
         description: payload.description,
         status: payload.status,
-        deviceIds: payload.deviceIds,
-        workActivityIds: payload.workActivityIds,
+        deviceIds: deviceIds,
+        workActivityIds: workActivityIds,
         name: payload.name,
+        approvalTypeName: payload.template.approvalType.name,
+        templateTypeName: payload.template.templateType.name,
         peopleNumber: payload.peopleNumber,
       };
 
       form.setFieldsValue(values);
 
-      setState(getDetailPermitMutation.data);
+      if (payload.attachments) {
+        fileDispatch({
+          type: "SET_INIT_DATA",
+          payload: payload.attachments.map((item: any) => ({
+            ...item,
+            createdAt: formatDate(item.createdAt),
+          })),
+        });
+      }
+
+      dispatch({ type: "SET_INIT_DATA", payload: payload.sections });
     }
   }, [getDetailPermitMutation.data]);
 
@@ -79,7 +114,16 @@ export default function PermitComponent() {
       style={{ height: "calc(100vh - 60px)" }}
     >
       {loading || getDetailPermitMutation.isPending ? (
-        <Spin />
+        <Spin
+          size="large"
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 9999,
+          }}
+        />
       ) : (
         <div>
           <div className="flex justify-between">
@@ -95,7 +139,7 @@ export default function PermitComponent() {
             </Button>
           </div>
 
-          <div className="w-[90%] mx-auto bg-white p-4 mx-auto rounded-lg shadow-lg mt-6">
+          <div className="w-[70%] mx-auto bg-white p-4 mx-auto rounded-lg shadow-lg mt-6">
             <Collapse
               defaultActiveKey={["1"]}
               expandIconPosition="end"
@@ -118,13 +162,13 @@ export default function PermitComponent() {
                     </Col>
 
                     <Col span={8}>
-                      <Form.Item label="Hình thức ký">
+                      <Form.Item label="Hình thức ký" name="approvalTypeName">
                         <Input disabled />
                       </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                      <Form.Item label="Loại mẫu">
+                      <Form.Item label="Loại mẫu" name="templateTypeName">
                         <Input disabled />
                       </Form.Item>
                     </Col>
@@ -140,7 +184,10 @@ export default function PermitComponent() {
                           },
                         ]}
                       >
-                        <Input placeholder="Nhập tên giấy phép" />
+                        <Input
+                          placeholder="Nhập tên giấy phép"
+                          disabled={isDisable}
+                        />
                       </Form.Item>
                     </Col>
 
@@ -171,7 +218,10 @@ export default function PermitComponent() {
                           },
                         ]}
                       >
-                        <Input placeholder="Nhập tên công ty" />
+                        <Input
+                          placeholder="Nhập tên công ty"
+                          disabled={isDisable}
+                        />
                       </Form.Item>
                     </Col>
 
@@ -183,7 +233,10 @@ export default function PermitComponent() {
                           { required: true, message: "Vui lòng nhập địa chỉ" },
                         ]}
                       >
-                        <Input placeholder="Nhập địa chỉ" />
+                        <Input
+                          placeholder="Nhập địa chỉ"
+                          disabled={isDisable}
+                        />
                       </Form.Item>
                     </Col>
 
@@ -202,6 +255,7 @@ export default function PermitComponent() {
                           format={"DD-MM-YYYY"}
                           style={{ width: "100%" }}
                           placeholder="Chọn thời gian bắt đầu"
+                          disabled={isDisable}
                         />
                       </Form.Item>
                     </Col>
@@ -221,6 +275,7 @@ export default function PermitComponent() {
                           style={{ width: "100%" }}
                           format={"DD-MM-YYYY"}
                           placeholder="Chọn thời gian kết thúc"
+                          disabled={isDisable}
                         />
                       </Form.Item>
                     </Col>
@@ -240,6 +295,7 @@ export default function PermitComponent() {
                         <InputNumber
                           style={{ width: "100%" }}
                           placeholder="Nhập số lượng"
+                          disabled={isDisable}
                         />
                       </Form.Item>
                     </Col>
@@ -247,17 +303,19 @@ export default function PermitComponent() {
                     <Col span={8}>
                       <Form.Item label="Thiết bị tham gia" name="deviceIds">
                         <Select
+                          disabled={isDisable}
                           mode="multiple"
                           allowClear
                           maxTagCount="responsive"
                           showSearch
                           placeholder="Chọn thiết bị"
                           optionFilterProp="children"
-                          options={
-                            devicesData?.map((item: any) => {
-                              return { label: item.name, value: item.id };
-                            }) || []
-                          }
+                          options={[
+                            ...(devicesData || []),
+                            ...(state?.devices || []),
+                          ]?.map((item: any) => {
+                            return { label: item.name, value: item.id };
+                          })}
                         />
                       </Form.Item>
                     </Col>
@@ -276,6 +334,7 @@ export default function PermitComponent() {
                         <Select
                           mode="multiple"
                           allowClear
+                          disabled={isDisable}
                           maxTagCount="responsive"
                           showSearch
                           placeholder="Chọn công việc"
@@ -293,6 +352,7 @@ export default function PermitComponent() {
                       <Form.Item label="Mô tả" name="description">
                         <Input.TextArea
                           rows={4}
+                          disabled={isDisable}
                           placeholder="Nhập mô tả chi tiết"
                         />
                       </Form.Item>
@@ -302,6 +362,34 @@ export default function PermitComponent() {
               </Panel>
             </Collapse>
           </div>
+
+          {state?.map((section: any) => {
+            return (
+              <div
+                key={section.id}
+                className="w-[70%] mx-auto bg-white p-6 mx-auto rounded-lg shadow-lg mt-6"
+              >
+                <h2 className="font-bold">{section.name}</h2>
+                <Divider />
+
+                <div className="space-y-4">
+                  {section.fields.map((field: any) => (
+                    <div key={field.id}>
+                      {handleRender(section, field, dispatch, isDisable)}
+                    </div>
+                  ))}
+                  <Divider />
+                  <SignButton section={section} />
+                </div>
+              </div>
+            );
+          })}
+
+          <AttachmentFile
+            state={fileState}
+            dispatch={fileDispatch}
+            isDisable={isDisable}
+          />
         </div>
       )}
     </div>

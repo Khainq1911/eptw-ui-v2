@@ -2,7 +2,7 @@ import { Col, Input, Row } from "antd";
 import { debounce } from "lodash";
 import React, { useMemo, useState } from "react";
 
-function InputField({ field, section, dispatch }: any) {
+function InputField({ field, section, dispatch, isDisable }: any) {
   const [error, setError] = useState("");
   const [localValue, setLocalValue] = useState(field.value || "");
 
@@ -41,6 +41,7 @@ function InputField({ field, section, dispatch }: any) {
       </Col>
       <Col span={16}>
         <Input
+          disabled={isDisable}
           placeholder="Nhập nội dung"
           value={localValue}
           onChange={(e) => handleChange(e.target.value)}

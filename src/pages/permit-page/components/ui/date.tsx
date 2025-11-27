@@ -2,7 +2,7 @@ import { Col, DatePicker, Row } from "antd";
 import dayjs from "dayjs";
 import React, { useState } from "react";
 
-function DateField({ field, section, dispatch }: any) {
+function DateField({ field, section, dispatch, isDisable }: any) {
   const [touched, setTouched] = useState(false);
 
   const showError = touched && field.required && !field.value;
@@ -18,6 +18,7 @@ function DateField({ field, section, dispatch }: any) {
       </Col>
       <Col span={16}>
         <DatePicker
+          disabled={isDisable}
           value={field.value ? dayjs(field.value) : null}
           onChange={(value) => {
             dispatch({

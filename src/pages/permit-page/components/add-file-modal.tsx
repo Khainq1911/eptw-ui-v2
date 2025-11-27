@@ -70,10 +70,7 @@ export default function AddFileModal({ open, onClose, dispatch }: any) {
           rules={[{ required: true, message: "Vui lòng thêm file đính kèm" }]}
         >
           <Upload {...props}>
-            <Button
-              icon={<UploadOutlined />}
-              type='primary'
-            >
+            <Button icon={<UploadOutlined />} type="primary">
               Upload
             </Button>
           </Upload>

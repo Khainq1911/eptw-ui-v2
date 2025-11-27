@@ -2,8 +2,7 @@ import { Col, Radio, Row } from "antd";
 import { debounce } from "lodash";
 import React, { useState, useCallback, useMemo } from "react";
 
-
-function RadioField({ field, section, dispatch }: any) {
+function RadioField({ field, section, dispatch, isDisable }: any) {
   const [touched, setTouched] = useState(false);
 
   const showError =
@@ -13,7 +12,6 @@ function RadioField({ field, section, dispatch }: any) {
 
   const errorMsg = showError ? "Vui lòng chọn một tùy chọn" : "";
 
-  // debounce 300ms
   const debouncedDispatch = useMemo(
     () =>
       debounce((value) => {
@@ -21,7 +19,7 @@ function RadioField({ field, section, dispatch }: any) {
           type: "SET_FIELD_VALUE",
           payload: { section, field, value },
         });
-      }, 300),
+      }, 200),
     [dispatch, field, section]
   );
 
@@ -44,6 +42,7 @@ function RadioField({ field, section, dispatch }: any) {
       <Col span={16}>
         <div>
           <Radio.Group
+            disabled={isDisable}
             options={field.options}
             value={field.value}
             onChange={handleChange}

@@ -192,7 +192,7 @@ export default function PermitPage() {
               disabled={record.deletedAt}
               size="small"
               icon={<EyeOutlined />}
-              onClick={() => navigate(`/permit/${record.id}`)}
+              onClick={() => navigate(`/permit/view/${record.id}`)}
             />
           </Tooltip>
           <Tooltip title={"Sửa"}>
@@ -200,6 +200,7 @@ export default function PermitPage() {
               size="small"
               disabled={record.deletedAt}
               icon={<EditOutlined />}
+              onClick={() => navigate(`/permit/update/${record.id}`)}
               style={
                 !record.deletedAt
                   ? {

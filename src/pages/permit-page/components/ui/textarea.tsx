@@ -2,7 +2,7 @@ import { Col, Input, Row } from "antd";
 import { debounce } from "lodash";
 import React, { useMemo, useState } from "react";
 
-function TextAreaField({ field, section, dispatch }: any) {
+function TextAreaField({ field, section, dispatch, isDisable }: any) {
   const [localValue, setLocalValue] = useState(field.value || "");
   const [error, setError] = useState("");
 
@@ -20,9 +20,9 @@ function TextAreaField({ field, section, dispatch }: any) {
   );
 
   const handleChange = (value: string) => {
-    setLocalValue(value); 
+    setLocalValue(value);
     if (error) setError("");
-    debouncedDispatch(value); 
+    debouncedDispatch(value);
   };
 
   const handleBlur = () => {
@@ -41,6 +41,7 @@ function TextAreaField({ field, section, dispatch }: any) {
       </Col>
       <Col span={16}>
         <Input.TextArea
+          disabled={isDisable}
           placeholder="Nhập nội dung"
           value={localValue}
           onChange={(e) => handleChange(e.target.value)}

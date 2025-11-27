@@ -2,7 +2,7 @@ import { Col, Input, Row } from "antd";
 import { debounce } from "lodash";
 import React, { useMemo, useState } from "react";
 
-function HeadingField({ section, field, dispatch }: any) {
+function HeadingField({ section, field, dispatch, isDisable }: any) {
   const [localValue, setLocalValue] = useState(field.value || "");
 
   const debouncedDispatch = useMemo(
@@ -27,6 +27,7 @@ function HeadingField({ section, field, dispatch }: any) {
     <Row gutter={16}>
       <Col span={24}>
         <Input
+          disabled={isDisable}
           placeholder="Nhập tiêu đề"
           value={localValue}
           onChange={(e) => handleChange(e.target.value)}

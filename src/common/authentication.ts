@@ -14,7 +14,12 @@ export const AuthCommonService = {
   getUser: () => {
     const accessToken = AuthCommonService.getAccessToken();
     if (accessToken) {
-      const payload: { roleId: number; name: string } = jwtDecode(accessToken);
+      const payload: {
+        roleId: number;
+        name: string;
+        email: string;
+        phone: string;
+      } = jwtDecode(accessToken);
       return payload || null;
     }
     return null;

@@ -5,7 +5,8 @@ import DashboardPage from "./pages/dashboard-page/dashboard-page";
 import DevicePage from "./pages/device-page/device-page";
 import PermitPage from "./pages/permit-page";
 import TemplatePage from "./pages/template-page/template-page";
-import DetailPermit from "./pages/detail-permit-page.tsx";
+import ViewPermit from "./pages/view-permit-page.tsx";
+import UpdatePermit from "./pages/update-permit-page.tsx/index.tsx";
 
 type Route = {
   path: string;
@@ -32,7 +33,8 @@ const publicRoutes: Route[] = [
 ];
 
 const permitRoutes: Route[] = [
-  { path: routesConfig.DetailPermitRoute, component: DetailPermit },
+  { path: routesConfig.ViewPermitRoute, component: ViewPermit },
+  { path: routesConfig.UpdatePermitRoute, component: UpdatePermit },
 ];
 
 export { publicRoutes, privateRoutes, protectedRoutes, permitRoutes };

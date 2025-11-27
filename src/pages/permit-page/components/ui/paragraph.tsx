@@ -2,7 +2,7 @@ import { Input } from "antd";
 import { debounce } from "lodash";
 import React, { useMemo, useState } from "react";
 
-function ParagraphField({ field, section, dispatch }: any) {
+function ParagraphField({ field, section, dispatch, isDisable }: any) {
   const [localValue, setLocalValue] = useState(field.value || "");
 
   // Debounced dispatch to update reducer
@@ -26,6 +26,7 @@ function ParagraphField({ field, section, dispatch }: any) {
 
   return (
     <Input.TextArea
+      disabled={isDisable}
       placeholder="Nhập đoạn văn"
       value={localValue}
       onChange={(e) => handleChange(e.target.value)}

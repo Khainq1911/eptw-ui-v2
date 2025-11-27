@@ -2,8 +2,7 @@ import { Checkbox, Col, Row } from "antd";
 import { debounce } from "lodash";
 import React, { useState, useMemo, useCallback } from "react";
 
-
-function CheckboxField({ section, field, dispatch }: any) {
+function CheckboxField({ section, field, dispatch, isDisable }: any) {
   const [touched, setTouched] = useState(false);
 
   // debounce dispatch 300ms
@@ -14,7 +13,7 @@ function CheckboxField({ section, field, dispatch }: any) {
           type: "SET_FIELD_VALUE",
           payload: { section, field, value },
         });
-      }, 300),
+      }, 100),
     [dispatch, field, section]
   );
 
@@ -42,6 +41,7 @@ function CheckboxField({ section, field, dispatch }: any) {
       <Col span={16}>
         <div onBlur={() => setTouched(true)} tabIndex={0}>
           <Checkbox.Group
+            disabled={isDisable}
             options={field.options}
             value={field.value || []}
             onChange={handleChange}
