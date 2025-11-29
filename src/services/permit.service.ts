@@ -22,6 +22,28 @@ export const getDetailPermit = async (id: number) => {
   return res.data;
 };
 
+export const sendOtp = async () => {
+  const res = await axiosInstance.post("permit/send-otp");
+  return res.data;
+};
+
+export const verifyOtp = async (payload: any) => {
+  const res = await axiosInstance.post("permit/verify-otp", payload);
+  return res.data;
+};
+
+export const useVerifyOtp = () => {
+  return useMutation({
+    mutationFn: verifyOtp,
+  });
+};
+
+export const useSendOtp = () => {
+  return useMutation({
+    mutationFn: sendOtp,
+  });
+};
+
 export const useGetDetailPermit = () => {
   return useMutation({
     mutationFn: getDetailPermit,
