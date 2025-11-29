@@ -3,12 +3,22 @@ import SignatureCanvas from "react-signature-canvas";
 import { lowerFirst } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { AuthCommonService } from "@/common/authentication";
+import { useSendOtp, useVerifyOtp } from "@/services/permit.service";
+import axios from "axios";
 
-export default function SignButton({ section }: any) {
+export default function SignButton({
+  section,
+  permitId,
+  setSigns,
+}: any) {
   const { notification, modal } = App.useApp();
   const [openModal, setOpenModal] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [signatureData, setSignatureData] = useState<string | null>(null);
+  const [otp, setOtp] = useState<string>("");
+
+  const sendOtpMutation = useSendOtp();
+  const verifyOtpMutation = useVerifyOtp();
 
   const sigPad = useRef<any>(null);
 
@@ -20,7 +30,25 @@ export default function SignButton({ section }: any) {
     modal.confirm({
       title: "Bạn có xác nhận thông tin trên là chính xác không?",
       content: "Các thao tác không thể hoàn tác",
-      onOk: () => setCurrentStep(currentStep + 1),
+      onOk: async () => {
+        try {
+          await sendOtpMutation.mutateAsync();
+          setCurrentStep(currentStep + 1);
+        } catch (error: unknown) {
+          let message = "OTP không hợp lệ";
+
+          if (axios.isAxiosError(error)) {
+            message = error.response?.data?.message || error.message || message;
+          } else if (error instanceof Error) {
+            message = error.message;
+          }
+
+          notification.error({
+            message: "Lỗi",
+            description: message,
+          });
+        }
+      },
     });
   };
 
@@ -47,7 +75,58 @@ export default function SignButton({ section }: any) {
     setCurrentStep(1);
   };
 
-  // ⭐ Load lại chữ ký khi quay về Step 1
+  const handleVerifyOtp = async () => {
+    try {
+      const newOtp = Number(otp);
+
+      if (!newOtp || otp.trim() === "") {
+        notification.error({
+          message: "Lỗi",
+          description: "OTP không hợp lệ",
+        });
+      }
+      const payload = {
+        signUrl: signatureData,
+        otp: newOtp,
+        sectionId: section.id,
+        permitId: permitId,
+      };
+
+      const res = await verifyOtpMutation.mutateAsync(payload);
+
+      notification.success({
+        message: "Thành công",
+        description: "Xác thực thành công",
+        placement: "topRight",
+        duration: 3,
+      });
+
+      setSigns((prev: any[]) => {
+        return prev.map((s: any) => {
+          if (s.sectionId === section.id) {
+            return { ...s, ...res };
+          }
+          return s;
+        });
+      });
+
+      handleCloseModal();
+    } catch (error: unknown) {
+      let message = "OTP không hợp lệ";
+
+      if (axios.isAxiosError(error)) {
+        message = error.response?.data?.message || error.message || message;
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+
+      notification.error({
+        message: "Lỗi",
+        description: message,
+      });
+    }
+  };
+
   useEffect(() => {
     if (currentStep === 0 && signatureData && sigPad.current) {
       sigPad.current.fromDataURL(signatureData);
@@ -56,7 +135,9 @@ export default function SignButton({ section }: any) {
 
   return (
     <div>
-      <Button onClick={handleOpenModal}>Sign here</Button>
+      <Button onClick={handleOpenModal} type="primary">
+        Sign here
+      </Button>
 
       <Modal
         width={1000}
@@ -192,7 +273,7 @@ export default function SignButton({ section }: any) {
               </p>
 
               <div className="flex justify-center">
-                <Input.OTP />
+                <Input.OTP onChange={(value) => setOtp(value)} />
               </div>
 
               <p className="text-xs text-slate-500 text-center mt-4">
@@ -205,7 +286,7 @@ export default function SignButton({ section }: any) {
 
         {/* FOOTER BUTTONS */}
         <div style={{ marginTop: 30, textAlign: "right" }}>
-          {currentStep > 0 && (
+          {currentStep === 1 && (
             <Button
               style={{ marginRight: 8 }}
               onClick={() => setCurrentStep(currentStep - 1)}
@@ -235,13 +316,22 @@ export default function SignButton({ section }: any) {
           )}
 
           {currentStep == 1 && (
-            <Button type="primary" onClick={handleWarnToSendMail}>
+            <Button
+              type="primary"
+              onClick={handleWarnToSendMail}
+              loading={sendOtpMutation.isPending}
+            >
               Tiếp tục
             </Button>
           )}
 
           {currentStep === 2 && (
-            <Button type="primary" danger>
+            <Button
+              type="primary"
+              danger
+              onClick={handleVerifyOtp}
+              loading={verifyOtpMutation.isPending}
+            >
               Xác thực OTP
             </Button>
           )}

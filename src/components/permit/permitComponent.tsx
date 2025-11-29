@@ -34,12 +34,21 @@ export default function PermitComponent({
 }: any) {
   const [form] = Form.useForm();
   const { notification } = App.useApp();
+
   const navigate = useNavigate();
   const location = useLocation();
-  const getDetailPermitMutation = useGetDetailPermit();
+
   const [loading, setLoading] = useState(false);
+  const [signs, setSigns] = useState<any[]>([]);
+
+  const getDetailPermitMutation = useGetDetailPermit();
   const { data: devicesData } = useGetFreeAndActive();
   const { data: workActivitiesData } = useGetWorkActivities();
+
+  const permitId = useMemo(
+    () => Number(location?.pathname?.split("/")[3]),
+    [location?.pathname]
+  );
 
   const isDisable = useMemo(() => {
     return location.pathname.split("/")[2] === "view";
@@ -48,8 +57,6 @@ export default function PermitComponent({
   const handleGetPermit = async () => {
     setLoading(true);
     try {
-      const permitId = Number(location?.pathname?.split("/")[3]);
-
       if (!permitId) throw new Error("Không tồn tại giấy phép này");
 
       await getDetailPermitMutation.mutateAsync(permitId);
@@ -66,6 +73,11 @@ export default function PermitComponent({
   useEffect(() => {
     handleGetPermit();
   }, []);
+
+  const getSectionSign = (sectionId: number) => {
+    console.log(signs);
+    return signs.find((s: any) => s.sectionId === sectionId);
+  };
 
   useEffect(() => {
     if (getDetailPermitMutation.data) {
@@ -91,8 +103,11 @@ export default function PermitComponent({
         templateTypeName: payload.template.templateType.name,
         peopleNumber: payload.peopleNumber,
       };
-
       form.setFieldsValue(values);
+
+      if (payload.signs) {
+        setSigns(payload.signs);
+      }
 
       if (payload.attachments) {
         fileDispatch({
@@ -113,7 +128,7 @@ export default function PermitComponent({
       className="bg-[#F5F7FB] p-6 overflow-y-auto"
       style={{ height: "calc(100vh - 60px)" }}
     >
-      {loading || getDetailPermitMutation.isPending ? (
+      {(loading || getDetailPermitMutation.isPending) && (
         <Spin
           size="large"
           style={{
@@ -124,8 +139,11 @@ export default function PermitComponent({
             zIndex: 9999,
           }}
         />
-      ) : (
+      )}
+
+      {!loading && !getDetailPermitMutation.isPending && (
         <div>
+          {/* Header */}
           <div className="flex justify-between">
             <Button
               type="primary"
@@ -139,7 +157,8 @@ export default function PermitComponent({
             </Button>
           </div>
 
-          <div className="w-[70%] mx-auto bg-white p-4 mx-auto rounded-lg shadow-lg mt-6">
+          {/* Thông tin chung */}
+          <div className="w-[70%] mx-auto bg-white p-4 rounded-lg shadow-lg mt-6">
             <Collapse
               defaultActiveKey={["1"]}
               expandIconPosition="end"
@@ -152,6 +171,7 @@ export default function PermitComponent({
               >
                 <Form form={form} layout="vertical">
                   <Row gutter={[16, 8]}>
+                    {/* Các input */}
                     <Col span={8}>
                       <Form.Item
                         label="Tên mẫu giấy phép"
@@ -313,9 +333,10 @@ export default function PermitComponent({
                           options={[
                             ...(devicesData || []),
                             ...(state?.devices || []),
-                          ]?.map((item: any) => {
-                            return { label: item.name, value: item.id };
-                          })}
+                          ].map((item: any) => ({
+                            label: item.name,
+                            value: item.id,
+                          }))}
                         />
                       </Form.Item>
                     </Col>
@@ -340,9 +361,10 @@ export default function PermitComponent({
                           placeholder="Chọn công việc"
                           optionFilterProp="children"
                           options={
-                            workActivitiesData?.map((item: any) => {
-                              return { label: item.name, value: item.id };
-                            }) || []
+                            workActivitiesData?.map((item: any) => ({
+                              label: item.name,
+                              value: item.id,
+                            })) || []
                           }
                         />
                       </Form.Item>
@@ -363,11 +385,13 @@ export default function PermitComponent({
             </Collapse>
           </div>
 
+          {/* Sections */}
           {state?.map((section: any) => {
+            const sign = getSectionSign(section.id);
             return (
               <div
                 key={section.id}
-                className="w-[70%] mx-auto bg-white p-6 mx-auto rounded-lg shadow-lg mt-6"
+                className="w-[70%] mx-auto bg-white p-6 rounded-lg shadow-lg mt-6"
               >
                 <h2 className="font-bold">{section.name}</h2>
                 <Divider />
@@ -378,8 +402,63 @@ export default function PermitComponent({
                       {handleRender(section, field, dispatch, isDisable)}
                     </div>
                   ))}
-                  <Divider />
-                  <SignButton section={section} />
+
+                  {sign && (
+                    <div className="flex space-x-8 bg-white">
+                      <div className="w-1/2">
+                        <h3 className="font-semibold mb-2">
+                          Thông tin người ký
+                        </h3>
+                        {sign.signer ? (
+                          <div className="border border-gray-300 mt-1 max-w-full rounded-md p-4 space-y-1">
+                            <p>
+                              <strong>Tên:</strong> {sign.signer.name}
+                            </p>
+                            <p>
+                              <strong>Email:</strong> {sign.signer.email}
+                            </p>
+                            <p>
+                              <strong>Số điện thoại:</strong>{" "}
+                              {sign.signer.phone}
+                            </p>
+                            {sign.status === "Signed" && (
+                              <p>
+                                <strong>Ngày ký:</strong>{" "}
+                                {new Date(sign.signedAt).toLocaleString()}
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <p style={{ color: "#999" }}>
+                            Chưa có thông tin người ký
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Chữ ký */}
+                      <div className="w-1/2">
+                        <h3 className="font-semibold mb-2">Chữ ký</h3>
+                        {sign.signUrl ? (
+                          <img
+                            src={sign.signUrl}
+                            alt="signature-preview"
+                            style={{
+                              border: "1px solid #ccc",
+                              marginTop: 4,
+                              maxWidth: "100%",
+                              borderRadius: "5px",
+                            }}
+                          />
+                        ) : (
+                          <SignButton
+                            section={section}
+                            permitId={permitId}
+                            setSigns={setSigns}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );
