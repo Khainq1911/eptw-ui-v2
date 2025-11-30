@@ -9,7 +9,9 @@ import axios from "axios";
 export default function SignButton({
   section,
   permitId,
+  form,
   setSigns,
+  sign,
 }: any) {
   const { notification, modal } = App.useApp();
   const [openModal, setOpenModal] = useState(false);
@@ -93,6 +95,9 @@ export default function SignButton({
       };
 
       const res = await verifyOtpMutation.mutateAsync(payload);
+      const { sign, permitStatus } = res;
+
+      form.setFieldValue("status", permitStatus);
 
       notification.success({
         message: "Thành công",
@@ -104,7 +109,7 @@ export default function SignButton({
       setSigns((prev: any[]) => {
         return prev.map((s: any) => {
           if (s.sectionId === section.id) {
-            return { ...s, ...res };
+            return { ...s, ...sign };
           }
           return s;
         });
@@ -135,7 +140,11 @@ export default function SignButton({
 
   return (
     <div>
-      <Button onClick={handleOpenModal} type="primary">
+      <Button
+        onClick={handleOpenModal}
+        type="primary"
+        disabled={sign?.signerId !== AuthCommonService.getUser()?.id}
+      >
         Sign here
       </Button>
 

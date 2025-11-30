@@ -23,6 +23,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import AttachmentFile from "./attachmentFile";
 import { formatDate } from "@/common/common-services/formatTime";
 import SignButton from "./signButton";
+import { AuthCommonService } from "@/common/authentication";
+import { get } from "lodash";
+import axios from "axios";
+import ErrorPage from "@/pages/error-page";
 
 const { Panel } = Collapse;
 
@@ -40,6 +44,9 @@ export default function PermitComponent({
 
   const [loading, setLoading] = useState(false);
   const [signs, setSigns] = useState<any[]>([]);
+  const [errorStatus, setErrorStatus] = useState<"404" | "500" | "403" | "503">(
+    "404"
+  );
 
   const getDetailPermitMutation = useGetDetailPermit();
   const { data: devicesData } = useGetFreeAndActive();
@@ -50,20 +57,48 @@ export default function PermitComponent({
     [location?.pathname]
   );
 
-  const isDisable = useMemo(() => {
-    return location.pathname.split("/")[2] === "view";
-  }, [location?.pathname]);
+  const disabledSignedSectionIds = useMemo(() => {
+    return signs
+      .filter((s: any) => s.status === "Signed")
+      .map((s: any) => s.sectionId);
+  }, [signs]);
+
+  const isDisabled = useMemo(() => {
+    return (
+      location.pathname.split("/")[2] === "view" ||
+      form.getFieldValue("status") !== "Pending"
+    );
+  }, [location?.pathname, form.getFieldValue("status")]);
 
   const handleGetPermit = async () => {
     setLoading(true);
     try {
       if (!permitId) throw new Error("Không tồn tại giấy phép này");
 
-      await getDetailPermitMutation.mutateAsync(permitId);
-    } catch (error: any) {
+      await getDetailPermitMutation.mutateAsync({
+        id: permitId,
+        action: location.pathname.split("/")[2],
+      });
+    } catch (error: unknown) {
+      let message = "Có lỗi xảy ra";
+
+      if (axios.isAxiosError(error)) {
+        message = error.response?.data?.message || error.message || message;
+
+        const statusCode = error.response?.status;
+
+        if (statusCode === 403) setErrorStatus("403");
+        else if (statusCode === 404) setErrorStatus("404");
+        else if (statusCode === 500) setErrorStatus("500");
+        else setErrorStatus("503");
+      } else if (error instanceof Error) {
+        message = error.message;
+        setErrorStatus("500");
+      }
+
       notification.error({
         message: "Lỗi",
-        description: error?.message || "Có lỗi xảy ra",
+        description: message,
       });
     } finally {
       setLoading(false);
@@ -125,9 +160,13 @@ export default function PermitComponent({
 
   return (
     <div
-      className="bg-[#F5F7FB] p-6 overflow-y-auto"
+      className={`bg-[#F5F7FB] ${
+        !getDetailPermitMutation.isError ? "p-6" : ""
+      }  overflow-y-auto`}
       style={{ height: "calc(100vh - 60px)" }}
     >
+      {getDetailPermitMutation.isError && <ErrorPage status={errorStatus} />}
+
       {(loading || getDetailPermitMutation.isPending) && (
         <Spin
           size="large"
@@ -141,336 +180,353 @@ export default function PermitComponent({
         />
       )}
 
-      {!loading && !getDetailPermitMutation.isPending && (
-        <div>
-          {/* Header */}
-          <div className="flex justify-between">
-            <Button
-              type="primary"
-              icon={<ArrowLeftOutlined />}
-              onClick={() => navigate("/permit")}
-            >
-              Trở về
-            </Button>
-            <Button type="primary" icon={<EditOutlined />}>
-              Cập nhật
-            </Button>
-          </div>
-
-          {/* Thông tin chung */}
-          <div className="w-[70%] mx-auto bg-white p-4 rounded-lg shadow-lg mt-6">
-            <Collapse
-              defaultActiveKey={["1"]}
-              expandIconPosition="end"
-              className="!bg-white !px-0"
-              bordered={false}
-            >
-              <Panel
-                header={<h2 className="font-bold">Thông tin chung</h2>}
-                key="1"
+      {!loading &&
+        !getDetailPermitMutation.isPending &&
+        !getDetailPermitMutation.isError && (
+          <div>
+            {/* Header */}
+            <div className="flex justify-between">
+              <Button
+                type="primary"
+                icon={<ArrowLeftOutlined />}
+                onClick={() => navigate("/permit")}
               >
-                <Form form={form} layout="vertical">
-                  <Row gutter={[16, 8]}>
-                    {/* Các input */}
-                    <Col span={8}>
-                      <Form.Item
-                        label="Tên mẫu giấy phép"
-                        name={"templateName"}
-                      >
-                        <Input disabled />
-                      </Form.Item>
-                    </Col>
+                Trở về
+              </Button>
+              <Button type="primary" icon={<EditOutlined />}>
+                Cập nhật
+              </Button>
+            </div>
 
-                    <Col span={8}>
-                      <Form.Item label="Hình thức ký" name="approvalTypeName">
-                        <Input disabled />
-                      </Form.Item>
-                    </Col>
+            {/* Thông tin chung */}
+            <div className="w-[70%] mx-auto bg-white p-4 rounded-lg shadow-lg mt-6">
+              <Collapse
+                defaultActiveKey={["1"]}
+                expandIconPosition="end"
+                className="!bg-white !px-0"
+                bordered={false}
+              >
+                <Panel
+                  header={<h2 className="font-bold">Thông tin chung</h2>}
+                  key="1"
+                >
+                  <Form form={form} layout="vertical">
+                    <Row gutter={[16, 8]}>
+                      {/* Các input */}
+                      <Col span={8}>
+                        <Form.Item
+                          label="Tên mẫu giấy phép"
+                          name={"templateName"}
+                        >
+                          <Input disabled />
+                        </Form.Item>
+                      </Col>
 
-                    <Col span={8}>
-                      <Form.Item label="Loại mẫu" name="templateTypeName">
-                        <Input disabled />
-                      </Form.Item>
-                    </Col>
+                      <Col span={8}>
+                        <Form.Item label="Hình thức ký" name="approvalTypeName">
+                          <Input disabled />
+                        </Form.Item>
+                      </Col>
 
-                    <Col span={8}>
-                      <Form.Item
-                        label="Tên giấy phép"
-                        name="name"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập tên giấy phép",
-                          },
-                        ]}
-                      >
-                        <Input
-                          placeholder="Nhập tên giấy phép"
-                          disabled={isDisable}
-                        />
-                      </Form.Item>
-                    </Col>
+                      <Col span={8}>
+                        <Form.Item label="Loại mẫu" name="templateTypeName">
+                          <Input disabled />
+                        </Form.Item>
+                      </Col>
 
-                    <Col span={8}>
-                      <Form.Item
-                        label="Trạng thái"
-                        name="status"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập trạng thái",
-                          },
-                        ]}
-                        initialValue={"Pending"}
-                      >
-                        <Input placeholder="Nhập trạng thái" disabled />
-                      </Form.Item>
-                    </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          label="Tên giấy phép"
+                          name="name"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập tên giấy phép",
+                            },
+                          ]}
+                        >
+                          <Input
+                            placeholder="Nhập tên giấy phép"
+                            disabled={isDisabled}
+                          />
+                        </Form.Item>
+                      </Col>
 
-                    <Col span={8}>
-                      <Form.Item
-                        label="Tên công ty"
-                        name="companyName"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập tên công ty",
-                          },
-                        ]}
-                      >
-                        <Input
-                          placeholder="Nhập tên công ty"
-                          disabled={isDisable}
-                        />
-                      </Form.Item>
-                    </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          label="Trạng thái"
+                          name="status"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập trạng thái",
+                            },
+                          ]}
+                          initialValue={"Pending"}
+                        >
+                          <Input placeholder="Nhập trạng thái" disabled />
+                        </Form.Item>
+                      </Col>
 
-                    <Col span={8}>
-                      <Form.Item
-                        label="Địa chỉ"
-                        name="location"
-                        rules={[
-                          { required: true, message: "Vui lòng nhập địa chỉ" },
-                        ]}
-                      >
-                        <Input
-                          placeholder="Nhập địa chỉ"
-                          disabled={isDisable}
-                        />
-                      </Form.Item>
-                    </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          label="Tên công ty"
+                          name="companyName"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập tên công ty",
+                            },
+                          ]}
+                        >
+                          <Input
+                            placeholder="Nhập tên công ty"
+                            disabled={isDisabled}
+                          />
+                        </Form.Item>
+                      </Col>
 
-                    <Col span={8}>
-                      <Form.Item
-                        label="Bắt đầu"
-                        name="startTime"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn thời gian bắt đầu",
-                          },
-                        ]}
-                      >
-                        <DatePicker
-                          format={"DD-MM-YYYY"}
-                          style={{ width: "100%" }}
-                          placeholder="Chọn thời gian bắt đầu"
-                          disabled={isDisable}
-                        />
-                      </Form.Item>
-                    </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          label="Địa chỉ"
+                          name="location"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập địa chỉ",
+                            },
+                          ]}
+                        >
+                          <Input
+                            placeholder="Nhập địa chỉ"
+                            disabled={isDisabled}
+                          />
+                        </Form.Item>
+                      </Col>
 
-                    <Col span={8}>
-                      <Form.Item
-                        label="Kết thúc"
-                        name="endTime"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn thời gian kết thúc",
-                          },
-                        ]}
-                      >
-                        <DatePicker
-                          style={{ width: "100%" }}
-                          format={"DD-MM-YYYY"}
-                          placeholder="Chọn thời gian kết thúc"
-                          disabled={isDisable}
-                        />
-                      </Form.Item>
-                    </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          label="Bắt đầu"
+                          name="startTime"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn thời gian bắt đầu",
+                            },
+                          ]}
+                        >
+                          <DatePicker
+                            format={"DD-MM-YYYY"}
+                            style={{ width: "100%" }}
+                            placeholder="Chọn thời gian bắt đầu"
+                            disabled={isDisabled}
+                          />
+                        </Form.Item>
+                      </Col>
 
-                    <Col span={8}>
-                      <Form.Item
-                        label="Số lượng người tham gia"
-                        name="peopleNumber"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập số lượng người tham gia",
-                          },
-                          { type: "number", min: 1, message: "Phải lớn hơn 0" },
-                        ]}
-                      >
-                        <InputNumber
-                          style={{ width: "100%" }}
-                          placeholder="Nhập số lượng"
-                          disabled={isDisable}
-                        />
-                      </Form.Item>
-                    </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          label="Kết thúc"
+                          name="endTime"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn thời gian kết thúc",
+                            },
+                          ]}
+                        >
+                          <DatePicker
+                            style={{ width: "100%" }}
+                            format={"DD-MM-YYYY"}
+                            placeholder="Chọn thời gian kết thúc"
+                            disabled={isDisabled}
+                          />
+                        </Form.Item>
+                      </Col>
 
-                    <Col span={8}>
-                      <Form.Item label="Thiết bị tham gia" name="deviceIds">
-                        <Select
-                          disabled={isDisable}
-                          mode="multiple"
-                          allowClear
-                          maxTagCount="responsive"
-                          showSearch
-                          placeholder="Chọn thiết bị"
-                          optionFilterProp="children"
-                          options={[
-                            ...(devicesData || []),
-                            ...(state?.devices || []),
-                          ].map((item: any) => ({
-                            label: item.name,
-                            value: item.id,
-                          }))}
-                        />
-                      </Form.Item>
-                    </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          label="Số lượng người tham gia"
+                          name="peopleNumber"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập số lượng người tham gia",
+                            },
+                            {
+                              type: "number",
+                              min: 1,
+                              message: "Phải lớn hơn 0",
+                            },
+                          ]}
+                        >
+                          <InputNumber
+                            style={{ width: "100%" }}
+                            placeholder="Nhập số lượng"
+                            disabled={isDisabled}
+                          />
+                        </Form.Item>
+                      </Col>
 
-                    <Col span={8}>
-                      <Form.Item
-                        label="Công việc"
-                        name="workActivityIds"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn công việc",
-                          },
-                        ]}
-                      >
-                        <Select
-                          mode="multiple"
-                          allowClear
-                          disabled={isDisable}
-                          maxTagCount="responsive"
-                          showSearch
-                          placeholder="Chọn công việc"
-                          optionFilterProp="children"
-                          options={
-                            workActivitiesData?.map((item: any) => ({
+                      <Col span={8}>
+                        <Form.Item label="Thiết bị tham gia" name="deviceIds">
+                          <Select
+                            disabled={isDisabled}
+                            mode="multiple"
+                            allowClear
+                            maxTagCount="responsive"
+                            showSearch
+                            placeholder="Chọn thiết bị"
+                            optionFilterProp="children"
+                            options={[
+                              ...(devicesData || []),
+                              ...(state?.devices || []),
+                            ].map((item: any) => ({
                               label: item.name,
                               value: item.id,
-                            })) || []
-                          }
-                        />
-                      </Form.Item>
-                    </Col>
+                            }))}
+                          />
+                        </Form.Item>
+                      </Col>
 
-                    <Col span={24}>
-                      <Form.Item label="Mô tả" name="description">
-                        <Input.TextArea
-                          rows={4}
-                          disabled={isDisable}
-                          placeholder="Nhập mô tả chi tiết"
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                </Form>
-              </Panel>
-            </Collapse>
-          </div>
+                      <Col span={8}>
+                        <Form.Item
+                          label="Công việc"
+                          name="workActivityIds"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn công việc",
+                            },
+                          ]}
+                        >
+                          <Select
+                            mode="multiple"
+                            allowClear
+                            disabled={isDisabled}
+                            maxTagCount="responsive"
+                            showSearch
+                            placeholder="Chọn công việc"
+                            optionFilterProp="children"
+                            options={
+                              workActivitiesData?.map((item: any) => ({
+                                label: item.name,
+                                value: item.id,
+                              })) || []
+                            }
+                          />
+                        </Form.Item>
+                      </Col>
 
-          {/* Sections */}
-          {state?.map((section: any) => {
-            const sign = getSectionSign(section.id);
-            return (
-              <div
-                key={section.id}
-                className="w-[70%] mx-auto bg-white p-6 rounded-lg shadow-lg mt-6"
-              >
-                <h2 className="font-bold">{section.name}</h2>
-                <Divider />
+                      <Col span={24}>
+                        <Form.Item label="Mô tả" name="description">
+                          <Input.TextArea
+                            rows={4}
+                            disabled={isDisabled}
+                            placeholder="Nhập mô tả chi tiết"
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </Form>
+                </Panel>
+              </Collapse>
+            </div>
 
-                <div className="space-y-4">
-                  {section.fields.map((field: any) => (
-                    <div key={field.id}>
-                      {handleRender(section, field, dispatch, isDisable)}
-                    </div>
-                  ))}
+            {/* Sections */}
+            {state?.map((section: any) => {
+              const sign = getSectionSign(section.id);
+              return (
+                <div
+                  key={section.id}
+                  className="w-[70%] mx-auto bg-white p-6 rounded-lg shadow-lg mt-6"
+                >
+                  <h2 className="font-bold">{section.name}</h2>
+                  <Divider />
 
-                  {sign && (
-                    <div className="flex space-x-8 bg-white">
-                      <div className="w-1/2">
-                        <h3 className="font-semibold mb-2">
-                          Thông tin người ký
-                        </h3>
-                        {sign.signer ? (
-                          <div className="border border-gray-300 mt-1 max-w-full rounded-md p-4 space-y-1">
-                            <p>
-                              <strong>Tên:</strong> {sign.signer.name}
-                            </p>
-                            <p>
-                              <strong>Email:</strong> {sign.signer.email}
-                            </p>
-                            <p>
-                              <strong>Số điện thoại:</strong>{" "}
-                              {sign.signer.phone}
-                            </p>
-                            {sign.status === "Signed" && (
+                  <div className="space-y-4">
+                    {section.fields.map((field: any) => (
+                      <div key={field.id}>
+                        {handleRender(
+                          section,
+                          field,
+                          dispatch,
+                          isDisabled ||
+                            disabledSignedSectionIds.includes(section.id)
+                        )}
+                      </div>
+                    ))}
+
+                    {sign && (
+                      <div className="flex space-x-8 bg-white">
+                        <div className="w-1/2">
+                          <h3 className="font-semibold mb-2">
+                            Thông tin người ký
+                          </h3>
+                          {sign.signer ? (
+                            <div className="border border-gray-300 mt-1 max-w-full rounded-md p-4 space-y-1">
                               <p>
-                                <strong>Ngày ký:</strong>{" "}
-                                {new Date(sign.signedAt).toLocaleString()}
+                                <strong>Tên:</strong> {sign.signer.name}
                               </p>
-                            )}
-                          </div>
-                        ) : (
-                          <p style={{ color: "#999" }}>
-                            Chưa có thông tin người ký
-                          </p>
-                        )}
-                      </div>
+                              <p>
+                                <strong>Email:</strong> {sign.signer.email}
+                              </p>
+                              <p>
+                                <strong>Số điện thoại:</strong>{" "}
+                                {sign.signer.phone}
+                              </p>
+                              {sign.status === "Signed" && (
+                                <p>
+                                  <strong>Ngày ký:</strong>{" "}
+                                  {new Date(sign.signedAt).toLocaleString()}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <p style={{ color: "#999" }}>
+                              Chưa có thông tin người ký
+                            </p>
+                          )}
+                        </div>
 
-                      {/* Chữ ký */}
-                      <div className="w-1/2">
-                        <h3 className="font-semibold mb-2">Chữ ký</h3>
-                        {sign.signUrl ? (
-                          <img
-                            src={sign.signUrl}
-                            alt="signature-preview"
-                            style={{
-                              border: "1px solid #ccc",
-                              marginTop: 4,
-                              maxWidth: "100%",
-                              borderRadius: "5px",
-                            }}
-                          />
-                        ) : (
-                          <SignButton
-                            section={section}
-                            permitId={permitId}
-                            setSigns={setSigns}
-                          />
-                        )}
+                        {/* Chữ ký */}
+                        <div className="w-1/2">
+                          <h3 className="font-semibold mb-2">Chữ ký</h3>
+                          {sign.signUrl ? (
+                            <img
+                              src={sign.signUrl}
+                              alt="signature-preview"
+                              style={{
+                                border: "1px solid #ccc",
+                                marginTop: 4,
+                                maxWidth: "100%",
+                                borderRadius: "5px",
+                              }}
+                            />
+                          ) : (
+                            <SignButton
+                              sign={sign}
+                              form={form}
+                              section={section}
+                              permitId={permitId}
+                              setSigns={setSigns}
+                            />
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
 
-          <AttachmentFile
-            state={fileState}
-            dispatch={fileDispatch}
-            isDisable={isDisable}
-          />
-        </div>
-      )}
+            <AttachmentFile
+              state={fileState}
+              dispatch={fileDispatch}
+              isDisabled={isDisabled}
+            />
+          </div>
+        )}
     </div>
   );
 }

@@ -26,6 +26,7 @@ import CreatePermitDrawer from "./components/create-permit-drawer";
 import type { ColumnsType } from "antd/es/table";
 import { formatDate } from "@/common/common-services/formatTime";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 export default function PermitPage() {
   const {
     state,
@@ -198,11 +199,11 @@ export default function PermitPage() {
           <Tooltip title={"Sửa"}>
             <Button
               size="small"
-              disabled={record.deletedAt}
+              disabled={record.deletedAt || !record.canEdit}
               icon={<EditOutlined />}
               onClick={() => navigate(`/permit/update/${record.id}`)}
               style={
-                !record.deletedAt
+                !record.deletedAt && record.canEdit
                   ? {
                       backgroundColor: "#fa8c16",
                       borderColor: "#fa8c16",
@@ -216,7 +217,7 @@ export default function PermitPage() {
             <Button
               danger
               type="primary"
-              disabled={record.status !== "Pending"}
+              disabled={!record.canDelete}
               size="small"
               icon={<DeleteOutlined />}
               onClick={() =>
@@ -390,7 +391,6 @@ export default function PermitPage() {
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => {
-              console.log(modalForm);
               handleRefreshSearch();
             }}
           >

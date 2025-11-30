@@ -1,7 +1,7 @@
 import { Button, Checkbox, Col, Input, Radio, Row } from "antd";
 import type { props } from "./single-input";
-import { upperCase } from "lodash";
-import { useState } from "react";
+import { upperCase, debounce } from "lodash";
+import { useState, useCallback } from "react";
 import { DeleteOutlined } from "@ant-design/icons";
 
 export default function RadioField({
@@ -13,6 +13,20 @@ export default function RadioField({
   const [value, setValue] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
 
+  // Debounce update label
+  const debouncedUpdateLabel = useCallback(
+    debounce((value: string) => {
+      handleUpdateField({ target: { value } }, section, field, "label");
+    }, 100),
+    []
+  );
+
+  // Debounce input option
+  const debouncedOptionInput = useCallback(
+    debounce((val: string) => setValue(val), 200),
+    []
+  );
+
   return (
     <div>
       <div className="mb-2 text-base font-semibold text-gray-700">
@@ -20,18 +34,20 @@ export default function RadioField({
       </div>
 
       <Row gutter={16} className="items-start">
+        {/* LABEL */}
         <Col span={8}>
           <div className="flex flex-col gap-1">
             <span className="text-sm font-semibold text-gray-600">Nhãn</span>
             <Input
               placeholder="Nhập label"
-              value={field.label}
-              onChange={(e) => handleUpdateField(e, section, field, "label")}
+              defaultValue={field.label}
+              onChange={(e) => debouncedUpdateLabel(e.target.value)}
               size="small"
             />
           </div>
         </Col>
 
+        {/* OPTIONS */}
         <Col span={10}>
           <div className="flex flex-col gap-1">
             <span className="text-sm font-semibold text-gray-600">
@@ -42,9 +58,10 @@ export default function RadioField({
               <Input
                 placeholder="Nhập lựa chọn"
                 size="small"
-                value={value || ""}
-                onChange={(e) => setValue(e.target.value)}
+                defaultValue={value || ""}
+                onChange={(e) => debouncedOptionInput(e.target.value)}
               />
+
               <Button
                 size="small"
                 type="primary"
@@ -101,6 +118,7 @@ export default function RadioField({
           </div>
         </Col>
 
+        {/* REQUIRED */}
         <Col span={6}>
           <div className="flex flex-col gap-1">
             <span className="text-sm font-semibold text-gray-600">

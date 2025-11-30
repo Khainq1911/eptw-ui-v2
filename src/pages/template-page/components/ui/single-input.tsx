@@ -1,6 +1,7 @@
 import { Checkbox, Col, Input, Row } from "antd";
 import type { Field, Section } from "../../template-type";
-import { upperCase } from "lodash";
+import { upperCase, debounce } from "lodash";
+import { useCallback } from "react";
 
 export interface props {
   field: Field;
@@ -14,6 +15,14 @@ export default function SingleInput({
   section,
   handleUpdateField,
 }: props) {
+  // Debounce cập nhật label
+  const debouncedUpdateLabel = useCallback(
+    debounce((value: string) => {
+      handleUpdateField({ target: { value } }, section, field, "label");
+    }, 100),
+    []
+  );
+
   return (
     <div>
       <div className="mb-2 text-base font-semibold text-gray-700">
@@ -27,8 +36,8 @@ export default function SingleInput({
             <Input
               size="small"
               placeholder="Nhập label"
-              value={field.label}
-              onChange={(e) => handleUpdateField(e, section, field, "label")}
+              defaultValue={field.label}
+              onChange={(e) => debouncedUpdateLabel(e.target.value)}
             />
           </div>
         </Col>

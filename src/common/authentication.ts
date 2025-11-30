@@ -1,4 +1,5 @@
 import { jwtDecode } from "jwt-decode";
+import { lowerFirst } from "lodash";
 
 export const AuthCommonService = {
   getAccessToken: () => {
@@ -15,6 +16,7 @@ export const AuthCommonService = {
     const accessToken = AuthCommonService.getAccessToken();
     if (accessToken) {
       const payload: {
+        id: number;
         roleId: number;
         name: string;
         email: string;
@@ -27,8 +29,9 @@ export const AuthCommonService = {
   isAdmin: () => {
     const accessToken = AuthCommonService.getAccessToken();
     if (accessToken) {
-      const payload: { roleId: number; name: string } = jwtDecode(accessToken);
-      return payload.roleId === 4;
+      const payload: { roleId: number; name: string; alias: string } =
+        jwtDecode(accessToken);
+      return lowerFirst(payload.name) === "admin";
     }
     return false;
   },

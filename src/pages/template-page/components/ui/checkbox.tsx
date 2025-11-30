@@ -1,7 +1,7 @@
 import { Button, Checkbox, Col, Input, Row } from "antd";
 import type { props } from "./single-input";
-import { upperCase } from "lodash";
-import { useState } from "react";
+import { upperCase, debounce } from "lodash";
+import { useCallback, useState } from "react";
 import { DeleteOutlined } from "@ant-design/icons";
 
 export default function CheckboxField({
@@ -11,6 +11,15 @@ export default function CheckboxField({
   handleUpdateField,
 }: props) {
   const [value, setValue] = useState<string | null>(null);
+
+  // Debounce 300ms
+  const debouncedChange = useCallback(
+    debounce((val: string) => {
+      setValue(val);
+    }, 100),
+    []
+  );
+
   return (
     <div>
       <div className="mb-2 text-base font-semibold text-gray-700">
@@ -40,18 +49,17 @@ export default function CheckboxField({
                 placeholder="Nhập lựa chọn"
                 size="small"
                 value={value || ""}
-                onChange={(e) => setValue(e.target.value)}
+                onChange={(e) => debouncedChange(e.target.value)}
               />
+
               <Button
                 size="small"
                 type="primary"
                 onClick={() => {
-                  console.log(value);
                   dispatch({
                     type: "ADD_OPTION",
                     payload: { section, field, data: value },
                   });
-
                   setValue(null);
                 }}
               >
