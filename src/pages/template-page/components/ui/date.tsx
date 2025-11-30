@@ -1,8 +1,17 @@
-import { upperCase } from "lodash";
+import { upperCase, debounce } from "lodash";
 import type { props } from "./single-input";
 import { Checkbox, Col, DatePicker, Input, Row } from "antd";
+import { useCallback } from "react";
 
 export default function Date({ field, section, handleUpdateField }: props) {
+  // Debounce 300ms cho label
+  const debouncedUpdateLabel = useCallback(
+    debounce((e) => {
+      handleUpdateField(e, section, field, "label");
+    }, 100),
+    []
+  );
+
   return (
     <div>
       <div className="mb-2 text-base font-semibold text-gray-700">
@@ -17,7 +26,7 @@ export default function Date({ field, section, handleUpdateField }: props) {
               size="small"
               placeholder="Nhập label"
               value={field.label}
-              onChange={(e) => handleUpdateField(e, section, field, "label")}
+              onChange={(e) => debouncedUpdateLabel(e)}
             />
           </div>
         </Col>

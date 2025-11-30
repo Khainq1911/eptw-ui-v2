@@ -1,10 +1,19 @@
 import { Checkbox, Col, Input, Row } from "antd";
 import type { props } from "./single-input";
-import { upperCase } from "lodash";
+import { upperCase, debounce } from "lodash";
+import { useCallback } from "react";
 
 export default function TextArea({ field, section, handleUpdateField }: props) {
+  // Debounce update label 300ms
+  const debouncedUpdateLabel = useCallback(
+    debounce((value: string) => {
+      handleUpdateField({ target: { value } }, section, field, "label");
+    }, 300),
+    []
+  );
+
   return (
-    <div >
+    <div>
       <div className="mb-2 text-base font-semibold text-gray-700">
         {upperCase(field.type) || "Chưa đặt tên trường"}
       </div>
@@ -16,8 +25,8 @@ export default function TextArea({ field, section, handleUpdateField }: props) {
             <Input
               size="small"
               placeholder="Nhập label"
-              value={field.label}
-              onChange={(e) => handleUpdateField(e, section, field, "label")}
+              defaultValue={field.label}
+              onChange={(e) => debouncedUpdateLabel(e.target.value)}
             />
           </div>
         </Col>

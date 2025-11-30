@@ -17,8 +17,8 @@ export const deletePermit = async (id: number) => {
   return res.data;
 };
 
-export const getDetailPermit = async (id: number) => {
-  const res = await axiosInstance.get(`permit/${id}`);
+export const getDetailPermit = async ({ id, action }: any) => {
+  const res = await axiosInstance.post(`permit/${id}`, { action });
   return res.data;
 };
 
@@ -47,6 +47,9 @@ export const useSendOtp = () => {
 export const useGetDetailPermit = () => {
   return useMutation({
     mutationFn: getDetailPermit,
+    /* onError: () => {
+      return (window.location.href = "/permit");
+    }, */
   });
 };
 

@@ -158,7 +158,7 @@ const reducer = (state: Template, action: any) => {
     }
 
     case "REMOVE_OPTION": {
-      const { section, field, index } = action.payload; 
+      const { section, field, index } = action.payload;
       return {
         ...state,
         sections: state.sections.map((s) =>

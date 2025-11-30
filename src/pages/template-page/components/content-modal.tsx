@@ -26,6 +26,7 @@ interface props {
   state: Template;
   dispatch: React.Dispatch<any>;
   isPreview: boolean;
+  action: any;
   inforForm: FormInstance;
   handleRenderField: (
     type: string,
@@ -38,6 +39,7 @@ interface props {
 export default function ContentModal({
   state,
   dispatch,
+  action,
   inforForm,
   handleRenderField,
 }: props) {
@@ -63,6 +65,16 @@ export default function ContentModal({
       },
     });
   };
+  useEffect(() => {
+    if (action.edit) {
+      inforForm.setFieldsValue({
+        name: state.name,
+        description: state.description,
+        templateTypeId: state.templateTypeId,
+        approvalTypeId: state.approvalTypeId,
+      });
+    }
+  }, [action]);
 
   const handleUpdateField = (
     event: ChangeEvent<HTMLInputElement>,
@@ -276,8 +288,8 @@ export default function ContentModal({
                         items={section.fields.map((field: Field) => field)}
                       >
                         <div className="grid grid-col-1 gap-6">
-                          {section.fields.map((field: Field, i: number) => (
-                            <SortableItem props={field} key={i}>
+                          {section.fields.map((field: Field) => (
+                            <SortableItem props={field} key={field.id}>
                               <div className="relative group border border-gray-300 rounded-lg p-4 shadow-sm transition-all duration-200 hover:border-blue-500">
                                 {handleRenderField(
                                   field.type,

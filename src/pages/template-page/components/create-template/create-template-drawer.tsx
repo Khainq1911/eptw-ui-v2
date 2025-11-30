@@ -1,5 +1,5 @@
 import { Button, Drawer, Form, Space } from "antd";
-import { useCallback, useEffect, useState, type SetStateAction } from "react";
+import { useCallback, useState, type SetStateAction } from "react";
 import SidebarModal from "../sidebar-modal";
 import ContentModal from "../content-modal";
 import SingleInput from "../ui/single-input";
@@ -41,17 +41,6 @@ export default function AddTemplateModal({
   const createTemplateMutation = useCreateTemplateMutation();
   const updateTemplateMutation = useUpdateTemplateMutation();
   const [isPreview, setIsPreview] = useState(false);
-
-  useEffect(() => {
-    if (action.edit) {
-      inforForm.setFieldsValue({
-        name: state.name,
-        description: state.description,
-        templateTypeId: state.templateTypeId,
-        approvalTypeId: state.approvalTypeId,
-      });
-    }
-  }, [action]);
 
   const handleRenderField = useCallback(
     (type: string, field: Field, section: Section, handleUpdateField: any) => {
@@ -195,6 +184,7 @@ export default function AddTemplateModal({
                     type: "RESET_STATE",
                   });
                 } catch (error: unknown) {
+                  console.log(error);
                   const axiosError = error as AxiosError<{ message?: string }>;
                   const msg =
                     axiosError.response?.data?.message || "Đã có lỗi xảy ra";
@@ -214,6 +204,7 @@ export default function AddTemplateModal({
         <ContentModal
           isPreview={isPreview}
           state={state}
+          action={action}
           inforForm={inforForm}
           dispatch={dispatch}
           handleRenderField={handleRenderField}

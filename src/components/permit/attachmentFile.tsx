@@ -9,7 +9,7 @@ import type { ColumnsType } from "antd/es/table";
 
 import { useMemo, useState } from "react";
 
-export default function AttachmentFile({ dispatch, state, isDisable }: any) {
+export default function AttachmentFile({ dispatch, state, isDisabled }: any) {
   const [openAddFileModal, setOpenAddFileModal] = useState(false);
 
   const handleOpenAddFileModal = () => {
@@ -77,7 +77,7 @@ export default function AttachmentFile({ dispatch, state, isDisable }: any) {
           <Button
             icon={<DeleteOutlined />}
             type="primary"
-            disabled={isDisable}
+            disabled={isDisabled}
             danger
             onClick={() =>
               dispatch({
@@ -110,7 +110,7 @@ export default function AttachmentFile({ dispatch, state, isDisable }: any) {
         <h2 className="font-bold">File đính kèm</h2>
         <Button
           type="primary"
-          disabled={isDisable}
+          disabled={isDisabled}
           icon={<PlusOutlined />}
           onClick={handleOpenAddFileModal}
         >

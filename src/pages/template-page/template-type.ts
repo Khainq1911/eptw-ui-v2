@@ -19,6 +19,8 @@ export interface Section {
 
 export interface Template {
   name: string;
+  templateTypeId?: number;
+  approvalTypeId?: number;
   description: string;
   sections: Section[];
 }
