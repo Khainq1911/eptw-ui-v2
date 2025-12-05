@@ -1,6 +1,6 @@
 import { handleRender } from "@/pages/permit-page/components/field-list";
 import { useGetFreeAndActive } from "@/services/device.service";
-import { useGetDetailPermit } from "@/services/permit.service";
+import { useGetDetailPermit, useUpdatePermit } from "@/services/permit.service";
 import { useGetWorkActivities } from "@/services/work-activity.service";
 import { ArrowLeftOutlined, EditOutlined } from "@ant-design/icons";
 import {
@@ -22,11 +22,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AttachmentFile from "./attachmentFile";
 import { formatDate } from "@/common/common-services/formatTime";
-import SignButton from "./signButton";
-import { AuthCommonService } from "@/common/authentication";
-import { get } from "lodash";
 import axios from "axios";
 import ErrorPage from "@/pages/error-page";
+import SignButton from "./signButton";
+import { uploadUpdatedFiles } from "@/services/upload-file.service";
 
 const { Panel } = Collapse;
 
@@ -37,7 +36,7 @@ export default function PermitComponent({
   fileDispatch,
 }: any) {
   const [form] = Form.useForm();
-  const { notification } = App.useApp();
+  const { notification, modal } = App.useApp();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,7 +47,12 @@ export default function PermitComponent({
     "404"
   );
 
+  useEffect(() => {
+    console.log(fileState);
+  }, [fileState]);
+
   const getDetailPermitMutation = useGetDetailPermit();
+  const updatePermitMutation = useUpdatePermit();
   const { data: devicesData } = useGetFreeAndActive();
   const { data: workActivitiesData } = useGetWorkActivities();
 
@@ -56,6 +60,22 @@ export default function PermitComponent({
     () => Number(location?.pathname?.split("/")[3]),
     [location?.pathname]
   );
+
+  const deviceOptions = useMemo(() => {
+    const merged = [
+      ...(devicesData ?? []),
+      ...(getDetailPermitMutation?.data?.devices ?? []),
+    ];
+
+    const unique = Array.from(
+      new Map(merged.map((d: any) => [d.id, d])).values()
+    );
+
+    return unique.map((item: any) => ({
+      label: item.name,
+      value: item.id,
+    }));
+  }, [devicesData, getDetailPermitMutation?.data]);
 
   const disabledSignedSectionIds = useMemo(() => {
     return signs
@@ -110,7 +130,6 @@ export default function PermitComponent({
   }, []);
 
   const getSectionSign = (sectionId: number) => {
-    console.log(signs);
     return signs.find((s: any) => s.sectionId === sectionId);
   };
 
@@ -124,6 +143,7 @@ export default function PermitComponent({
       const deviceIds = payload.devices.map((item: any) => item.id);
 
       const values = {
+        id: payload.id,
         templateName: payload.template.name,
         companyName: payload.companyName,
         location: payload.location,
@@ -157,6 +177,59 @@ export default function PermitComponent({
       dispatch({ type: "SET_INIT_DATA", payload: payload.sections });
     }
   }, [getDetailPermitMutation.data]);
+
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
+      console.log("payload", {
+        ...values,
+        sections: state,
+        id: permitId,
+        attachments: fileState,
+      });
+
+      const attachments = await uploadUpdatedFiles(fileState);
+      const res = await updatePermitMutation.mutateAsync({
+        ...values,
+        sections: state,
+        id: permitId,
+        attachments: attachments,
+      });
+
+      const attachmentFiles = attachments.filter((item: any) => item.id);
+
+      fileDispatch({
+        type: "SET_INIT_DATA",
+        payload: [...attachmentFiles, ...res.attachments],
+      });
+
+      notification.success({
+        message: "Thành công",
+        description: "Cập nhật giấy phép thành công",
+      });
+    } catch (error) {
+      let message = "Cập nhật giấy phép thất bại";
+
+      if (axios.isAxiosError(error)) {
+        message = error.response?.data?.message || error.message || message;
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+      notification.error({
+        message: "Lỗi",
+        description: message,
+      });
+    }
+  };
+
+  const handleUpdatePermit = () =>
+    modal.confirm({
+      title: "Xác nhận cập nhật giấy phép",
+      content: "Bạn có chắc chắn muốn cập nhật giấy phép này không?",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      onOk: handleOk,
+    });
 
   return (
     <div
@@ -193,7 +266,12 @@ export default function PermitComponent({
               >
                 Trở về
               </Button>
-              <Button type="primary" icon={<EditOutlined />}>
+              <Button
+                disabled={isDisabled}
+                type="primary"
+                icon={<EditOutlined />}
+                onClick={handleUpdatePermit}
+              >
                 Cập nhật
               </Button>
             </div>
@@ -377,14 +455,8 @@ export default function PermitComponent({
                             maxTagCount="responsive"
                             showSearch
                             placeholder="Chọn thiết bị"
-                            optionFilterProp="children"
-                            options={[
-                              ...(devicesData || []),
-                              ...(state?.devices || []),
-                            ].map((item: any) => ({
-                              label: item.name,
-                              value: item.id,
-                            }))}
+                            optionFilterProp="label"
+                            options={deviceOptions}
                           />
                         </Form.Item>
                       </Col>
@@ -407,7 +479,7 @@ export default function PermitComponent({
                             maxTagCount="responsive"
                             showSearch
                             placeholder="Chọn công việc"
-                            optionFilterProp="children"
+                            optionFilterProp="label"
                             options={
                               workActivitiesData?.map((item: any) => ({
                                 label: item.name,

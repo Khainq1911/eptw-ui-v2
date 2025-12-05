@@ -1,5 +1,4 @@
 import { Form, Modal, Select } from "antd";
-import { useGetTemplateDdl } from "../services";
 import { useGetTemplateById } from "@/pages/template-page/template-services";
 
 export default function SelectTemplateModal({
@@ -8,14 +7,13 @@ export default function SelectTemplateModal({
   handleCloseModalSelect,
   handleOpenCreatePermit,
   dispatch,
+  templateDdl,
 }: any) {
-  const { data: templateDdl, isLoading } = useGetTemplateDdl();
   const getTemplateMutation = useGetTemplateById();
   return (
     <Modal
       open={openModalSelect}
       onCancel={handleCloseModalSelect}
-      loading={isLoading}
       onOk={async () => {
         const value = await modalForm.validateFields();
         const res = await getTemplateMutation.mutateAsync(value.template);

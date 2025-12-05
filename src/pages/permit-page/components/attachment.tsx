@@ -6,16 +6,37 @@ import {
 import { Button, Divider, Space, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import AddFileModal from "./add-file-modal";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 export default function AttachmentFile({ dispatch, state }: any) {
   const [openAddFileModal, setOpenAddFileModal] = useState(false);
-
-  const handleOpenAddFileModal = () => {
+  const handleOpenAddFileModal = useCallback(() => {
     setOpenAddFileModal(true);
-  };
-  const handleCloseAddFileModal = () => {
+  }, []);
+  const handleCloseAddFileModal = useCallback(() => {
     setOpenAddFileModal(false);
+  }, []);
+
+  const downloadFile = (file: any) => {
+    let blob;
+    let url;
+    if (file?.originFileObj) {
+      blob = new Blob([file?.originFileObj], { type: file.type });
+      url = URL.createObjectURL(blob);
+    } else {
+      console.log(file);
+      return;
+    }
+
+    if (!url) return;
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name;
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(url);
   };
 
   const columns: ColumnsType = [
@@ -72,7 +93,11 @@ export default function AttachmentFile({ dispatch, state }: any) {
       width: 100,
       render: (_: any, record: any) => (
         <Space>
-          <Button icon={<DownloadOutlined />} type="primary" />
+          <Button
+            icon={<DownloadOutlined />}
+            type="primary"
+            onClick={() => downloadFile(record)}
+          />
           <Button
             icon={<DeleteOutlined />}
             type="primary"
@@ -93,13 +118,9 @@ export default function AttachmentFile({ dispatch, state }: any) {
     if (!state?.attachments) {
       return [];
     }
-    return state.attachments.map((item: any) => ({
-      uid: item.file[0].uid,
-      type: item.file[0].type,
-      name: item.file[0].name,
-      size: item.file[0].size,
-      createdAt: item.file[0].createdAt,
-    }));
+
+    console.log(state.attachments);
+    return state.attachments;
   }, [state]);
 
   return (

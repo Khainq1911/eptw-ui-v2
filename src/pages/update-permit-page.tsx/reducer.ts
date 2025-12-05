@@ -40,7 +40,7 @@ export const attachmentFileReducer = (state: any, action: any) => {
       );
     }
     case "ADD_ATTACHMENTS": {
-      return [...state, action.payload.file[0]];
+      return [...(state || []), action.payload];
     }
     default: {
       return state;
