@@ -57,13 +57,13 @@ export const reducer = (state: any, action: any) => {
     case "ADD_ATTACHMENTS":
       return {
         ...state,
-        attachments: [...(state?.attachments || []), action.payload],
+        attachments: [...(state?.attachments || []), action.payload.attachments],
       };
     case "REMOVE_ATTACHMENT": {
       return {
         ...state,
         attachments: state.attachments.filter(
-          (item: any) => item.file[0].uid !== action.payload.uid
+          (item: any) => item.uid !== action.payload.uid
         ),
       };
     }

@@ -1,11 +1,19 @@
 import { Checkbox, Col, Row } from "antd";
 import { debounce } from "lodash";
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 
 function CheckboxField({ section, field, dispatch, isDisable }: any) {
   const [touched, setTouched] = useState(false);
 
-  // debounce dispatch 300ms
+  // local value
+  const [localValue, setLocalValue] = useState<any[]>(field.value || []);
+
+  // đồng bộ khi field.value thay đổi (khi load form từ API)
+  useEffect(() => {
+    setLocalValue(field.value || []);
+  }, [field.value]);
+
+  // debounce dispatch 100ms
   const debouncedDispatch = useMemo(
     () =>
       debounce((value: any[]) => {
@@ -19,15 +27,14 @@ function CheckboxField({ section, field, dispatch, isDisable }: any) {
 
   const handleChange = useCallback(
     (value: any[]) => {
-      debouncedDispatch(value);
+      setLocalValue(value);      // update UI ngay
+      debouncedDispatch(value);  // update form state sau 100ms
     },
     [debouncedDispatch]
   );
 
   const showError =
-    touched && field.required && (!field.value || field.value.length === 0);
-
-  const errorMsg = showError ? "Vui lòng chọn ít nhất một mục" : "";
+    touched && field.required && (!localValue || localValue.length === 0);
 
   return (
     <Row gutter={16} className="mb-2">
@@ -43,14 +50,16 @@ function CheckboxField({ section, field, dispatch, isDisable }: any) {
           <Checkbox.Group
             disabled={isDisable}
             options={field.options}
-            value={field.value || []}
+            value={localValue}
             onChange={handleChange}
             style={{ display: "flex", flexDirection: "column", gap: 4 }}
           />
         </div>
 
-        {errorMsg && (
-          <div style={{ color: "red", marginTop: 4 }}>{errorMsg}</div>
+        {showError && (
+            <div style={{ color: "red", marginTop: 4 }}>
+              Vui lòng chọn ít nhất một mục
+            </div>
         )}
       </Col>
     </Row>

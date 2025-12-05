@@ -16,12 +16,13 @@ import {
   Row,
   Select,
   Space,
+  Spin,
   Table,
   Tag,
   Tooltip,
 } from "antd";
 import SelectTemplateModal from "./components/select-template-modal";
-import { usePermitHooks } from "./services";
+import { useGetTemplateDdl, usePermitHooks } from "./services";
 import CreatePermitDrawer from "./components/create-permit-drawer";
 import type { ColumnsType } from "antd/es/table";
 import { formatDate } from "@/common/common-services/formatTime";
@@ -52,7 +53,8 @@ export default function PermitPage() {
     deletePermitMutation,
     getDetailPermitMutation,
   } = usePermitHooks();
-
+  const { data: templateDdl, isLoading: isLoadingTemplate } =
+    useGetTemplateDdl();
   const { modal } = App.useApp();
   const navigate = useNavigate();
 
@@ -238,7 +240,7 @@ export default function PermitPage() {
   ];
 
   return (
-    <div>
+    <Spin spinning={isLoadingTemplate}>
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 mb-6 md:mb-2">
@@ -434,6 +436,7 @@ export default function PermitPage() {
       <SelectTemplateModal
         dispatch={dispatch}
         modalForm={modalForm}
+        templateDdl={templateDdl}
         openModalSelect={openModalSelect}
         handleCloseModalSelect={handleCloseModalSelect}
         handleOpenCreatePermit={handleOpenCreatePermit}
@@ -445,6 +448,6 @@ export default function PermitPage() {
         openCreatePermit={openCreatePermit}
         handleCloseCreatePermit={handleCloseCreatePermit}
       />
-    </div>
+    </Spin>
   );
 }

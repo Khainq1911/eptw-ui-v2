@@ -1,6 +1,6 @@
 import { formatDate } from "@/common/common-services/formatTime";
 import { UploadOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Modal, Upload } from "antd";
+import { Button, Form, Modal, Upload } from "antd";
 import { useState } from "react";
 
 export default function AddFileModal({ open, onClose, dispatch }: any) {
@@ -23,17 +23,12 @@ export default function AddFileModal({ open, onClose, dispatch }: any) {
 
   const handleOk = async () => {
     const values = await form.validateFields();
-
+    console.log(values);
     dispatch({
       type: "ADD_ATTACHMENTS",
       payload: {
-        ...values,
-        file: [
-          {
-            ...values.file[0],
-            createdAt: formatDate(new Date().toISOString()),
-          },
-        ],
+        ...values.file[0],
+        createdAt: formatDate(new Date().toISOString()),
       },
     });
 
@@ -55,14 +50,6 @@ export default function AddFileModal({ open, onClose, dispatch }: any) {
       destroyOnHidden
     >
       <Form layout="vertical" form={form}>
-        <Form.Item
-          label="Loại file"
-          name="type"
-          rules={[{ required: true, message: "Vui lòng nhập loại file" }]}
-        >
-          <Input />
-        </Form.Item>
-
         <Form.Item
           label="File đính kèm"
           name="file"

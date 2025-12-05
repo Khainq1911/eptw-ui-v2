@@ -1,4 +1,5 @@
 import AddFileModal from "@/pages/permit-page/components/add-file-modal";
+import { downloadUploadedFile } from "@/services/upload-file.service";
 import {
   DeleteOutlined,
   DownloadOutlined,
@@ -17,6 +18,28 @@ export default function AttachmentFile({ dispatch, state, isDisabled }: any) {
   };
   const handleCloseAddFileModal = () => {
     setOpenAddFileModal(false);
+  };
+
+  const downloadFile = async (file: any) => {
+
+    let blob;
+    let url;
+    if (file?.originFileObj) {
+      blob = new Blob([file?.originFileObj], { type: file.type });
+      url = URL.createObjectURL(blob);
+    } else {
+      const res = await downloadUploadedFile(file.bucket, file.objectKey);
+      const response = await fetch(res.url);
+      blob = await response.blob();
+      url = URL.createObjectURL(blob);
+    }
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name;
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(url);
   };
 
   const columns: ColumnsType = [
@@ -73,7 +96,11 @@ export default function AttachmentFile({ dispatch, state, isDisabled }: any) {
       width: 100,
       render: (_: any, record: any) => (
         <Space>
-          <Button icon={<DownloadOutlined />} type="primary" />
+          <Button
+            icon={<DownloadOutlined />}
+            type="primary"
+            onClick={() => downloadFile(record)}
+          />
           <Button
             icon={<DeleteOutlined />}
             type="primary"
@@ -96,11 +123,8 @@ export default function AttachmentFile({ dispatch, state, isDisabled }: any) {
       return [];
     }
     return state?.map((item: any) => ({
+      ...item,
       uid: item.id,
-      type: item.type,
-      name: item.name,
-      size: item.size,
-      createdAt: item.createdAt,
     }));
   }, [state]);
 

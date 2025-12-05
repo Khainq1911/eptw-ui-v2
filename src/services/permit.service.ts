@@ -80,3 +80,18 @@ export const useDeletePermit = () => {
     },
   });
 };
+
+export const updatePermit = async (payload: any) => {
+  const res = await axiosInstance.post(`permit/update`, payload);
+  return res.data;
+};
+
+export const useUpdatePermit = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updatePermit,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["list-permits"] });
+    },
+  });
+};

@@ -1,7 +1,7 @@
 import { getTemplateDdl } from "@/services/template.service";
 import { useQuery } from "@tanstack/react-query";
 import { Form } from "antd";
-import { useReducer, useState } from "react";
+import { useCallback, useReducer, useState } from "react";
 import { initialState, reducer } from "./reducer";
 import { listUsers } from "@/services/user.service";
 import {
@@ -13,6 +13,33 @@ import { useGetWorkActivities } from "@/services/work-activity.service";
 import { useListAllDevices } from "@/services/device.service";
 import { debounce } from "lodash";
 import dayjs from "dayjs";
+
+const PERMIT_STATUS = [
+  {
+    label: "PENDING",
+    value: "Pending",
+  },
+  {
+    label: "APPROVED",
+    value: "Approved",
+  },
+  {
+    label: "REJECTED",
+    value: "Rejected",
+  },
+  {
+    label: "CANCELED",
+    value: "Cancelled",
+  },
+  {
+    label: "EXPIRED",
+    value: "Expired",
+  },
+  {
+    label: "CLOSED",
+    value: "Closed",
+  },
+];
 
 export const usePermitHooks = () => {
   const [modalForm] = Form.useForm();
@@ -48,9 +75,9 @@ export const usePermitHooks = () => {
     setFilter((prev) => ({ ...prev, ...values }));
   };
 
-  const handleOpenModalSelect = () => {
+  const handleOpenModalSelect = useCallback(() => {
     setOpenModalSelect(true);
-  };
+  }, []);
   const handleCloseModalSelect = () => {
     setOpenModalSelect(false);
     modalForm.resetFields();
@@ -63,33 +90,6 @@ export const usePermitHooks = () => {
   const handleCloseCreatePermit = () => {
     setOpenCreatePermit(false);
   };
-
-  const PERMIT_STATUS = [
-    {
-      label: "PENDING",
-      value: "Pending",
-    },
-    {
-      label: "APPROVED",
-      value: "Approved",
-    },
-    {
-      label: "REJECTED",
-      value: "Rejected",
-    },
-    {
-      label: "CANCELED",
-      value: "Cancelled",
-    },
-    {
-      label: "EXPIRED",
-      value: "Expired",
-    },
-    {
-      label: "CLOSED",
-      value: "Closed",
-    },
-  ];
 
   const statusColor = {
     Pending: "gold",
