@@ -1,10 +1,23 @@
-import { Alert, App, Button, Col, Input, Modal, Row, Space, Steps } from "antd";
+import {
+  Alert,
+  App,
+  Button,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Space,
+  Steps,
+} from "antd";
 import SignatureCanvas from "react-signature-canvas";
 import { lowerFirst } from "lodash";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AuthCommonService } from "@/common/authentication";
 import { useSendOtp, useVerifyOtp } from "@/services/permit.service";
 import axios from "axios";
+import RejectModal from "./rejectModal";
+import { PERMIT_STATUS } from "@/common/constant";
 
 export default function SignButton({
   section,
@@ -18,6 +31,7 @@ export default function SignButton({
   const [currentStep, setCurrentStep] = useState(0);
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [otp, setOtp] = useState<string>("");
+  const [openRejectModal, setOpenRejectModal] = useState(false);
 
   const sendOtpMutation = useSendOtp();
   const verifyOtpMutation = useVerifyOtp();
@@ -27,6 +41,16 @@ export default function SignButton({
   const handleOpenModal = () => {
     setOpenModal(true);
   };
+
+  const status = Form.useWatch("status", form);
+
+  const disabledButton = useMemo(() => {
+    return (
+      sign?.signerId !== AuthCommonService.getUser()?.id ||
+      sign?.status !== PERMIT_STATUS.PENDING ||
+      status !== PERMIT_STATUS.PENDING
+    );
+  }, [sign?.signerId, sign?.status, status]);
 
   const handleWarnToSendMail = () => {
     modal.confirm({
@@ -140,13 +164,26 @@ export default function SignButton({
 
   return (
     <div>
-      <Button
-        onClick={handleOpenModal}
-        type="primary"
-        disabled={sign?.signerId !== AuthCommonService.getUser()?.id}
-      >
-        Sign here
-      </Button>
+      <Space>
+        <Button
+          onClick={handleOpenModal}
+          type="primary"
+          disabled={disabledButton}
+        >
+          Ký tên
+        </Button>
+
+        <Button
+          danger
+          onClick={() => setOpenRejectModal(true)}
+          disabled={
+            sign?.signerId !== AuthCommonService.getUser()?.id ||
+            sign?.status !== PERMIT_STATUS.PENDING
+          }
+        >
+          Từ chối
+        </Button>
+      </Space>
 
       <Modal
         width={1000}
@@ -346,6 +383,15 @@ export default function SignButton({
           )}
         </div>
       </Modal>
+
+      <RejectModal
+        permitId={permitId}
+        section={section}
+        openRejectModal={openRejectModal}
+        setOpenRejectModal={setOpenRejectModal}
+        setSigns={setSigns}
+        form={form}
+      />
     </div>
   );
 }
