@@ -15,6 +15,7 @@ import {
   InputNumber,
   Row,
   Select,
+  Space,
   Spin,
 } from "antd";
 import dayjs from "dayjs";
@@ -26,6 +27,7 @@ import axios from "axios";
 import ErrorPage from "@/pages/error-page";
 import SignButton from "./signButton";
 import { uploadUpdatedFiles } from "@/services/upload-file.service";
+import { PERMIT_STATUS } from "@/common/constant";
 
 const { Panel } = Collapse;
 
@@ -36,6 +38,7 @@ export default function PermitComponent({
   fileDispatch,
 }: any) {
   const [form] = Form.useForm();
+  const status = Form.useWatch("status", form);
   const { notification, modal } = App.useApp();
 
   const navigate = useNavigate();
@@ -47,9 +50,18 @@ export default function PermitComponent({
     "404"
   );
 
-  useEffect(() => {
-    console.log(fileState);
-  }, [fileState]);
+  const getStatusBadge = (status: any) => {
+    switch (status) {
+      case "Approved":
+        return "bg-green-100 text-green-700 border border-green-300";
+      case "Rejected":
+        return "bg-red-100 text-red-700 border border-red-300";
+      case "Pending":
+        return "bg-yellow-100 text-yellow-700 border border-yellow-300";
+      default:
+        return "bg-gray-100 text-gray-700 border border-gray-300";
+    }
+  };
 
   const getDetailPermitMutation = useGetDetailPermit();
   const updatePermitMutation = useUpdatePermit();
@@ -86,7 +98,7 @@ export default function PermitComponent({
   const isDisabled = useMemo(() => {
     return (
       location.pathname.split("/")[2] === "view" ||
-      form.getFieldValue("status") !== "Pending"
+      form.getFieldValue("status") !== PERMIT_STATUS.PENDING
     );
   }, [location?.pathname, form.getFieldValue("status")]);
 
@@ -266,14 +278,29 @@ export default function PermitComponent({
               >
                 Trở về
               </Button>
-              <Button
-                disabled={isDisabled}
-                type="primary"
-                icon={<EditOutlined />}
-                onClick={handleUpdatePermit}
-              >
-                Cập nhật
-              </Button>
+              <Space>
+                {(status === PERMIT_STATUS.APPROVED ||
+                  status === PERMIT_STATUS.PENDING) && <Button>Từ chối</Button>}
+                {status === PERMIT_STATUS.APPROVED && (
+                  <Button>Bắt đầu công việc</Button>
+                )}
+                {status === PERMIT_STATUS.INPROGRESS && (
+                  <Button>Kết thúc công việc</Button>
+                )}
+                {PERMIT_STATUS.COMPLETED === status && (
+                  <Button>Đóng giấy phép</Button>
+                )}
+                {status === PERMIT_STATUS.PENDING && (
+                  <Button
+                    disabled={isDisabled}
+                    type="primary"
+                    icon={<EditOutlined />}
+                    onClick={handleUpdatePermit}
+                  >
+                    Cập nhật
+                  </Button>
+                )}
+              </Space>
             </div>
 
             {/* Thông tin chung */}
@@ -340,7 +367,7 @@ export default function PermitComponent({
                               message: "Vui lòng nhập trạng thái",
                             },
                           ]}
-                          initialValue={"Pending"}
+                          initialValue={PERMIT_STATUS.PENDING}
                         >
                           <Input placeholder="Nhập trạng thái" disabled />
                         </Form.Item>
@@ -505,7 +532,6 @@ export default function PermitComponent({
               </Collapse>
             </div>
 
-            {/* Sections */}
             {state?.map((section: any) => {
               const sign = getSectionSign(section.id);
               return (
@@ -530,62 +556,98 @@ export default function PermitComponent({
                     ))}
 
                     {sign && (
-                      <div className="flex space-x-8 bg-white">
-                        <div className="w-1/2">
-                          <h3 className="font-semibold mb-2">
-                            Thông tin người ký
-                          </h3>
-                          {sign.signer ? (
-                            <div className="border border-gray-300 mt-1 max-w-full rounded-md p-4 space-y-1">
-                              <p>
-                                <strong>Tên:</strong> {sign.signer.name}
-                              </p>
-                              <p>
-                                <strong>Email:</strong> {sign.signer.email}
-                              </p>
-                              <p>
-                                <strong>Số điện thoại:</strong>{" "}
-                                {sign.signer.phone}
-                              </p>
-                              {sign.status === "Signed" && (
+                      <>
+                        <Divider />
+                        <div className="flex space-x-8 bg-white">
+                          <div className="w-1/2">
+                            <h3 className="font-semibold mb-2">
+                              Thông tin người ký
+                            </h3>
+                            {sign.signer ? (
+                              <div className="border border-gray-300 mt-1 max-w-full rounded-md p-4 space-y-1">
                                 <p>
-                                  <strong>Ngày ký:</strong>{" "}
-                                  {new Date(sign.signedAt).toLocaleString()}
+                                  <strong className="mr-1">Họ và tên:</strong>
+                                  {sign.signer.name}
                                 </p>
-                              )}
-                            </div>
-                          ) : (
-                            <p style={{ color: "#999" }}>
-                              Chưa có thông tin người ký
-                            </p>
-                          )}
-                        </div>
+                                <p>
+                                  <strong className="mr-1">Email:</strong>
+                                  {sign.signer.email}
+                                </p>
+                                <p>
+                                  <strong className="mr-1">
+                                    Số điện thoại:
+                                  </strong>
+                                  {sign.signer.phone}
+                                </p>
+                                <p>
+                                  <strong className="mr-1">
+                                    Trạng thái ký:
+                                  </strong>
+                                  <span
+                                    className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusBadge(
+                                      sign.status
+                                    )}`}
+                                  >
+                                    {sign.status}
+                                  </span>
+                                </p>
+                                {sign.status === "Signed" && (
+                                  <p>
+                                    <strong className="mr-1">Ngày ký:</strong>
+                                    {new Date(sign.signedAt).toLocaleString()}
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <p style={{ color: "#999" }}>
+                                Chưa có thông tin người ký
+                              </p>
+                            )}
+                          </div>
 
-                        {/* Chữ ký */}
-                        <div className="w-1/2">
-                          <h3 className="font-semibold mb-2">Chữ ký</h3>
-                          {sign.signUrl ? (
-                            <img
-                              src={sign.signUrl}
-                              alt="signature-preview"
-                              style={{
-                                border: "1px solid #ccc",
-                                marginTop: 4,
-                                maxWidth: "100%",
-                                borderRadius: "5px",
-                              }}
-                            />
-                          ) : (
-                            <SignButton
-                              sign={sign}
-                              form={form}
-                              section={section}
-                              permitId={permitId}
-                              setSigns={setSigns}
-                            />
-                          )}
+                          <div className="w-1/2">
+                            <h3 className="font-semibold mb-2">Chữ ký</h3>
+
+                            {sign.status === "Rejected" ? (
+                              <div className="p-3 border border-red-300 rounded bg-red-50">
+                                <p className="text-red-600 font-semibold">
+                                  Đã từ chối
+                                </p>
+                                {sign.updatedAt && (
+                                  <p className="text-sm">
+                                    <strong className="mr-1">Thời gian:</strong>
+                                    {formatDate(sign.updatedAt)}
+                                  </p>
+                                )}
+                                {sign.reason && (
+                                  <p className="text-sm">
+                                    <strong>Lý do:</strong> {sign.reason}
+                                  </p>
+                                )}
+                              </div>
+                            ) : sign.signUrl ? (
+                              <img
+                                src={sign.signUrl}
+                                alt="signature-preview"
+                                style={{
+                                  border: "1px solid #ccc",
+                                  marginTop: 4,
+                                  maxWidth: "100%",
+                                  borderRadius: "5px",
+                                }}
+                              />
+                            ) : (
+                              <SignButton
+                                sign={sign}
+                                form={form}
+                                section={section}
+                                permitId={permitId}
+                                setSigns={setSigns}
+                              />
+                            )}
+                          </div>
                         </div>
-                      </div>
+                      </>
                     )}
                   </div>
                 </div>

@@ -95,3 +95,14 @@ export const useUpdatePermit = () => {
     },
   });
 };
+
+export const rejectSection = async (payload: any) => {
+  const res = await axiosInstance.post(`permit/section/reject`, payload);
+  return res.data;
+};
+
+export const useRejectSection = () => {
+  return useMutation({
+    mutationFn: rejectSection,
+  });
+};

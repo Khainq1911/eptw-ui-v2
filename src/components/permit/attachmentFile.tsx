@@ -55,14 +55,14 @@ export default function AttachmentFile({ dispatch, state, isDisabled }: any) {
       title: "Loại file",
       dataIndex: "type",
       key: "type",
-      width: 100,
+      width: 150,
       ellipsis: true,
     },
     {
       title: "Tên file",
       dataIndex: "name",
       key: "name",
-      width: 200,
+      width: 250,
       ellipsis: true,
     },
     {
@@ -86,7 +86,7 @@ export default function AttachmentFile({ dispatch, state, isDisabled }: any) {
       title: "Ngày tạo",
       dataIndex: "createdAt",
       key: "createdAt",
-      width: 150,
+      width: 200,
       ellipsis: true,
     },
     {
