@@ -1,6 +1,11 @@
 import { handleRender } from "@/pages/permit-page/components/field-list";
 import { useGetFreeAndActive } from "@/services/device.service";
-import { useGetDetailPermit, useUpdatePermit } from "@/services/permit.service";
+import {
+  useGetDetailPermit,
+  useRejectPermit,
+  useUpdatePermit,
+  useUpdateStatus,
+} from "@/services/permit.service";
 import { useGetWorkActivities } from "@/services/work-activity.service";
 import { ArrowLeftOutlined, EditOutlined } from "@ant-design/icons";
 import {
@@ -63,6 +68,8 @@ export default function PermitComponent({
     }
   };
 
+  const updateStatusMutation = useUpdateStatus();
+  const rejectPermitMutation = useRejectPermit();
   const getDetailPermitMutation = useGetDetailPermit();
   const updatePermitMutation = useUpdatePermit();
   const { data: devicesData } = useGetFreeAndActive();
@@ -280,16 +287,149 @@ export default function PermitComponent({
               </Button>
               <Space>
                 {(status === PERMIT_STATUS.APPROVED ||
-                  status === PERMIT_STATUS.PENDING) && <Button>Từ chối</Button>}
+                  status === PERMIT_STATUS.PENDING) && (
+                  <Button
+                    danger
+                    type="primary"
+                    loading={rejectPermitMutation.isPending}
+                    onClick={() => {
+                      modal.confirm({
+                        title: "Xác nhận từ chối",
+                        content:
+                          "Bạn có chắc chắn muốn từ chối giấy phép này không?",
+                        okText: "Xác nhận",
+                        cancelText: "Hủy",
+                        async onOk() {
+                          // Must return a Promise so AntD will wait
+                          try {
+                            await rejectPermitMutation.mutateAsync({
+                              permitId: permitId,
+                            });
+
+                            form.setFieldsValue({
+                              status: PERMIT_STATUS.REJECTED,
+                            });
+
+                            notification.success({
+                              message: "Thành công",
+                              description: "Từ chối giấy phép thành công",
+                            });
+                          } catch (error: any) {
+                            notification.error({
+                              message: "Lỗi",
+                              description:
+                                error?.response?.data?.message ||
+                                error?.message ||
+                                "Không thể từ chối giấy phép",
+                            });
+
+                            // Quan trọng: throw error để modal KHÔNG tự đóng
+                            throw error;
+                          }
+                        },
+                      });
+                    }}
+                  >
+                    Từ chối
+                  </Button>
+                )}
+
                 {status === PERMIT_STATUS.APPROVED && (
-                  <Button>Bắt đầu công việc</Button>
+                  <Button
+                    color="cyan"
+                    variant="solid"
+                    onClick={() => {
+                      return modal.confirm({
+                        title: "Xác nhận bắt đầu công việc",
+                        content:
+                          "Bạn có chắc chắn muốn bắt đầu công việc không",
+                        okText: "Xác nhận",
+                        cancelText: "Hủy",
+                        onOk: async () => {
+                          await updateStatusMutation.mutateAsync({
+                            permitId,
+                            status: PERMIT_STATUS.INPROGRESS,
+                          });
+
+                          form.setFieldsValue({
+                            status: PERMIT_STATUS.INPROGRESS,
+                          });
+
+                          notification.success({
+                            message: "Thành công",
+                            description: "Bắt đầu công việc thành công",
+                          });
+                        },
+                      });
+                    }}
+                  >
+                    Bắt đầu công việc
+                  </Button>
                 )}
+
                 {status === PERMIT_STATUS.INPROGRESS && (
-                  <Button>Kết thúc công việc</Button>
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      return modal.confirm({
+                        title: "Xác nhận kết thúc công việc",
+                        content:
+                          "Bạn có chắc chắn muốn kết thúc công việc không",
+                        okText: "Xác nhận",
+                        cancelText: "Hủy",
+                        onOk: async () => {
+                          await updateStatusMutation.mutateAsync({
+                            permitId,
+                            status: PERMIT_STATUS.COMPLETED,
+                          });
+
+                          form.setFieldsValue({
+                            status: PERMIT_STATUS.COMPLETED,
+                          });
+
+                          notification.success({
+                            message: "Thành công",
+                            description: "Kết thúc công việc thành công",
+                          });
+                        },
+                      });
+                    }}
+                  >
+                    Kết thúc công việc
+                  </Button>
                 )}
-                {PERMIT_STATUS.COMPLETED === status && (
-                  <Button>Đóng giấy phép</Button>
+
+                {status === PERMIT_STATUS.COMPLETED && (
+                  <Button
+                    type="default"
+                    onClick={() => {
+                      return modal.confirm({
+                        title: "Xác nhận đóng giấy phép",
+                        content: "Bạn có chắc chắn muốn đóng giấy phép không",
+                        okText: "Xác nhận",
+                        cancelText: "Hủy",
+                        onOk: async () => {
+                          await updateStatusMutation.mutateAsync({
+                            permitId,
+                            status: PERMIT_STATUS.CLOSED,
+                          });
+
+                          form.setFieldsValue({
+                            status: PERMIT_STATUS.CLOSED,
+                          });
+
+                          notification.success({
+                            message: "Thành công",
+                            description: "Đóng giấy phép thành công",
+                          });
+                        },
+                      });
+                    }}
+                  >
+                    Đóng giấy phép
+                  </Button>
                 )}
+
                 {status === PERMIT_STATUS.PENDING && (
                   <Button
                     disabled={isDisabled}

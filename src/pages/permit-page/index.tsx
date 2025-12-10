@@ -153,6 +153,7 @@ export default function PermitPage() {
       width: 120,
       align: "center",
       ellipsis: true,
+      fixed: "right",
       render: (
         text:
           | "Pending"

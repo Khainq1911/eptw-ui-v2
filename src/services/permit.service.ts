@@ -106,3 +106,31 @@ export const useRejectSection = () => {
     mutationFn: rejectSection,
   });
 };
+
+export const rejectPermit = async (payload: any) => {
+  const res = await axiosInstance.patch(`permit/reject`, payload);
+  return res.data;
+};
+
+export const useRejectPermit = () => {
+  return useMutation({
+    mutationFn: rejectPermit,
+  });
+};
+
+export const updateStatus = async (payload: any) => {
+  const res = await axiosInstance.post(`permit/update-status`, payload);
+  return res.data;
+};
+
+export const useUpdateStatus = () => {
+  const { notification } = App.useApp();
+  return useMutation({
+    mutationFn: updateStatus,
+    onError: () => {
+      notification.error({
+        message: "Cập nhật trạng thái thất bại",
+      });
+    },
+  });
+};
