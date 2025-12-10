@@ -9,6 +9,7 @@ import {
   Row,
   Space,
   Steps,
+  Tooltip,
 } from "antd";
 import SignatureCanvas from "react-signature-canvas";
 import { lowerFirst } from "lodash";
@@ -44,13 +45,18 @@ export default function SignButton({
 
   const status = Form.useWatch("status", form);
 
+  const isCurrentSigner = sign?.signerId === AuthCommonService.getUser()?.id;
+  const isSignPending = sign?.status === PERMIT_STATUS.PENDING;
+  const isPermitPending = status === PERMIT_STATUS.PENDING;
+
   const disabledButton = useMemo(() => {
-    return (
-      sign?.signerId !== AuthCommonService.getUser()?.id ||
-      sign?.status !== PERMIT_STATUS.PENDING ||
-      status !== PERMIT_STATUS.PENDING
-    );
-  }, [sign?.signerId, sign?.status, status]);
+    return !(isCurrentSigner && isSignPending && isPermitPending);
+  }, [sign?.signerId, sign?.status, status, sign?.isSignable]);
+
+  const isSignable = useMemo(() => {
+    console.log("isSignable", sign?.isSignable);
+    return sign?.isSignable;
+  }, [sign?.isSignable]);
 
   const handleWarnToSendMail = () => {
     modal.confirm({
@@ -95,8 +101,6 @@ export default function SignButton({
 
     const data = sigPad.current.toDataURL("image/png");
     setSignatureData(data);
-
-    console.log("Signature:", data);
 
     setCurrentStep(1);
   };
@@ -165,24 +169,51 @@ export default function SignButton({
   return (
     <div>
       <Space>
-        <Button
-          onClick={handleOpenModal}
-          type="primary"
-          disabled={disabledButton}
-        >
-          Ký tên
-        </Button>
-
-        <Button
-          danger
-          onClick={() => setOpenRejectModal(true)}
-          disabled={
-            sign?.signerId !== AuthCommonService.getUser()?.id ||
-            sign?.status !== PERMIT_STATUS.PENDING
+        <Tooltip
+          title={
+            disabledButton
+              ? "Bạn không đủ điều kiện để ký"
+              : !isSignable
+              ? "Chưa đến lượt bạn ký"
+              : ""
           }
         >
-          Từ chối
-        </Button>
+          <span>
+            <Button
+              onClick={handleOpenModal}
+              type="primary"
+              disabled={disabledButton || !isSignable}
+            >
+              Ký tên
+            </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip
+          title={
+            !isSignable
+              ? "Chưa đến lượt bạn ký nên không thể từ chối"
+              : sign?.signerId !== AuthCommonService.getUser()?.id
+              ? "Bạn không phải người ký"
+              : sign?.status !== PERMIT_STATUS.PENDING
+              ? "Chỉ từ chối khi trạng thái đang chờ"
+              : ""
+          }
+        >
+          <span>
+            <Button
+              danger
+              onClick={() => setOpenRejectModal(true)}
+              disabled={
+                !isSignable ||
+                sign?.signerId !== AuthCommonService.getUser()?.id ||
+                sign?.status !== PERMIT_STATUS.PENDING
+              }
+            >
+              Từ chối
+            </Button>
+          </span>
+        </Tooltip>
       </Space>
 
       <Modal
