@@ -118,8 +118,6 @@ export default function AttachmentFile({ dispatch, state }: any) {
     if (!state?.attachments) {
       return [];
     }
-
-    console.log(state.attachments);
     return state.attachments;
   }, [state]);
 

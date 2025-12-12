@@ -57,7 +57,7 @@ export const reducer = (state: any, action: any) => {
     case "ADD_ATTACHMENTS":
       return {
         ...state,
-        attachments: [...(state?.attachments || []), action.payload.attachments],
+        attachments: [...(state?.attachments || []), action.payload],
       };
     case "REMOVE_ATTACHMENT": {
       return {
