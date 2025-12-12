@@ -16,7 +16,7 @@ import DetailSection from "./detail-section";
 import { useGetFreeAndActive } from "@/services/device.service";
 import { useGetWorkActivities } from "@/services/work-activity.service";
 import { useCreatePermit } from "@/services/permit.service";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNotification } from "@/common/hooks/useNotification";
 import AttachmentFile from "./attachment";
 import { uploadFiles } from "@/services/upload-file.service";
