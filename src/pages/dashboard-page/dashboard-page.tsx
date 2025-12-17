@@ -2,6 +2,7 @@ import { Col, DatePicker, Row, Segmented } from "antd";
 import { useMemo, useState } from "react";
 import PermitDashboard from "./components/permit-dashboard";
 import DeviceDashboard from "./components/device-dashboard";
+import type dayjs from "dayjs";
 
 const SEGMENT_OPTIONS = [
   { label: "Giấy phép", value: "permit" },
@@ -9,17 +10,21 @@ const SEGMENT_OPTIONS = [
 ];
 export default function DashboardPage() {
   const [type, setType] = useState("permit");
+  const [filterDate, setFilterDate] = useState<{
+    start?: dayjs.Dayjs;
+    end?: dayjs.Dayjs;
+  }>({ start: undefined, end: undefined });
 
   const mainContent = useMemo(() => {
     switch (type) {
       case "permit":
-        return <PermitDashboard />;
+        return <PermitDashboard filterDate={filterDate} />;
       case "device":
-        return <DeviceDashboard />;
+        return <DeviceDashboard  />;
       default:
-        return <PermitDashboard />;
+        return <PermitDashboard filterDate={filterDate} />;
     }
-  }, [type]);
+  }, [type, filterDate]);
 
   return (
     <div>
@@ -44,10 +49,24 @@ export default function DashboardPage() {
             />
           </Col>
           <Col span={8}>
-            <DatePicker className="w-full" placeholder="Ngày bắt đầu" />
+            <DatePicker
+              className="w-full"
+              placeholder="Ngày bắt đầu"
+              maxDate={filterDate?.end}
+              onChange={(value) =>
+                setFilterDate((pre) => ({ ...pre, start: value }))
+              }
+            />
           </Col>
           <Col span={8}>
-            <DatePicker className="w-full" placeholder="Ngày kết thúc" />
+            <DatePicker
+              className="w-full"
+              placeholder="Ngày kết thúc"
+              minDate={filterDate?.start}
+              onChange={(value) =>
+                setFilterDate((pre) => ({ ...pre, end: value }))
+              }
+            />
           </Col>
         </Row>
       </div>

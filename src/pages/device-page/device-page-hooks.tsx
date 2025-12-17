@@ -185,13 +185,13 @@ export const useDevicePageHook = (
           const colorMap: Record<string, string> = {
             active: "green",
             maintain: "orange",
-            delete: "red",
+            deleted: "red",
           };
 
           const labelMap: Record<string, string> = {
             active: "Hoạt động",
             maintain: "Bảo trì",
-            delete: "Đã Xóa",
+            deleted: "Đã Xóa",
 
           };
           return (
@@ -245,14 +245,14 @@ export const useDevicePageHook = (
                   onClick={() => handleGetDeviceById(record.id, form, "edit")}
                   size="small"
                   disabled={
-                    record.status === "delete" ||
+                    record.status === "deleted" ||
                     record.isUsed ||
                     !AuthCommonService.isAdmin()
                   }
                   icon={<EditOutlined />}
                   style={
                     !(
-                      record.status === "delete" ||
+                      record.status === "deleted" ||
                       record.isUsed ||
                       !AuthCommonService.isAdmin()
                     )
@@ -270,7 +270,7 @@ export const useDevicePageHook = (
                 <Button
                   danger
                   disabled={
-                    record.status === "delete" ||
+                    record.status === "deleted" ||
                     record.isUsed ||
                     !AuthCommonService.isAdmin()
                   }

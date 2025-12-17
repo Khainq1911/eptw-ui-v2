@@ -41,6 +41,8 @@ export default function PermitPage() {
     listWorkActivities,
     listDevices,
     handleFilter,
+    filter,
+    setFilter,
     statusColor,
     isLoading,
     searchForm,
@@ -424,7 +426,7 @@ export default function PermitPage() {
         }
         scroll={{ x: "max-content" }}
         dataSource={
-          listPermits?.map((item: any) => ({
+          listPermits?.res?.map((item: any) => ({
             ...item,
             createdAt: formatDate(item.createdAt),
             startDate: formatDate(item.startDate),
@@ -432,6 +434,15 @@ export default function PermitPage() {
           })) || []
         }
         rowKey="id"
+        pagination={{
+          pageSizeOptions: ["1", "5", "10", "20", "50", "100"],
+          pageSize: filter.limit,
+          total: listPermits?.count || 10,
+          current: filter.page,
+          showSizeChanger: true,
+          onChange: (page: number, pageSize: number) =>
+            setFilter((pre) => ({ ...pre, page, limit: pageSize })),
+        }}
       />
 
       <SelectTemplateModal
