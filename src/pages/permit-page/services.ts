@@ -113,6 +113,8 @@ export const usePermitHooks = () => {
     listDevices,
     handleFilter,
     isLoading,
+    filter,
+    setFilter,
     statusColor,
     searchForm,
     dispatch,

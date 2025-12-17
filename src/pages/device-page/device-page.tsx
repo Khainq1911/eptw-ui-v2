@@ -107,7 +107,7 @@ export default function DevicePage() {
                         options={[
                           { value: "active", label: "Hoạt động" },
                           { value: "maintain", label: "Bảo trì" },
-                          { value: "delete", label: "Đã xóa" },
+                          { value: "deleted", label: "Đã xóa" },
                         ]}
                         variant="filled"
                       />

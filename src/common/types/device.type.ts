@@ -4,7 +4,7 @@ export interface DeviceType {
   code: string;
   description?: string;
 
-  status: "active" | "maintain" | "delete";
+  status: "active" | "maintain" | "deleted";
   createdAt: string;
   updatedAt: string;
   isUsed: boolean;
