@@ -6,4 +6,6 @@ export const routesConfig = {
   PermitRoute: "/permit",
   ViewPermitRoute: "/permit/view/:id",
   UpdatePermitRoute: "/permit/update/:id",
+  UserManagementRoute: "/users",
+  TemplateTypeRoute: "/template-types",
 };

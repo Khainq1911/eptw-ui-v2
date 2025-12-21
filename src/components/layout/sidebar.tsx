@@ -12,7 +12,7 @@ export default function Sidebar() {
 
   const handleShowMenu = (path: string) => {
     menu.forEach((item) => {
-      item.isActive = item.path.includes(path);
+      item.isActive = item.path === path;
     });
     setMenu([...menu]);
   };

@@ -21,3 +21,11 @@ export const ROLE_ALIAS = {
   ISSUER: "Issuer",
   SUPERVISOR: "Supervisor",
 };
+
+
+export const ROLE_ID = {
+  ADMIN: 4,
+  WORKER: 1,
+  ISSUER: 3,
+  SUPERVISOR: 2,
+};

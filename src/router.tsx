@@ -7,12 +7,15 @@ import PermitPage from "./pages/permit-page";
 import TemplatePage from "./pages/template-page/template-page";
 import ViewPermit from "./pages/view-permit-page.tsx";
 import UpdatePermit from "./pages/update-permit-page.tsx/index.tsx";
+import UserPage from "./pages/user-page/index.tsx";
+import TemplateTypePage from "./pages/template-type-page/index.tsx";
+import { ROLE_ID } from "./common/constant.ts";
 
 type Route = {
   path: string;
   component: React.FC;
   layout?: React.FC;
-  roleId?: number;
+  roleId?: number[];
 };
 
 const privateRoutes: Route[] = [
@@ -26,7 +29,18 @@ const privateRoutes: Route[] = [
     component: () => <Navigate to={routesConfig.DashboardRoute} replace />,
   },
 ];
-const protectedRoutes: Route[] = [];
+const protectedRoutes: Route[] = [
+  {
+    path: routesConfig.UserManagementRoute,
+    component: UserPage,
+    roleId: [ROLE_ID.ADMIN],
+  },
+  {
+    path: routesConfig.TemplateTypeRoute,
+    component: TemplateTypePage,
+    roleId: [ROLE_ID.ADMIN],
+  },
+];
 
 const publicRoutes: Route[] = [
   { path: routesConfig.AuthRoute, component: AuthPage },
