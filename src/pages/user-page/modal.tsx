@@ -76,9 +76,13 @@ export default function UserModal({
         form.resetFields();
       }}
       onOk={async () => {
-        const values = await form.validateFields();
-        onOk(values);
+        if (!isViewModal) {
+          const values = await form.validateFields();
+          onOk(values);
+        }
       }}
+      okText="Lưu"
+      cancelText="Hủy"
       okButtonProps={{ hidden: isViewModal }}
     >
       <Form layout="vertical" form={form}>

@@ -234,10 +234,12 @@ export default function UserPage() {
         loading={userLoading}
         columns={columns}
         dataSource={userData?.data}
-        scroll={{ x: "" }}
+        bordered
+        scroll={{ x: "max-content" }}
         pagination={{
           pageSizeOptions: ["5", "10", "20"],
           pageSize: filter.limit,
+          current: filter.page,
           total: userData?.count,
           showSizeChanger: true,
           onChange: (page: number, pageSize: number) =>
