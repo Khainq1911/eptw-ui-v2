@@ -3,16 +3,18 @@ import {
   PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Button, Card, Form, Input, Select, Table } from "antd";
+import { App, Button, Card, Form, Input, Select, Table } from "antd";
 import { useDevicePageHook } from "./device-page-hooks";
 import type { DeviceType } from "@/common/types/device.type";
 import AddDeviceModal from "./components/device-modal";
 import { useGetDeviceService } from "@/services/device.service";
 import React from "react";
 import { AuthCommonService } from "@/common/authentication";
+import { downloadFile } from "@/common/common-services/downloadFile";
 
 export default function DevicePage() {
   const [form] = Form.useForm();
+  const { message } = App.useApp();
   const [searchForm] = Form.useForm();
   const [filter, setFilter] = React.useState({
     limit: 5,
@@ -128,7 +130,18 @@ export default function DevicePage() {
                 </Form>
 
                 <div className="shrink-0">
-                  <Button type="primary" icon={<DownloadOutlined />}>
+                  <Button
+                    type="primary"
+                    style={{
+                      backgroundColor: "#218A55",
+                      color: "white",
+                      borderColor: "#218A55",
+                    }}
+                    icon={<DownloadOutlined />}
+                    onClick={async () => {
+                      await downloadFile("device", message);
+                    }}
+                  >
                     Export
                   </Button>
                 </div>

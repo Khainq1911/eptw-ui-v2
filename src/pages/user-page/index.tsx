@@ -5,6 +5,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import {
+  App,
   Button,
   Col,
   Form,
@@ -20,6 +21,7 @@ import {
 import { useUserPage } from "./service";
 import { formatDate } from "@/common/common-services/formatTime";
 import UserModal from "./modal";
+import { downloadFile } from "@/common/common-services/downloadFile";
 
 const { Text } = Typography;
 
@@ -40,6 +42,8 @@ export default function UserPage() {
     setOpenModal,
     findUserMutation,
   } = useUserPage();
+
+  const { message } = App.useApp();
 
   const columns = [
     {
@@ -220,6 +224,7 @@ export default function UserPage() {
                     color: "white",
                     borderColor: "#218A55",
                   }}
+                  onClick={async () => await downloadFile("user", message)}
                 >
                   Xuất Excel
                 </Button>

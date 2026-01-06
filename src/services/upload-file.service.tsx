@@ -50,3 +50,11 @@ export const downloadUploadedFile = async (bucketName: any, fileKey: any) => {
 
   return res.data;
 };
+
+export const downloadFileService = async (page: string) => {
+  const res = await axiosInstance.get(`/${page}/export`, {
+    responseType: "blob",
+  });
+  return res;
+};
+

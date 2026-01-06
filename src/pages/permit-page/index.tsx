@@ -27,6 +27,7 @@ import CreatePermitDrawer from "./components/create-permit-drawer";
 import type { ColumnsType } from "antd/es/table";
 import { formatDate } from "@/common/common-services/formatTime";
 import { useNavigate } from "react-router-dom";
+import { downloadFile } from "@/common/common-services/downloadFile";
 
 export default function PermitPage() {
   const {
@@ -57,7 +58,7 @@ export default function PermitPage() {
   } = usePermitHooks();
   const { data: templateDdl, isLoading: isLoadingTemplate } =
     useGetTemplateDdl();
-  const { modal } = App.useApp();
+  const { modal, message } = App.useApp();
   const navigate = useNavigate();
 
   const columns: ColumnsType = [
@@ -410,6 +411,7 @@ export default function PermitPage() {
               color: "white",
               borderColor: "#218A55",
             }}
+            onClick={async () => await downloadFile("permit", message)}
           >
             Export
           </Button>

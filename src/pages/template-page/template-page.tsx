@@ -8,6 +8,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import {
+  App,
   Button,
   Col,
   Form,
@@ -35,11 +36,13 @@ import { useShowConfirm } from "@/common/hooks/useShowConfirm";
 import { useNotification } from "@/common/hooks/useNotification";
 import type { AxiosError } from "axios";
 import { useCreateTemplate } from "./components/create-template/create-template-service";
+import { downloadFile } from "@/common/common-services/downloadFile";
 
 export default function TemplatePage() {
   const { state, dispatch } = useCreateTemplate();
   const confirm = useShowConfirm();
   const notify = useNotification();
+  const { message } = App.useApp();
   const [action, setAction] = useState({ create: false, edit: false });
   const [form] = Form.useForm();
   const { openAddTemplateModal, setOpenAddTemplateModal } = TemplateService();
@@ -285,6 +288,7 @@ export default function TemplatePage() {
               color: "white",
               borderColor: "#218A55",
             }}
+            onClick={() => downloadFile("template", message)}
           >
             Export
           </Button>
