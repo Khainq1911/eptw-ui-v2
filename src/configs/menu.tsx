@@ -6,6 +6,7 @@ import {
   SettingOutlined,
   UserOutlined,
   AppstoreOutlined,
+  PictureOutlined,
 } from "@ant-design/icons";
 
 export const menuItems: MenuType[] = [
@@ -34,6 +35,13 @@ export const menuItems: MenuType[] = [
     name: "Mẫu biểu",
     icon: <SettingOutlined />,
     path: "/template",
+    roleId: 1,
+    isActive: false,
+  },
+  {
+    name: "Định vị",
+    icon: <PictureOutlined />,
+    path: "/map",
     roleId: 1,
     isActive: false,
   },
