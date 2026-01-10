@@ -65,3 +65,16 @@ export const useGetFreeAndActive = () => {
     enabled: true,
   });
 };
+
+export const getListDeviceService = async () => {
+  const res = await axiosInstance.get("device/location");
+  return res.data;
+};
+
+export const useGetListDeviceLocation = () => {
+  return useQuery({
+    queryKey: ["get-list-device-location"],
+    queryFn: getListDeviceService,
+    enabled: true,
+  });
+};

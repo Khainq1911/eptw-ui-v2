@@ -8,4 +8,5 @@ export const routesConfig = {
   UpdatePermitRoute: "/permit/update/:id",
   UserManagementRoute: "/users",
   TemplateTypeRoute: "/template-types",
+  MapRoute: "/map",
 };

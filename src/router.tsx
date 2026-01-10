@@ -10,6 +10,7 @@ import UpdatePermit from "./pages/update-permit-page.tsx/index.tsx";
 import UserPage from "./pages/user-page/index.tsx";
 import TemplateTypePage from "./pages/template-type-page/index.tsx";
 import { ROLE_ID } from "./common/constant.ts";
+import MapPage from "./pages/map-page/index.tsx";
 
 type Route = {
   path: string;
@@ -23,7 +24,7 @@ const privateRoutes: Route[] = [
   { path: routesConfig.DeviceRoute, component: DevicePage },
   { path: routesConfig.TemplateRoute, component: TemplatePage },
   { path: routesConfig.PermitRoute, component: PermitPage },
-
+  { path: routesConfig.MapRoute, component: MapPage },
   {
     path: "/",
     component: () => <Navigate to={routesConfig.DashboardRoute} replace />,
