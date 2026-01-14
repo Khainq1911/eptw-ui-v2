@@ -1,23 +1,23 @@
 import { Button, Checkbox, Col, Input, Row } from "antd";
 import type { props } from "./single-input";
 import { upperCase, debounce } from "lodash";
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { DeleteOutlined } from "@ant-design/icons";
 
-export default function CheckboxField({
+const CheckboxField = React.memo(function CheckboxField({
   field,
   section,
   dispatch,
   handleUpdateField,
 }: props) {
-  const [value, setValue] = useState<string | null>(null);
+  const [value, setValue] = useState<string>("");
 
-  // Debounce 300ms
-  const debouncedChange = useCallback(
+  // Debounce update label to avoid global re-render on every keystroke
+  const debouncedUpdateLabel = useCallback(
     debounce((val: string) => {
-      setValue(val);
-    }, 100),
-    []
+      handleUpdateField({ target: { value: val } }, section, field, "label");
+    }, 300),
+    [handleUpdateField, section, field]
   );
 
   return (
@@ -32,8 +32,8 @@ export default function CheckboxField({
             <span className="text-sm font-semibold text-gray-600">Nhãn</span>
             <Input
               placeholder="Nhập label"
-              value={field.label}
-              onChange={(e) => handleUpdateField(e, section, field, "label")}
+              defaultValue={field.label}
+              onChange={(e) => debouncedUpdateLabel(e.target.value)}
               size="small"
             />
           </div>
@@ -48,19 +48,20 @@ export default function CheckboxField({
               <Input
                 placeholder="Nhập lựa chọn"
                 size="small"
-                value={value || ""}
-                onChange={(e) => debouncedChange(e.target.value)}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
               />
 
               <Button
                 size="small"
                 type="primary"
                 onClick={() => {
+                  if (!value.trim()) return;
                   dispatch({
                     type: "ADD_OPTION",
                     payload: { section, field, data: value },
                   });
-                  setValue(null);
+                  setValue("");
                 }}
               >
                 Thêm
@@ -118,4 +119,6 @@ export default function CheckboxField({
       </Row>
     </div>
   );
-}
+});
+
+export default CheckboxField;

@@ -10,12 +10,12 @@ import {
   useCreateTemplateMutation,
   useUpdateTemplateMutation,
 } from "../../template-services";
-import { useNotification } from "@/common/hooks/useNotification";
 import type { AxiosError } from "axios";
 import CheckboxField from "../ui/checkbox";
 import RadioField from "../ui/radio";
 import HeadingField from "../ui/heading";
 import ParagraphField from "../ui/paragraph";
+import { App } from "antd";
 
 export default function AddTemplateModal({
   action,
@@ -36,7 +36,7 @@ export default function AddTemplateModal({
   openAddTemplateModal: boolean;
   setOpenAddTemplateModal: React.Dispatch<SetStateAction<boolean>>;
 }) {
-  const notify = useNotification();
+  const {notification} = App.useApp()
   const [inforForm] = Form.useForm();
   const createTemplateMutation = useCreateTemplateMutation();
   const updateTemplateMutation = useUpdateTemplateMutation();
@@ -171,11 +171,10 @@ export default function AddTemplateModal({
                     });
                   }
 
-                  notify(
-                    "success",
-                    "Lưu mẫu thành công",
-                    "Mẫu giấy phép mới đã được lưu vào hệ thống."
-                  );
+                  notification.success({
+                    message: "Lưu mẫu thành công",
+                    description: "Mẫu giấy phép mới đã được lưu vào hệ thống.",
+                  });
 
                   setAction({ create: false, edit: false });
                   setOpenAddTemplateModal(false);
@@ -189,7 +188,10 @@ export default function AddTemplateModal({
                   const msg =
                     axiosError.response?.data?.message || "Đã có lỗi xảy ra";
 
-                  notify("error", "Lưu mẫu thất bại", msg);
+                  notification.error({
+                    message: "Lưu mẫu thất bại",
+                    description: msg,
+                  });
                 }
               }}
             >

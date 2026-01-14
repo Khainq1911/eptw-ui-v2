@@ -1,3 +1,5 @@
+import React from "react";
+
 export const fieldTemplates = [
   {
     id: "field-text",
@@ -57,7 +59,7 @@ export const fieldTemplates = [
   },
 ];
 
-export default function SidebarModal() {
+const SidebarModal = React.memo(function SidebarModal() {
   return (
     <aside className="w-80 bg-slate-100 border-r border-slate-200 overflow-y-scroll p-6 h-full">
       <div className="mb-8">
@@ -109,4 +111,6 @@ export default function SidebarModal() {
       </div>
     </aside>
   );
-}
+});
+
+export default SidebarModal;

@@ -1,7 +1,7 @@
 import { Checkbox, Col, Input, Row } from "antd";
 import type { Field, Section } from "../../template-type";
 import { upperCase, debounce } from "lodash";
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 
 export interface props {
   field: Field;
@@ -10,7 +10,7 @@ export interface props {
   dispatch?: any;
 }
 
-export default function SingleInput({
+const SingleInput = React.memo(function SingleInput({
   field,
   section,
   handleUpdateField,
@@ -20,7 +20,7 @@ export default function SingleInput({
     debounce((value: string) => {
       handleUpdateField({ target: { value } }, section, field, "label");
     }, 100),
-    []
+    [handleUpdateField, section, field]
   );
 
   return (
@@ -65,4 +65,6 @@ export default function SingleInput({
       </Row>
     </div>
   );
-}
+});
+
+export default SingleInput;
