@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Input, Row } from "antd";
+import { Button, Checkbox, Col, Form, Input, Row } from "antd";
 import type { props } from "./single-input";
 import { upperCase, debounce } from "lodash";
 import React, { useCallback, useState } from "react";
@@ -9,6 +9,7 @@ const CheckboxField = React.memo(function CheckboxField({
   section,
   dispatch,
   handleUpdateField,
+  isPreview,
 }: props) {
   const [value, setValue] = useState<string>("");
 
@@ -19,6 +20,27 @@ const CheckboxField = React.memo(function CheckboxField({
     }, 300),
     [handleUpdateField, section, field]
   );
+
+  if (isPreview) {
+    return (
+      <Form.Item
+        className="mb-0"
+        required={field.required}
+        label={field.label || "Chưa đặt tên trường"}
+        layout="vertical"
+      >
+        <Checkbox.Group className="w-full flex flex-col gap-2">
+          {field?.options?.map((item, index) => (
+            <div key={index} className="flex items-center">
+              <Checkbox value={item} className="text-gray-800 text-sm">
+                {item}
+              </Checkbox>
+            </div>
+          ))}
+        </Checkbox.Group>
+      </Form.Item>
+    );
+  }
 
   return (
     <div>

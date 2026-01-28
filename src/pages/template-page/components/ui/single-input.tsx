@@ -1,4 +1,4 @@
-import { Checkbox, Col, Input, Row } from "antd";
+import { Checkbox, Col, Form, Input, Row } from "antd";
 import type { Field, Section } from "../../template-type";
 import { upperCase, debounce } from "lodash";
 import React, { useCallback } from "react";
@@ -8,12 +8,14 @@ export interface props {
   section?: Section;
   handleUpdateField?: any;
   dispatch?: any;
+  isPreview?: boolean;
 }
 
 const SingleInput = React.memo(function SingleInput({
   field,
   section,
   handleUpdateField,
+  isPreview,
 }: props) {
   // Debounce cập nhật label
   const debouncedUpdateLabel = useCallback(
@@ -22,6 +24,19 @@ const SingleInput = React.memo(function SingleInput({
     }, 100),
     [handleUpdateField, section, field]
   );
+
+  if (isPreview) {
+    return (
+      <Form.Item
+        className="mb-0"
+        required={field.required}
+        label={field.label || "Chưa đặt tên trường"}
+        layout="vertical"
+      >
+        <Input placeholder={field.label} />
+      </Form.Item>
+    );
+  }
 
   return (
     <div>

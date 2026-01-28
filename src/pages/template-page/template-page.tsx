@@ -3,6 +3,7 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   EditOutlined,
+  EyeOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
@@ -43,7 +44,11 @@ export default function TemplatePage() {
   const confirm = useShowConfirm();
   const notify = useNotification();
   const { message } = App.useApp();
-  const [action, setAction] = useState({ create: false, edit: false });
+  const [action, setAction] = useState<{
+    create: boolean;
+    edit: boolean;
+    view?: boolean;
+  }>({ create: false, edit: false, view: false });
   const [form] = Form.useForm();
   const { openAddTemplateModal, setOpenAddTemplateModal } = TemplateService();
   const [filter, setFilter] = useState({ limit: 5, page: 1 });
@@ -127,6 +132,36 @@ export default function TemplatePage() {
       fixed: "right",
       render: (_: any, record: any) => (
         <Space size={"small"}>
+          <Tooltip title={"Xem chi tiết"}>
+            <Button
+              size="small"
+              onClick={async () => {
+                setAction({ create: false, edit: false, view: true });
+                setOpenAddTemplateModal(true);
+                setLoading(true);
+                try {
+                  const res = await getTemplateByIdMutation.mutateAsync(
+                    record.id
+                  );
+                  dispatch({
+                    type: "SET_DATA",
+                    payload: {
+                      ...res,
+                      templateTypeId: res.templateType.id,
+                      approvalTypeId: res.approvalType.id,
+                    },
+                  });
+                } catch (error) {
+                  console.error(error);
+                  notify("error", "Lấy dữ liệu thất bại", "Vui lòng thử lại");
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              icon={<EyeOutlined />}
+              type="primary"
+            />
+          </Tooltip>
           <Tooltip title={"Sửa"}>
             <Button
               size="small"

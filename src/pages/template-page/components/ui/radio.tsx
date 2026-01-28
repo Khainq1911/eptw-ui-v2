@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Input, Radio, Row } from "antd";
+import { Button, Checkbox, Col, Form, Input, Radio, Row } from "antd";
 import type { props } from "./single-input";
 import { upperCase, debounce } from "lodash";
 import { useState, useCallback } from "react";
@@ -9,6 +9,7 @@ export default function RadioField({
   section,
   dispatch,
   handleUpdateField,
+  isPreview,
 }: props) {
   const [value, setValue] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
@@ -18,7 +19,7 @@ export default function RadioField({
     debounce((value: string) => {
       handleUpdateField({ target: { value } }, section, field, "label");
     }, 100),
-    []
+    [handleUpdateField, section, field]
   );
 
   // Debounce input option
@@ -26,6 +27,27 @@ export default function RadioField({
     debounce((val: string) => setValue(val), 200),
     []
   );
+
+  if (isPreview) {
+    return (
+      <Form.Item
+        className="mb-0"
+        required={field.required}
+        label={field.label || "Chưa đặt tên trường"}
+        layout="vertical"
+      >
+        <Radio.Group className="w-full flex flex-col gap-2">
+          {field?.options?.map((item, index) => (
+            <div key={index} className="flex items-center">
+              <Radio value={item} className="text-gray-800 text-sm">
+                {item}
+              </Radio>
+            </div>
+          ))}
+        </Radio.Group>
+      </Form.Item>
+    );
+  }
 
   return (
     <div>

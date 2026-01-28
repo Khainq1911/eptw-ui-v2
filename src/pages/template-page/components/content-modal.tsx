@@ -38,6 +38,7 @@ export default function ContentModal({
   action,
   inforForm,
   handleRenderField,
+  isPreview,
 }: props) {
   const [openAddFieldModal, setOpenAddFieldModal] = useState(false);
   const [currentSection, setCurrentSection] = useState<Section | null>(null);
@@ -110,7 +111,7 @@ export default function ContentModal({
                 { required: true, message: "Vui lòng nhập tên mẫu giấy phép" },
               ]}
             >
-              <Input placeholder="Nhập tên mẫu giấy phép" />
+              <Input placeholder="Nhập tên mẫu giấy phép" disabled={isPreview} />
             </Form.Item>
 
             <Form.Item
@@ -133,6 +134,7 @@ export default function ContentModal({
                     })
                   ) || []
                 }
+                disabled={isPreview}
               />
             </Form.Item>
 
@@ -156,11 +158,12 @@ export default function ContentModal({
                     })
                   ) || []
                 }
+                disabled={isPreview}
               />
             </Form.Item>
 
             <Form.Item label="Mô tả mẫu giấy phép" name="description">
-              <Input.TextArea />
+              <Input.TextArea disabled={isPreview} />
             </Form.Item>
           </Form>
         </div>
@@ -196,34 +199,37 @@ export default function ContentModal({
                   handleUpdateField={handleUpdateField}
                   setOpenAddFieldModal={setOpenAddFieldModal}
                   setCurrentSection={setCurrentSection}
+                  isPreview={isPreview}
                 />
               ))}
             </SortableContext>
           </DndContext>
         </div>
 
-        <Button
-          className="w-full"
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() =>
-            dispatch({
-              type: "ADD_SECTION",
-              payload: {
-                name: "",
-                description: "",
-                fields: [],
-                sign: {
-                  required: false,
-                  roleIdAllowed: null,
+        {!isPreview && (
+          <Button
+            className="w-full"
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() =>
+              dispatch({
+                type: "ADD_SECTION",
+                payload: {
+                  name: "",
+                  description: "",
+                  fields: [],
+                  sign: {
+                    required: false,
+                    roleIdAllowed: null,
+                  },
+                  id: state.sections.length + 1,
                 },
-                id: state.sections.length + 1,
-              },
-            })
-          }
-        >
-          Thêm phần mới
-        </Button>
+              })
+            }
+          >
+            Thêm phần mới
+          </Button>
+        )}
       </div>
       <Modal
         open={openAddFieldModal}

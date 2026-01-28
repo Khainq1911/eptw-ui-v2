@@ -20,6 +20,7 @@ interface SectionItemProps {
   handleUpdateField: any;
   setOpenAddFieldModal: (val: boolean) => void;
   setCurrentSection: (section: Section) => void;
+  isPreview?: boolean;
 }
 
 const SectionItem = React.memo(function SectionItem({
@@ -29,6 +30,7 @@ const SectionItem = React.memo(function SectionItem({
   handleUpdateField,
   setOpenAddFieldModal,
   setCurrentSection,
+  isPreview,
 }: SectionItemProps) {
   const { data: roleData } = useGetListRoles();
 
@@ -47,7 +49,7 @@ const SectionItem = React.memo(function SectionItem({
   );
 
   return (
-    <SortableItem props={section} key={section.id}>
+    <SortableItem props={{ ...section, disabled: isPreview }} key={section.id}>
       <div
         className="w-full bg-white rounded-lg shadow-sm p-6 border border-gray-200"
       >
@@ -60,6 +62,7 @@ const SectionItem = React.memo(function SectionItem({
               <Input
                 placeholder="Nhập tên nhóm thông tin"
                 defaultValue={section.name}
+                disabled={isPreview}
                 onChange={(e) => debouncedUpdateSection(e.target.value, "name")}
               />
             </div>
@@ -73,6 +76,7 @@ const SectionItem = React.memo(function SectionItem({
               <Input.TextArea
                 placeholder="Nhập mô tả nhóm thông tin"
                 defaultValue={section.description}
+                disabled={isPreview}
                 onChange={(e) =>
                   debouncedUpdateSection(e.target.value, "description")
                 }
@@ -84,19 +88,21 @@ const SectionItem = React.memo(function SectionItem({
           <Col span={4}>
             <div className="flex flex-col gap-1">
               <label className="font-medium text-gray-700">Thao tác</label>
-              <Button
-                size="large"
-                icon={<DeleteFilled />}
-                style={{ fontSize: 18 }}
-                danger
-                type="text"
-                onClick={() =>
-                  dispatch({
-                    type: "DELETE_SECTION",
-                    payload: section.id,
-                  })
-                }
-              />
+              {!isPreview && (
+                <Button
+                  size="large"
+                  icon={<DeleteFilled />}
+                  style={{ fontSize: 18 }}
+                  danger
+                  type="text"
+                  onClick={() =>
+                    dispatch({
+                      type: "DELETE_SECTION",
+                      payload: section.id,
+                    })
+                  }
+                />
+              )}
             </div>
           </Col>
         </Row>
@@ -130,8 +136,17 @@ const SectionItem = React.memo(function SectionItem({
           <SortableContext items={section.fields.map((field: Field) => field)}>
             <div className="grid grid-col-1 gap-6">
               {section.fields.map((field: Field) => (
-                <SortableItem props={field} key={field.id}>
-                  <div className="relative group border border-gray-300 rounded-lg p-4 shadow-sm transition-all duration-200 hover:border-blue-500">
+                <SortableItem
+                  props={{ ...field, disabled: isPreview }}
+                  key={field.id}
+                >
+                  <div
+                    className={
+                      isPreview
+                        ? "relative p-2"
+                        : "relative group border border-gray-300 rounded-lg p-4 shadow-sm transition-all duration-200 hover:border-blue-500"
+                    }
+                  >
                     {handleRenderField(
                       field.type,
                       field,
@@ -139,38 +154,43 @@ const SectionItem = React.memo(function SectionItem({
                       handleUpdateField
                     )}
 
-                    <Button
-                      icon={<DeleteFilled />}
-                      danger
-                      type="primary"
-                      className="!absolute top-[-16px] right-[20px] opacity-0 group-hover:opacity-100"
-                      onClick={() =>
-                        dispatch({
-                          type: "DELETE_FIELD",
-                          payload: { section, field },
-                        })
-                      }
-                    />
+                    {!isPreview && (
+                      <Button
+                        icon={<DeleteFilled />}
+                        danger
+                        type="primary"
+                        className="!absolute top-[-16px] right-[20px] opacity-0 group-hover:opacity-100"
+                        onClick={() =>
+                          dispatch({
+                            type: "DELETE_FIELD",
+                            payload: { section, field },
+                          })
+                        }
+                      />
+                    )}
                   </div>
                 </SortableItem>
               ))}
             </div>
           </SortableContext>
         </DndContext>
-        <Button
-          type="primary"
-          ghost
-          icon={<PlusOutlined />}
-          className="w-full mt-6"
-          onClick={() => {
-            setOpenAddFieldModal(true);
-            setCurrentSection(section);
-          }}
-        >
-          Thêm trường mới
-        </Button>
+        {!isPreview && (
+          <Button
+            type="primary"
+            ghost
+            icon={<PlusOutlined />}
+            className="w-full mt-6"
+            onClick={() => {
+              setOpenAddFieldModal(true);
+              setCurrentSection(section);
+            }}
+          >
+            Thêm trường mới
+          </Button>
+        )}
         <Checkbox
           checked={section.sign.required}
+          disabled={isPreview}
           onChange={(value) => {
             dispatch({
               type: "SET_SIGN",
@@ -199,6 +219,7 @@ const SectionItem = React.memo(function SectionItem({
               <Select
                 mode="multiple"
                 showSearch
+                disabled={isPreview}
                 optionFilterProp="label"
                 placeholder="Chọn vai trò ký"
                 allowClear
