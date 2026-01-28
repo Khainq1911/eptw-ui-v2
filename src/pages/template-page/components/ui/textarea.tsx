@@ -1,9 +1,14 @@
-import { Checkbox, Col, Input, Row } from "antd";
+import { Checkbox, Col, Form, Input, Row } from "antd";
 import type { props } from "./single-input";
 import { upperCase, debounce } from "lodash";
 import { useCallback } from "react";
 
-export default function TextArea({ field, section, handleUpdateField }: props) {
+export default function TextArea({
+  field,
+  section,
+  handleUpdateField,
+  isPreview,
+}: props) {
   // Debounce update label 300ms
   const debouncedUpdateLabel = useCallback(
     debounce((value: string) => {
@@ -11,6 +16,19 @@ export default function TextArea({ field, section, handleUpdateField }: props) {
     }, 300),
     []
   );
+
+  if (isPreview) {
+    return (
+      <Form.Item
+        className="mb-0"
+        required={field.required}
+        label={field.label || "Chưa đặt tên trường"}
+        layout="vertical"
+      >
+        <Input.TextArea placeholder={field.label} />
+      </Form.Item>
+    );
+  }
 
   return (
     <div>

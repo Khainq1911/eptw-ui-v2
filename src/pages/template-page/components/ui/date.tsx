@@ -1,9 +1,14 @@
 import { upperCase, debounce } from "lodash";
 import type { props } from "./single-input";
-import { Checkbox, Col, DatePicker, Input, Row } from "antd";
+import { Checkbox, Col, DatePicker, Form, Input, Row } from "antd";
 import { useCallback } from "react";
 
-export default function Date({ field, section, handleUpdateField }: props) {
+export default function Date({
+  field,
+  section,
+  handleUpdateField,
+  isPreview,
+}: props) {
   // Debounce 300ms cho label
   const debouncedUpdateLabel = useCallback(
     debounce((e) => {
@@ -11,6 +16,23 @@ export default function Date({ field, section, handleUpdateField }: props) {
     }, 100),
     []
   );
+
+  if (isPreview) {
+    return (
+      <Form.Item
+        className="mb-0"
+        required={field.required}
+        label={field.label || "Chưa đặt tên trường"}
+        layout="vertical"
+      >
+        <DatePicker
+          placeholder={field.label}
+          style={{ width: "100%" }}
+          format="DD/MM/YYYY"
+        />
+      </Form.Item>
+    );
+  }
 
   return (
     <div>

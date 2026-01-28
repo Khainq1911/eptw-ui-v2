@@ -12,7 +12,7 @@ export default function SortableItem({ children, props }: any) {
     transform,
     transition,
     rect,
-  } = useSortable({ id: props.id });
+  } = useSortable({ id: props.id, disabled: props.disabled });
   const dragRect = rect.current;
 
   const shouldDisplayDragPlaceholder = isDragging && dragRect;
@@ -37,13 +37,15 @@ export default function SortableItem({ children, props }: any) {
 
   return (
     <div ref={setNodeRef} style={style} className="relative">
-      <div
-        {...attributes}
-        {...listeners}
-        className=" absolute top-5 right-5 cursor-grab z-200"
-      >
-        <HolderOutlined />
-      </div>
+      {!props.disabled && (
+        <div
+          {...attributes}
+          {...listeners}
+          className=" absolute top-5 right-5 cursor-grab z-200"
+        >
+          <HolderOutlined />
+        </div>
+      )}
       {children}
     </div>
   );

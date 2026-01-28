@@ -1,5 +1,5 @@
 import { Button, Drawer, Form, Space } from "antd";
-import { useCallback, useState, type SetStateAction } from "react";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import SidebarModal from "../sidebar-modal";
 import ContentModal from "../content-modal";
 import SingleInput from "../ui/single-input";
@@ -10,12 +10,12 @@ import {
   useCreateTemplateMutation,
   useUpdateTemplateMutation,
 } from "../../template-services";
-import { useNotification } from "@/common/hooks/useNotification";
 import type { AxiosError } from "axios";
 import CheckboxField from "../ui/checkbox";
 import RadioField from "../ui/radio";
 import HeadingField from "../ui/heading";
 import ParagraphField from "../ui/paragraph";
+import { App } from "antd";
 
 export default function AddTemplateModal({
   action,
@@ -26,80 +26,63 @@ export default function AddTemplateModal({
   openAddTemplateModal,
   setOpenAddTemplateModal,
 }: {
-  action: { create: boolean; edit: boolean };
+  action: { create: boolean; edit: boolean; view?: boolean };
   state: any;
   loading: boolean;
   setAction: React.Dispatch<
-    React.SetStateAction<{ create: boolean; edit: boolean }>
+    React.SetStateAction<{ create: boolean; edit: boolean; view?: boolean }>
   >;
   dispatch: React.Dispatch<any>;
   openAddTemplateModal: boolean;
   setOpenAddTemplateModal: React.Dispatch<SetStateAction<boolean>>;
 }) {
-  const notify = useNotification();
+  const {notification} = App.useApp()
   const [inforForm] = Form.useForm();
   const createTemplateMutation = useCreateTemplateMutation();
   const updateTemplateMutation = useUpdateTemplateMutation();
   const [isPreview, setIsPreview] = useState(false);
 
+  useEffect(() => {
+    if (action.view) {
+      setIsPreview(true);
+    } else {
+      setIsPreview(false);
+    }
+  }, [action.view]);
+
   const handleRenderField = useCallback(
     (type: string, field: Field, section: Section, handleUpdateField: any) => {
+      const commonProps = {
+        field,
+        section,
+        handleUpdateField,
+        isPreview,
+      };
+
       switch (type) {
         case "input":
-          return (
-            <SingleInput
-              field={field}
-              section={section}
-              handleUpdateField={handleUpdateField}
-            />
-          );
+          return <SingleInput {...commonProps} />;
         case "date":
-          return (
-            <Date
-              field={field}
-              section={section}
-              handleUpdateField={handleUpdateField}
-            />
-          );
+          return <Date {...commonProps} />;
         case "textarea":
-          return (
-            <TextArea
-              field={field}
-              section={section}
-              handleUpdateField={handleUpdateField}
-            />
-          );
+          return <TextArea {...commonProps} />;
         case "checkbox": {
-          return (
-            <CheckboxField
-              field={field}
-              section={section}
-              handleUpdateField={handleUpdateField}
-              dispatch={dispatch}
-            />
-          );
+          return <CheckboxField {...commonProps} dispatch={dispatch} />;
         }
         case "radio": {
-          return (
-            <RadioField
-              field={field}
-              section={section}
-              handleUpdateField={handleUpdateField}
-              dispatch={dispatch}
-            />
-          );
+          return <RadioField {...commonProps} dispatch={dispatch} />;
         }
         case "heading": {
-          return <HeadingField field={field} />;
+          return <HeadingField {...commonProps} />;
         }
         case "paragraph": {
-          return <ParagraphField field={field} />;
+          return <ParagraphField {...commonProps} />;
         }
         default:
           return null;
       }
     },
-    []
+    [isPreview]
   );
 
   const handleClose = () => {
@@ -126,20 +109,24 @@ export default function AddTemplateModal({
       extra={
         <div style={{ textAlign: "right" }}>
           <Space>
-            <Button
-              icon={<span>✏️</span>}
-              onClick={() => setIsPreview(false)}
-              type={`${isPreview ? "default" : "primary"}`}
-            >
-              Chỉnh sửa
-            </Button>
-            <Button
-              type={`${isPreview ? "primary" : "default"}`}
-              icon={<span>👁️</span>}
-              onClick={() => setIsPreview(true)}
-            >
-              Xem trước
-            </Button>
+            {!action.view && (
+              <>
+                <Button
+                  icon={<span>✏️</span>}
+                  onClick={() => setIsPreview(false)}
+                  type={`${isPreview ? "default" : "primary"}`}
+                >
+                  Chỉnh sửa
+                </Button>
+                <Button
+                  type={`${isPreview ? "primary" : "default"}`}
+                  icon={<span>👁️</span>}
+                  onClick={() => setIsPreview(true)}
+                >
+                  Xem trước
+                </Button>
+              </>
+            )}
           </Space>
         </div>
       }
@@ -147,54 +134,66 @@ export default function AddTemplateModal({
         <div style={{ textAlign: "right" }}>
           <Space>
             <Button onClick={() => handleClose()} type="primary" danger>
-              Hủy bỏ
+              {action.view ? "Đóng" : "Hủy bỏ"}
             </Button>
-            <Button
-              loading={createTemplateMutation.isPending}
-              type="primary"
-              onClick={async () => {
-                try {
-                  const data = await inforForm.validateFields();
+            {!action.view && (
+              <Button
+                loading={createTemplateMutation.isPending}
+                type="primary"
+                onClick={async () => {
+                  try {
+                    const data = await inforForm.validateFields();
 
-                  const payload = {
-                    ...state,
-                    ...data,
-                  };
+                    const payload = {
+                      ...state,
+                      ...data,
+                    };
 
-                  if (action.create) {
-                    await createTemplateMutation.mutateAsync(payload);
-                  } else {
-                    const { templateType, approvalType, ...rest } = payload;
-                    await updateTemplateMutation.mutateAsync({
-                      id: payload.id,
-                      data: rest,
+                    if (action.create) {
+                      await createTemplateMutation.mutateAsync(payload);
+                    } else {
+                      const { templateType, approvalType, ...rest } = payload;
+                      await updateTemplateMutation.mutateAsync({
+                        id: payload.id,
+                        data: rest,
+                      });
+                    }
+
+                    notification.success({
+                      message: "Lưu mẫu thành công",
+                      description:
+                        "Mẫu giấy phép mới đã được lưu vào hệ thống.",
+                    });
+
+                    setAction({
+                      create: false,
+                      edit: false,
+                      view: false,
+                    });
+                    setOpenAddTemplateModal(false);
+                    inforForm.resetFields();
+                    dispatch({
+                      type: "RESET_STATE",
+                    });
+                  } catch (error: unknown) {
+                    console.log(error);
+                    const axiosError = error as AxiosError<{
+                      message?: string;
+                    }>;
+                    const msg =
+                      axiosError.response?.data?.message ||
+                      "Đã có lỗi xảy ra";
+
+                    notification.error({
+                      message: "Lưu mẫu thất bại",
+                      description: msg,
                     });
                   }
-
-                  notify(
-                    "success",
-                    "Lưu mẫu thành công",
-                    "Mẫu giấy phép mới đã được lưu vào hệ thống."
-                  );
-
-                  setAction({ create: false, edit: false });
-                  setOpenAddTemplateModal(false);
-                  inforForm.resetFields();
-                  dispatch({
-                    type: "RESET_STATE",
-                  });
-                } catch (error: unknown) {
-                  console.log(error);
-                  const axiosError = error as AxiosError<{ message?: string }>;
-                  const msg =
-                    axiosError.response?.data?.message || "Đã có lỗi xảy ra";
-
-                  notify("error", "Lưu mẫu thất bại", msg);
-                }
-              }}
-            >
-              Lưu
-            </Button>
+                }}
+              >
+                Lưu
+              </Button>
+            )}
           </Space>
         </div>
       }

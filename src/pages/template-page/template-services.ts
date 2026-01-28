@@ -9,7 +9,7 @@ import {
   updateTemplate,
 } from "@/services/template.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { App, notification } from "antd";
+import { App } from "antd";
 import React from "react";
 
 export const TemplateService = () => {
@@ -48,16 +48,11 @@ export const useCreateTemplateMutation = () => {
 
 export const useUpdateTemplateMutation = () => {
   const queryClient = useQueryClient();
-  const { notification } = App.useApp();
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) =>
       updateTemplate(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["list-template"] });
-      notification.success({ message: "Cập nhật mẫu giấy phép thành công" });
-    },
-    onError: () => {
-      notification.error({ message: "Cập nhật mẫu giấy phép thất bại" });
     },
   });
 };

@@ -1,26 +1,22 @@
-import { DeleteFilled, PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import {
   Button,
-  Checkbox,
-  Col,
   Form,
   Input,
   Modal,
-  Row,
   Select,
   type FormInstance,
 } from "antd";
-import { useEffect, useState, type ChangeEvent, type JSX } from "react";
+import { useCallback, useEffect, useState, type ChangeEvent, type JSX } from "react";
 import type { Field, Section, Template } from "../template-type";
 import { closestCorners, DndContext } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
-import SortableItem from "./ui/sort-item";
 import { fieldTemplates } from "./sidebar-modal";
 import {
   useGetListApprovalTypes,
-  useGetListRoles,
   useGetListTemplateTypes,
 } from "../template-services";
+import SectionItem from "./section-item";
 
 interface props {
   state: Template;
@@ -42,29 +38,19 @@ export default function ContentModal({
   action,
   inforForm,
   handleRenderField,
+  isPreview,
 }: props) {
   const [openAddFieldModal, setOpenAddFieldModal] = useState(false);
   const [currentSection, setCurrentSection] = useState<Section | null>(null);
 
   const [form] = Form.useForm();
 
-  const { data: roleData } = useGetListRoles();
+  // Removed unused roleData (moved to SectionItem)
   const { data: templateTypeData } = useGetListTemplateTypes();
   const { data: approvalTypeData } = useGetListApprovalTypes();
 
-  const handleValuesChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    section: Section,
-    fieldName: string
-  ) => {
-    dispatch({
-      type: "UPDATE_SECTION",
-      payload: {
-        section,
-        [fieldName]: event.target.value,
-      },
-    });
-  };
+  // Removed handleValuesChange (moved logic to SectionItem)
+
   useEffect(() => {
     if (action.edit) {
       inforForm.setFieldsValue({
@@ -76,18 +62,22 @@ export default function ContentModal({
     }
   }, [action]);
 
-  const handleUpdateField = (
-    event: ChangeEvent<HTMLInputElement>,
-    section: Section,
-    field: Field,
-    fieldName: string
-  ) => {
-    const value = event.target.value || event.target.checked;
-    dispatch({
-      type: "UPDATE_FIELD",
-      payload: { section, field, [fieldName]: value },
-    });
-  };
+  // Memoize handleUpdateField so SectionItem/Fields don't re-render unnecessarily
+  const handleUpdateField = useCallback(
+    (
+      event: ChangeEvent<HTMLInputElement>,
+      section: Section,
+      field: Field,
+      fieldName: string
+    ) => {
+      const value = event.target.value || event.target.checked;
+      dispatch({
+        type: "UPDATE_FIELD",
+        payload: { section, field, [fieldName]: value },
+      });
+    },
+    [dispatch]
+  );
 
   useEffect(() => console.log(state), [state]);
 
@@ -121,7 +111,7 @@ export default function ContentModal({
                 { required: true, message: "Vui lòng nhập tên mẫu giấy phép" },
               ]}
             >
-              <Input placeholder="Nhập tên mẫu giấy phép" />
+              <Input placeholder="Nhập tên mẫu giấy phép" disabled={isPreview} />
             </Form.Item>
 
             <Form.Item
@@ -144,6 +134,7 @@ export default function ContentModal({
                     })
                   ) || []
                 }
+                disabled={isPreview}
               />
             </Form.Item>
 
@@ -167,11 +158,12 @@ export default function ContentModal({
                     })
                   ) || []
                 }
+                disabled={isPreview}
               />
             </Form.Item>
 
             <Form.Item label="Mô tả mẫu giấy phép" name="description">
-              <Input.TextArea />
+              <Input.TextArea disabled={isPreview} />
             </Form.Item>
           </Form>
         </div>
@@ -198,218 +190,46 @@ export default function ContentModal({
             }}
           >
             <SortableContext items={state.sections.map((s) => s)}>
-              {state.sections.map((section: Section, index: number) => (
-                <SortableItem props={section} key={index}>
-                  <div
-                    key={section.id}
-                    className="w-full bg-white rounded-lg shadow-sm p-6 border border-gray-200"
-                  >
-                    <Row gutter={16} align="top" className="mb-4">
-                      <Col span={8}>
-                        <div className="flex flex-col gap-1">
-                          <label className="font-medium text-gray-700">
-                            Tên nhóm thông tin
-                          </label>
-                          <Input
-                            placeholder="Nhập tên nhóm thông tin"
-                            value={section.name}
-                            onChange={(e) =>
-                              handleValuesChange(e, section, "name")
-                            }
-                          />
-                        </div>
-                      </Col>
-
-                      <Col span={12}>
-                        <div className="flex flex-col gap-1">
-                          <label className="font-medium text-gray-700">
-                            Mô tả nhóm thông tin
-                          </label>
-                          <Input.TextArea
-                            placeholder="Nhập mô tả nhóm thông tin"
-                            value={section.description}
-                            onChange={(e) =>
-                              handleValuesChange(e, section, "description")
-                            }
-                            autoSize={{ minRows: 1, maxRows: 3 }}
-                          />
-                        </div>
-                      </Col>
-
-                      <Col span={4}>
-                        <div className="flex flex-col gap-1">
-                          <label className="font-medium text-gray-700">
-                            Thao tác
-                          </label>
-                          <Button
-                            size="large"
-                            icon={<DeleteFilled />}
-                            style={{ fontSize: 18 }}
-                            danger
-                            type="text"
-                            onClick={() =>
-                              dispatch({
-                                type: "DELETE_SECTION",
-                                payload: section.id,
-                              })
-                            }
-                          />
-                        </div>
-                      </Col>
-                    </Row>
-
-                    <DndContext
-                      collisionDetection={closestCorners}
-                      onDragEnd={(event) => {
-                        const { active, over } = event;
-                        if (!over || active.id === over.id) return;
-
-                        const oldIndex = section.fields.findIndex(
-                          (f) => f.id === active.id
-                        );
-                        const newIndex = section.fields.findIndex(
-                          (f) => f.id === over.id
-                        );
-                        const newFields = arrayMove(
-                          section.fields,
-                          oldIndex,
-                          newIndex
-                        );
-                        dispatch({
-                          type: "REORDER_FIELDS",
-                          payload: {
-                            sectionId: section.id,
-                            fields: newFields,
-                          },
-                        });
-                      }}
-                    >
-                      <SortableContext
-                        items={section.fields.map((field: Field) => field)}
-                      >
-                        <div className="grid grid-col-1 gap-6">
-                          {section.fields.map((field: Field) => (
-                            <SortableItem props={field} key={field.id}>
-                              <div className="relative group border border-gray-300 rounded-lg p-4 shadow-sm transition-all duration-200 hover:border-blue-500">
-                                {handleRenderField(
-                                  field.type,
-                                  field,
-                                  section,
-                                  handleUpdateField
-                                )}
-
-                                <Button
-                                  icon={<DeleteFilled />}
-                                  danger
-                                  type="primary"
-                                  className="!absolute top-[-16px] right-[20px] opacity-0 group-hover:opacity-100"
-                                  onClick={() =>
-                                    dispatch({
-                                      type: "DELETE_FIELD",
-                                      payload: { section, field },
-                                    })
-                                  }
-                                />
-                              </div>
-                            </SortableItem>
-                          ))}
-                        </div>
-                      </SortableContext>
-                    </DndContext>
-                    <Button
-                      type="primary"
-                      ghost
-                      icon={<PlusOutlined />}
-                      className="w-full mt-6"
-                      onClick={() => {
-                        setOpenAddFieldModal(true);
-                        setCurrentSection(section);
-                      }}
-                    >
-                      Thêm trường mới
-                    </Button>
-                    <Checkbox
-                      checked={section.sign.required}
-                      onChange={(value) => {
-                        dispatch({
-                          type: "SET_SIGN",
-                          payload: {
-                            section,
-                            data: value.target.checked,
-                            fieldName: "required",
-                          },
-                        });
-                      }}
-                      className="!my-6"
-                    >
-                      Yêu cầu ký
-                    </Checkbox>
-                    {section.sign.required && (
-                      <Form>
-                        <Form.Item
-                          label="Vai trò ký"
-                          rules={[
-                            {
-                              required: section.sign.required,
-                              message: "Vui lòng chọn vai trò ký",
-                            },
-                          ]}
-                        >
-                          <Select
-                            mode="multiple"
-                            showSearch
-                            optionFilterProp="label"
-                            placeholder="Chọn vai trò ký"
-                            allowClear
-                            value={section.sign.roleIdAllowed}
-                            options={roleData?.map(
-                              (role: { id: number; name: string }) => ({
-                                value: role.id,
-                                label: role.name,
-                              })
-                            )}
-                            onChange={(value) => {
-                              dispatch({
-                                type: "SET_ROLES",
-                                payload: {
-                                  section,
-                                  data: value,
-                                },
-                              });
-                            }}
-                          />
-                        </Form.Item>
-                      </Form>
-                    )}
-                  </div>
-                </SortableItem>
+              {state.sections.map((section: Section) => (
+                <SectionItem
+                  key={section.id}
+                  section={section}
+                  dispatch={dispatch}
+                  handleRenderField={handleRenderField}
+                  handleUpdateField={handleUpdateField}
+                  setOpenAddFieldModal={setOpenAddFieldModal}
+                  setCurrentSection={setCurrentSection}
+                  isPreview={isPreview}
+                />
               ))}
             </SortableContext>
           </DndContext>
         </div>
 
-        <Button
-          className="w-full"
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() =>
-            dispatch({
-              type: "ADD_SECTION",
-              payload: {
-                name: "",
-                description: "",
-                fields: [],
-                sign: {
-                  required: false,
-                  roleIdAllowed: null,
+        {!isPreview && (
+          <Button
+            className="w-full"
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() =>
+              dispatch({
+                type: "ADD_SECTION",
+                payload: {
+                  name: "",
+                  description: "",
+                  fields: [],
+                  sign: {
+                    required: false,
+                    roleIdAllowed: null,
+                  },
+                  id: state.sections.length + 1,
                 },
-                id: state.sections.length + 1,
-              },
-            })
-          }
-        >
-          Thêm phần mới
-        </Button>
+              })
+            }
+          >
+            Thêm phần mới
+          </Button>
+        )}
       </div>
       <Modal
         open={openAddFieldModal}
