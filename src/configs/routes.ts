@@ -9,4 +9,5 @@ export const routesConfig = {
   UserManagementRoute: "/users",
   TemplateTypeRoute: "/template-types",
   MapRoute: "/map",
+  Forbidden: "/403",
 };

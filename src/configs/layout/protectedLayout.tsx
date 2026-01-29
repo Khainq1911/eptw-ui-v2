@@ -6,17 +6,17 @@ import ErrorPage from "@/pages/error-page";
 
 export default function ProtectedLayout({
   children,
-  roleId,
+  roles,
 }: {
   children: React.ReactNode;
-  roleId: number[] | undefined;
+  roles: string[] | undefined;
 }) {
   const isAuth = AuthCommonService.isAuthenticated();
-  const userId = AuthCommonService.getUser()?.roleId;
+  const userAlias = AuthCommonService.getUser()?.alias;
 
   if (!isAuth) return <Navigate to={routesConfig.AuthRoute} />;
 
-  if (roleId && userId && !roleId.includes(userId))
+  if (roles && userAlias && !roles.includes(userAlias))
     return (
       <div className="h-screen">
         <ErrorPage status="403" />

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { routesConfig } from "./routes";
 
 export const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -28,10 +29,8 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error) => {
-    //const notify = useNotification();
     const originalRequest = error.config;
     const isLoginEndpoint = originalRequest.url.includes("/auth");
-
     if (error.response && error.response.status === 401 && !isLoginEndpoint) {
       originalRequest._retry = true;
       try {
@@ -63,6 +62,9 @@ axiosInstance.interceptors.response.use(
         }
         return Promise.reject(err);
       }
+    }
+    if (error.response && error.response.status === 403) {
+      window.location.replace(routesConfig.Forbidden);
     }
 
     /* if (notify) {
