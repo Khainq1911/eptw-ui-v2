@@ -61,7 +61,7 @@ export default function ErrorPage({
   const { title: defaultTitle, subTitle: defaultSubTitle } = getStatusMessage();
 
   return (
-    <div className="flex items-center h-full justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="flex items-center h-screen justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <Result
         status={mapStatus(status)}
         title={

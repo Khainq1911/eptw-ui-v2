@@ -40,7 +40,7 @@ function App() {
               key={index}
               path={route.path}
               element={
-                <ProtectedLayout roleId={route?.roleId}>
+                <ProtectedLayout roles={route?.roles}>
                   <Page />
                 </ProtectedLayout>
               }

@@ -21,6 +21,7 @@ export const AuthCommonService = {
         name: string;
         email: string;
         phone: string;
+        alias: string;
       } = jwtDecode(accessToken);
       return payload || null;
     }

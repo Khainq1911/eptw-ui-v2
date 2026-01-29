@@ -8,55 +8,56 @@ import {
   AppstoreOutlined,
   PictureOutlined,
 } from "@ant-design/icons";
+import { ROLE_ALIAS } from "@/common/constant";
 
 export const menuItems: MenuType[] = [
   {
     name: "Bảng điều khiển",
     icon: <PieChartOutlined />,
     path: "/dashboard",
-    roleId: 1,
+    roles: [ROLE_ALIAS.ADMIN],
     isActive: false,
   },
   {
     name: "Thiết bị",
     icon: <VideoCameraOutlined />,
     path: "/device",
-    roleId: 1,
+    roles: [ROLE_ALIAS.ADMIN],
     isActive: false,
   },
   {
     name: "Giấy phép",
     icon: <FileTextOutlined />,
     path: "/permit",
-    roleId: 1,
+    roles: [ROLE_ALIAS.ADMIN],
     isActive: false,
   },
   {
     name: "Mẫu biểu",
     icon: <SettingOutlined />,
     path: "/template",
-    roleId: 1,
+    roles: [ROLE_ALIAS.ADMIN],
     isActive: false,
   },
   {
     name: "Định vị",
     icon: <PictureOutlined />,
     path: "/map",
-    roleId: 1,
+    roles: [ROLE_ALIAS.ADMIN],
     isActive: false,
   },
   {
     name: "Quản lý người dùng",
     icon: <UserOutlined />,
     path: "/users",
-    roleId: 1,
+    roles: [ROLE_ALIAS.ADMIN],
     isActive: false,
   },
   {
     name: "Loại mẫu biểu",
     icon: <AppstoreOutlined />,
     path: "/template-types",
-    roleId: 1,
+    roles: [ROLE_ALIAS.ADMIN],
     isActive: false,
   },
 ];
