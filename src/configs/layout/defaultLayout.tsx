@@ -1,4 +1,3 @@
-import { AuthCommonService } from "@/common/authentication";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
