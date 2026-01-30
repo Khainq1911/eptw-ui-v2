@@ -1,0 +1,95 @@
+name: Docker CI/CD pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  # --- JOB: LINT & TEST (Optional/Recommended) ---
+  # Job này dùng để kiểm tra lỗi cú pháp (Lint) và chạy test trước khi build Docker.
+  # Đang được comment lại theo yêu cầu. Bạn có thể mở ra nếu muốn sử dụng.
+  # check_quality:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
+  #         cache: 'npm'
+  #
+  #     - name: Install Dependencies
+  #       run: npm ci
+  #
+  #     - name: Run Lint
+  #       run: npm run lint
+  #
+  #     # - name: Run Tests (Chưa có script test trong package.json)
+  #     #   run: npm run test
+
+  # --- JOB: BUILD & PUSH DOCKER ---
+  build_and_push:
+    runs-on: ubuntu-latest
+    # needs: check_quality # Nếu bật job trên, job này sẽ đợi check_quality xong mới chạy
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push the Docker image
+        # Chỉ push khi không phải là Pull Request (tức là chỉ push khi merge vào master)
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/eptw-ui:latest
+
+  # --- JOB: DEPLOY (CD) ---
+  # Job này dùng để tự động deploy lên server sau khi build xong Docker image.
+  # Đang được comment lại vì cần cấu hình Server và Secrets trước khi sử dụng.
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: build_and_push # Chạy sau khi job build_and_push thành công
+  #   if: ${{ github.ref == 'refs/heads/master' }} # Chỉ deploy khi code ở nhánh master
+  #   steps:
+  #     - name: Deploy to Server via SSH
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       with:
+  #         host: ${{ secrets.SERVER_HOST }}       # Địa chỉ IP của server
+  #         username: ${{ secrets.SERVER_USER }}   # Username để SSH (ví dụ: root)
+  #         key: ${{ secrets.SSH_PRIVATE_KEY }}    # Private Key SSH (lấy từ máy cá nhân hoặc tạo mới)
+  #         # port: 22                             # Port SSH (mặc định là 22)
+  #         script: |
+  #           # 1. Pull image mới nhất từ Docker Hub
+  #           docker pull ${{ secrets.DOCKER_USERNAME }}/eptw-ui:latest
+  #
+  #           # 2. Stop container cũ (nếu đang chạy)
+  #           docker stop eptw-ui-container || true
+  #
+  #           # 3. Xóa container cũ (để tạo cái mới)
+  #           docker rm eptw-ui-container || true
+  #
+  #           # 4. Chạy container mới
+  #           docker run -d \
+  #             --name eptw-ui-container \
+  #             --restart always \
+  #             -p 80:80 \
+  #             ${{ secrets.DOCKER_USERNAME }}/eptw-ui:latest
+  #
+  #           # 5. Dọn dẹp các image cũ không dùng đến (nhằm tiết kiệm ổ cứng)
+  #           docker image prune -f

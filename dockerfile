@@ -3,6 +3,7 @@ FROM node:24.4.1-alpine as build
 WORKDIR /app
 COPY . .
 RUN npm install
+
 RUN npm run build
 
 ## run stage ##
