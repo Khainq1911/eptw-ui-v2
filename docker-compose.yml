@@ -1,0 +1,11 @@
+services:
+  frontend:
+    container_name: eptw-ui-container
+    build:
+      context: .
+    ports:
+      - "5000:80"
+    restart: always
+    # Load biến môi trường từ file .env vào context của docker-compose
+    env_file:
+      - .env
