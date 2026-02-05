@@ -10,7 +10,7 @@ import UpdatePermit from "./pages/update-permit-page.tsx/index.tsx";
 import UserPage from "./pages/user-page/index.tsx";
 import TemplateTypePage from "./pages/template-type-page/index.tsx";
 
-import { ROLE_ALIAS } from "./common/constant.ts";
+import { ROLE_NAME } from "./common/constant.ts";
 import MapPage from "./pages/map-page/index.tsx";
 
 type Route = {
@@ -35,12 +35,12 @@ const protectedRoutes: Route[] = [
   {
     path: routesConfig.UserManagementRoute,
     component: UserPage,
-    roles: [ROLE_ALIAS.ADMIN],
+    roles: [ROLE_NAME.ADMIN],
   },
   {
     path: routesConfig.TemplateTypeRoute,
     component: TemplateTypePage,
-    roles: [ROLE_ALIAS.ADMIN],
+    roles: [ROLE_NAME.ADMIN],
   },
 ];
 

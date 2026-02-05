@@ -15,11 +15,10 @@ export const SIGN_STATUS = {
   REJECTED: "Rejected",
 };
 
-export const ROLE_ALIAS = {
+export const ROLE_NAME = {
   ADMIN: "Admin",
-  USER: "User",
-  ISSUER: "Issuer",
-  SUPERVISOR: "Supervisor",
+  WORKER: "Worker",
+  APPROVER: "Approver",
 };
 
 
