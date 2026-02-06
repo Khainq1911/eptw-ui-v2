@@ -49,7 +49,7 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
             # Navigate to the project directory (Change this to your actual project path)
-            cd /eptw-fe/eptw-ui-v2
+            cd ./eptw-fe/eptw-ui-v2
             
             # 1. Pull source code mới nhất
             git pull origin master
