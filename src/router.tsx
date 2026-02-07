@@ -9,6 +9,7 @@ import ViewPermit from "./pages/view-permit-page.tsx";
 import UpdatePermit from "./pages/update-permit-page.tsx/index.tsx";
 import UserPage from "./pages/user-page/index.tsx";
 import TemplateTypePage from "./pages/template-type-page/index.tsx";
+import WorkActivityPage from "./pages/work-activity-page/work-activity-page";
 
 import { ROLE_NAME } from "./common/constant.ts";
 import MapPage from "./pages/map-page/index.tsx";
@@ -26,6 +27,7 @@ const privateRoutes: Route[] = [
   { path: routesConfig.TemplateRoute, component: TemplatePage },
   { path: routesConfig.PermitRoute, component: PermitPage },
   { path: routesConfig.MapRoute, component: MapPage },
+  { path: routesConfig.WorkActivityRoute, component: WorkActivityPage },
   {
     path: "/",
     component: () => <Navigate to={routesConfig.DashboardRoute} replace />,

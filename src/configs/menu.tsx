@@ -7,6 +7,7 @@ import {
   UserOutlined,
   AppstoreOutlined,
   PictureOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
 import { ROLE_NAME } from "@/common/constant";
 
@@ -43,6 +44,13 @@ export const menuItems: MenuType[] = [
     name: "Định vị",
     icon: <PictureOutlined />,
     path: "/map",
+    roles: [ROLE_NAME.ADMIN],
+    isActive: false,
+  },
+  {
+    name: "Hoạt động công việc",
+    icon: <ToolOutlined />,
+    path: "/work-activity",
     roles: [ROLE_NAME.ADMIN],
     isActive: false,
   },
