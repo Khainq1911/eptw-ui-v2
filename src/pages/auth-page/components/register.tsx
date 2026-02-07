@@ -8,18 +8,15 @@ import {
 import { Button, Divider, Input } from "antd";
 import React, { type SetStateAction } from "react";
 import { authHandler } from "../auth-page-service";
-import type { NotificationContextType, RegisterFormType } from "@/common/types/auth.type";
+import type { RegisterFormType } from "@/common/types/auth.type";
+import type { NotificationInstance } from "antd/es/notification/interface";
 
 export default function Register({
   setAuthOption,
-  notify,
+  notification,
 }: {
   setAuthOption: React.Dispatch<SetStateAction<"Login" | "Register">>;
-  notify: (
-    type: NotificationContextType,
-    message: string,
-    description?: string
-  ) => void;
+  notification: NotificationInstance;
 }) {
   const [registerForm, setRegisterForm] = React.useState<RegisterFormType>({
     name: "",
@@ -38,7 +35,7 @@ export default function Register({
       <form
         className="gap-4 mt-4 flex flex-col"
         onSubmit={(e) =>
-          authHandler.register(e, registerForm, notify, setAuthOption)
+          authHandler.register(e, registerForm, notification, setAuthOption)
         }
       >
         <div className="space-y-2">

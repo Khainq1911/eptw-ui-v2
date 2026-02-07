@@ -1,18 +1,15 @@
-import { Segmented } from "antd";
+import { App, Segmented } from "antd";
 import React from "react";
 import Login from "./components/login";
 import Register from "./components/register";
 import { useNavigate } from "react-router-dom";
-import { useNotification } from "@/common/hooks/useNotification";
-
-
 
 export default function AuthPage() {
   const [authOption, setAuthOption] = React.useState<"Login" | "Register">(
     "Login"
   );
   const navigate = useNavigate();
-  const notify = useNotification();
+  const { notification } = App.useApp();
   const authComponent = React.useMemo(() => {
     switch (authOption) {
       case "Login":
@@ -20,15 +17,20 @@ export default function AuthPage() {
           <Login
             setAuthOption={setAuthOption}
             navigate={navigate}
-            notify={notify}
+            notification={notification}
           />
         );
       case "Register":
-        return <Register setAuthOption={setAuthOption} notify={notify} />;
+        return (
+          <Register
+            setAuthOption={setAuthOption}
+            notification={notification}
+          />
+        );
       default:
         return null;
     }
-  }, [authOption]);
+  }, [authOption, navigate, notification]);
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">

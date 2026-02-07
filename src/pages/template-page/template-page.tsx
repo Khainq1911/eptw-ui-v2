@@ -33,17 +33,13 @@ import { debounce } from "lodash";
 import { useMemo, useState } from "react";
 import type { ColumnsType } from "antd/es/table";
 import { formatDate } from "@/common/common-services/formatTime";
-import { useShowConfirm } from "@/common/hooks/useShowConfirm";
-import { useNotification } from "@/common/hooks/useNotification";
 import type { AxiosError } from "axios";
 import { useCreateTemplate } from "./components/create-template/create-template-service";
 import { downloadFile } from "@/common/common-services/downloadFile";
 
 export default function TemplatePage() {
   const { state, dispatch } = useCreateTemplate();
-  const confirm = useShowConfirm();
-  const notify = useNotification();
-  const { message } = App.useApp();
+  const { message, notification, modal } = App.useApp();
   const [action, setAction] = useState<{
     create: boolean;
     edit: boolean;
@@ -153,7 +149,7 @@ export default function TemplatePage() {
                   });
                 } catch (error) {
                   console.error(error);
-                  notify("error", "Lấy dữ liệu thất bại", "Vui lòng thử lại");
+                  notification.error({ message: "Lấy dữ liệu thất bại", description: "Vui lòng thử lại", placement: "topRight", duration: 3 });
                 } finally {
                   setLoading(false);
                 }
@@ -183,7 +179,7 @@ export default function TemplatePage() {
                   });
                 } catch (error) {
                   console.error(error);
-                  notify("error", "Lấy dữ liệu thất bại", "Vui lòng thử lại");
+                  notification.error({ message: "Lấy dữ liệu thất bại", description: "Vui lòng thử lại", placement: "topRight", duration: 3 });
                 } finally {
                   setLoading(false);
                 }
@@ -209,13 +205,15 @@ export default function TemplatePage() {
               size="small"
               icon={<DeleteOutlined />}
               onClick={() =>
-                confirm(
-                  "Xác nhận xóa",
-                  "Bạn có chắc chắn muốn xóa không?",
-                  async () => {
+                modal.confirm({
+                  title: "Xác nhận xóa",
+                  content: "Bạn có chắc chắn muốn xóa không?",
+                  okText: "Confirm",
+                  cancelText: "Cancel",
+                  onOk: async () => {
                     try {
                       await deleteMutation.mutateAsync(record.id);
-                      notify("success", "Xóa mẫu thành công", "");
+                      notification.success({ message: "Xóa mẫu thành công", description: "", placement: "topRight", duration: 3 });
                       form.resetFields();
                     } catch (error: unknown) {
                       const axiosError = error as AxiosError<{
@@ -224,10 +222,10 @@ export default function TemplatePage() {
                       const msg =
                         axiosError.response?.data?.message ||
                         "Đã có lỗi xảy ra";
-                      notify("error", "Xóa mẫu thất bại", msg);
+                      notification.error({ message: "Xóa mẫu thất bại", description: msg, placement: "topRight", duration: 3 });
                     }
-                  }
-                )
+                  },
+                })
               }
             />
           </Tooltip>

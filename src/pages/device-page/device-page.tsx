@@ -108,8 +108,7 @@ export default function DevicePage() {
                         placeholder="Chọn trạng thái"
                         options={[
                           { value: "active", label: "Hoạt động" },
-                          { value: "maintain", label: "Bảo trì" },
-                          { value: "deleted", label: "Đã xóa" },
+                          { value: "inactive", label: "Bảo trì" },
                         ]}
                         variant="filled"
                       />

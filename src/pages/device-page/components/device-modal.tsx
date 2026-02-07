@@ -1,5 +1,6 @@
 import type { DeviceActionType, DeviceType } from "@/common/types/device.type";
 import { Col, Form, Input, Modal, Row, Select, type FormInstance } from "antd";
+import { useMemo } from "react";
 
 export default function AddDeviceModal({
   open,
@@ -16,17 +17,24 @@ export default function AddDeviceModal({
   handleCreateDevice: (form: FormInstance) => void;
   handleUpdateDevice: (id: string, form: FormInstance<DeviceType>) => void;
 }) {
+  const statusOptions = useMemo(() => {
+    if (action.isCreate || action.isEdit) {
+      return [
+        { value: "active", label: "Hoạt động" },
+        { value: "inactive", label: "Không hoạt động" },
+      ];
+    } else if (action.isView) {
+      return [
+        { value: "active", label: "Hoạt động" },
+        { value: "inactive", label: "Không hoạt động" },
+        {value: "deleted", label: "Đã xóa"},
+      ];
+    }
+  }, [action]);
 
   const isView = action?.isView;
   return (
     <Modal
-      title={
-        action.isCreate
-          ? "Thêm thiết bị mới"
-          : action.isEdit
-          ? "Chỉnh sửa thiết bị"
-          : "Xem chi tiết thiết bị"
-      }
       open={open}
       onCancel={() => {
         onClose();
@@ -71,14 +79,11 @@ export default function AddDeviceModal({
             <Form.Item
               label="Trạng thái thiết bị"
               name="status"
+              initialValue="active"
               rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}
-              hidden={action?.isCreate}
             >
               <Select
-                options={[
-                  { value: "active", label: "Hoạt động" },
-                  { value: "maintain", label: "Bảo trì" },
-                ]}
+                options={statusOptions}
               />
             </Form.Item>
           </Col>

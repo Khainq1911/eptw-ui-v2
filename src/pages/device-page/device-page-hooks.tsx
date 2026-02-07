@@ -1,12 +1,11 @@
 import { AuthCommonService } from "@/common/authentication";
 import { formatDate } from "@/common/common-services/formatTime";
-import { useNotification } from "@/common/hooks/useNotification";
-import { useShowConfirm } from "@/common/hooks/useShowConfirm";
 import type { DeviceActionType, DeviceType } from "@/common/types/device.type";
 import { deviceService } from "@/services/device.service";
 
 import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
 import {
+  App,
   Button,
   Space,
   Tag,
@@ -15,16 +14,16 @@ import {
   type TableProps,
 } from "antd";
 import React from "react";
-
+import { AxiosError } from "axios";
 
 export const useDevicePageHook = (
   form: FormInstance,
   // eslint-disable-next-line
   data: any,
   // eslint-disable-next-line
-  refetch: any
+  refetch: any,
 ) => {
-  const notify = useNotification();
+  const { notification, modal } = App.useApp();
 
   const [action, setAction] = React.useState<DeviceActionType>({
     isEdit: false,
@@ -35,7 +34,6 @@ export const useDevicePageHook = (
   const [openAddDeviceModal, setOpenAddDeviceModal] =
     React.useState<boolean>(false);
 
-  const confirm = useShowConfirm();
   const handleOpenAddDeviceModal = () => {
     setOpenAddDeviceModal(true);
     setAction({ isEdit: false, isView: false, isCreate: true });
@@ -49,7 +47,7 @@ export const useDevicePageHook = (
   const handleGetDeviceById = async (
     id: string,
     form: FormInstance<DeviceType>,
-    key: string
+    key: string,
   ) => {
     try {
       const res = await deviceService.getDeviceById(id);
@@ -67,27 +65,39 @@ export const useDevicePageHook = (
     }
   };
 
-
   const handleCreateDevice = async (form: FormInstance<DeviceType>) => {
     try {
       await form.validateFields();
       const payload = await form.getFieldsValue();
       await deviceService.createDevice(payload);
       handleCloseAddDeviceModal();
-      notify(
-        "success",
-        "Thêm thiết bị thành công",
-        "Thiết bị đã được thêm vào hệ thống"
-      );
+      notification.success({
+        message: "Thêm thiết bị thành công",
+        description: "Thiết bị đã được thêm vào hệ thống",
+        placement: "topRight",
+        duration: 3,
+      });
       form.resetFields();
-    } catch (error) {
+      await refetch();
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{
+        message?: string;
+      }>;
+      const msg = axiosError.response?.data?.message || "Đã có lỗi xảy ra";
+      console.log(axiosError);
+      notification.error({
+        message: "Thêm thiết bị thất bại",
+        description: msg,
+        placement: "topRight",
+        duration: 3,
+      });
       console.error("Lỗi khi tạo thiết bị:", error);
     }
   };
 
   const handleUpdateDevice = async (
     id: string,
-    form: FormInstance<DeviceType>
+    form: FormInstance<DeviceType>,
   ) => {
     try {
       await form.validateFields();
@@ -99,31 +109,51 @@ export const useDevicePageHook = (
         description: payload.description,
       });
       handleCloseAddDeviceModal();
-      notify(
-        "success",
-        "Cập nhật thiết bị thành công",
-        "Thiết bị đã được cập nhật vào hệ thống"
-      );
+      notification.success({
+        message: "Cập nhật thiết bị thành công",
+        description: "Thiết bị đã được cập nhật vào hệ thống",
+        placement: "topRight",
+        duration: 3,
+      });
       form.resetFields();
       await refetch();
-
-    } catch (error) {
-      console.error("Lỗi khi tạo thiết bị:", error);
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{
+        message?: string;
+      }>;
+      const msg = axiosError.response?.data?.message || "Đã có lỗi xảy ra";
+      console.log(axiosError);
+      notification.error({
+        message: "Cập nhật thiết bị thất bại",
+        description: msg,
+        placement: "topRight",
+        duration: 3,
+      });
     }
   };
 
   const handleDeleteDevice = async (id: string) => {
     try {
       await deviceService.deleteDevice(id);
-      notify(
-        "success",
-        "Xóa thiết bị thành công",
-        "Thiết bị đã được xóa khỏi hệ thống"
-      );
+      notification.success({
+        message: "Xóa thiết bị thành công",
+        description: "Thiết bị đã được xóa khỏi hệ thống",
+        placement: "topRight",
+        duration: 3,
+      });
       await refetch();
-
-    } catch (error) {
-      console.error("Lỗi khi xóa thiết bị:", error);
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{
+        message?: string;
+      }>;
+      const msg = axiosError.response?.data?.message || "Đã có lỗi xảy ra";
+      console.log(axiosError);
+      notification.error({
+        message: "Xóa thiết bị thất bại",
+        description: msg,
+        placement: "topRight",
+        duration: 3,
+      });
     }
   };
 
@@ -143,7 +173,7 @@ export const useDevicePageHook = (
       },
       {
         title: "Thiết bị ngừng",
-        subTitle: "Trạng thái: Bảo trì",
+        subTitle: "Trạng thái: Không hoạt động",
         quantity: data?.countInactiveDevice,
         color: "#F44336",
       },
@@ -154,7 +184,7 @@ export const useDevicePageHook = (
         color: "#FF9800",
       },
     ],
-    [data]
+    [data],
   );
 
   const columns: TableProps<DeviceType>["columns"] = React.useMemo(() => {
@@ -184,15 +214,14 @@ export const useDevicePageHook = (
         render: (status: string) => {
           const colorMap: Record<string, string> = {
             active: "green",
-            maintain: "orange",
+            inactive: "red",
             deleted: "red",
           };
 
           const labelMap: Record<string, string> = {
             active: "Hoạt động",
-            maintain: "Bảo trì",
+            inactive: "Không hoạt động",
             deleted: "Đã Xóa",
-
           };
           return (
             <Tag color={colorMap[status] || "gray"}>{labelMap[status]}</Tag>
@@ -277,11 +306,13 @@ export const useDevicePageHook = (
                   size="small"
                   icon={<DeleteOutlined />}
                   onClick={() =>
-                    confirm(
-                      "Xác nhận xóa",
-                      "Bạn có chắc chắn muốn xóa không?",
-                      () => handleDeleteDevice(record.id)
-                    )
+                    modal.confirm({
+                      title: "Xác nhận xóa",
+                      content: "Bạn có chắc chắn muốn xóa không?",
+                      okText: "Confirm",
+                      cancelText: "Cancel",
+                      onOk: () => handleDeleteDevice(record.id),
+                    })
                   }
                 />
               </Tooltip>

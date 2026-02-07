@@ -1,4 +1,5 @@
 import {
+  App,
   Button,
   Col,
   Collapse,
@@ -17,7 +18,6 @@ import { useGetFreeAndActive } from "@/services/device.service";
 import { useGetWorkActivities } from "@/services/work-activity.service";
 import { useCreatePermit } from "@/services/permit.service";
 import { useState } from "react";
-import { useNotification } from "@/common/hooks/useNotification";
 import AttachmentFile from "./attachment";
 import { uploadFiles } from "@/services/upload-file.service";
 
@@ -35,7 +35,7 @@ export default function CreatePermitDrawer({
   const { data: workActivitiesData } = useGetWorkActivities();
   const [loading, setLoading] = useState(false);
   const createPermitMutation = useCreatePermit();
-  const notify = useNotification();
+  const { notification } = App.useApp();
 
   const handleSave = () => {
     modal.confirm({
@@ -65,11 +65,12 @@ export default function CreatePermitDrawer({
 
           await createPermitMutation.mutateAsync(payload);
 
-          notify(
-            "success",
-            "Lưu giấy phép thành công",
-            "Giấy phép đã được lưu vào hệ thống."
-          );
+          notification.success({
+            message: "Lưu giấy phép thành công",
+            description: "Giấy phép đã được lưu vào hệ thống.",
+            placement: "topRight",
+            duration: 3,
+          });
 
           form.resetFields();
           handleCloseCreatePermit();
@@ -77,11 +78,12 @@ export default function CreatePermitDrawer({
             type: "RESET_STATE",
           });
         } catch (error) {
-          notify(
-            "error",
-            "Lưu giấy phép thất bại",
-            "Vui lòng kiểm tra lại thông tin và thử lại."
-          );
+          notification.error({
+            message: "Lưu giấy phép thất bại",
+            description: "Vui lòng kiểm tra lại thông tin và thử lại.",
+            placement: "topRight",
+            duration: 3,
+          });
 
           throw error;
         } finally {
