@@ -7,7 +7,7 @@ import {
   useUpdateStatus,
 } from "@/services/permit.service";
 import { useGetWorkActivities } from "@/services/work-activity.service";
-import { ArrowLeftOutlined, EditOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, EditOutlined, HistoryOutlined } from "@ant-design/icons";
 import {
   App,
   Button,
@@ -27,6 +27,8 @@ import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AttachmentFile from "./attachmentFile";
+import CommentModal from "./CommentModal";
+import PermitLogDrawer from "./PermitLogDrawer";
 import { formatDate } from "@/common/common-services/formatTime";
 import axios from "axios";
 import ErrorPage from "@/pages/error-page";
@@ -54,6 +56,13 @@ export default function PermitComponent({
   const [errorStatus, setErrorStatus] = useState<"404" | "500" | "403" | "503">(
     "404"
   );
+  const [commentModal, setCommentModal] = useState<{
+    open: boolean;
+    title: string;
+    required?: boolean;
+    onOk: (comment: string) => Promise<void>;
+  } | null>(null);
+  const [logDrawerOpen, setLogDrawerOpen] = useState(false);
 
   const getStatusBadge = (status: any) => {
     switch (status) {
@@ -286,6 +295,12 @@ export default function PermitComponent({
                 Trở về
               </Button>
               <Space>
+                <Button
+                  icon={<HistoryOutlined />}
+                  onClick={() => setLogDrawerOpen(true)}
+                >
+                  Lịch sử
+                </Button>
                 {(status === PERMIT_STATUS.APPROVED ||
                   status === PERMIT_STATUS.PENDING) && (
                   <Button
@@ -293,17 +308,15 @@ export default function PermitComponent({
                     type="primary"
                     loading={rejectPermitMutation.isPending}
                     onClick={() => {
-                      modal.confirm({
-                        title: "Xác nhận từ chối",
-                        content:
-                          "Bạn có chắc chắn muốn từ chối giấy phép này không?",
-                        okText: "Xác nhận",
-                        cancelText: "Hủy",
-                        async onOk() {
-                          // Must return a Promise so AntD will wait
+                      setCommentModal({
+                        open: true,
+                        title: "Xác nhận từ chối giấy phép",
+                        required: true,
+                        onOk: async (comment: string) => {
                           try {
                             await rejectPermitMutation.mutateAsync({
                               permitId: permitId,
+                              comment,
                             });
 
                             form.setFieldsValue({
@@ -314,6 +327,8 @@ export default function PermitComponent({
                               message: "Thành công",
                               description: "Từ chối giấy phép thành công",
                             });
+
+                            setCommentModal(null);
                           } catch (error: any) {
                             notification.error({
                               message: "Lỗi",
@@ -322,8 +337,6 @@ export default function PermitComponent({
                                 error?.message ||
                                 "Không thể từ chối giấy phép",
                             });
-
-                            // Quan trọng: throw error để modal KHÔNG tự đóng
                             throw error;
                           }
                         },
@@ -339,16 +352,14 @@ export default function PermitComponent({
                     color="cyan"
                     variant="solid"
                     onClick={() => {
-                      return modal.confirm({
+                      setCommentModal({
+                        open: true,
                         title: "Xác nhận bắt đầu công việc",
-                        content:
-                          "Bạn có chắc chắn muốn bắt đầu công việc không",
-                        okText: "Xác nhận",
-                        cancelText: "Hủy",
-                        onOk: async () => {
+                        onOk: async (comment: string) => {
                           await updateStatusMutation.mutateAsync({
                             permitId,
                             status: PERMIT_STATUS.INPROGRESS,
+                            comment,
                           });
 
                           form.setFieldsValue({
@@ -359,6 +370,8 @@ export default function PermitComponent({
                             message: "Thành công",
                             description: "Bắt đầu công việc thành công",
                           });
+
+                          setCommentModal(null);
                         },
                       });
                     }}
@@ -371,16 +384,14 @@ export default function PermitComponent({
                   <Button
                     type="primary"
                     onClick={() => {
-                      return modal.confirm({
+                      setCommentModal({
+                        open: true,
                         title: "Xác nhận kết thúc công việc",
-                        content:
-                          "Bạn có chắc chắn muốn kết thúc công việc không",
-                        okText: "Xác nhận",
-                        cancelText: "Hủy",
-                        onOk: async () => {
+                        onOk: async (comment: string) => {
                           await updateStatusMutation.mutateAsync({
                             permitId,
                             status: PERMIT_STATUS.COMPLETED,
+                            comment,
                           });
 
                           form.setFieldsValue({
@@ -391,6 +402,8 @@ export default function PermitComponent({
                             message: "Thành công",
                             description: "Kết thúc công việc thành công",
                           });
+
+                          setCommentModal(null);
                         },
                       });
                     }}
@@ -403,15 +416,14 @@ export default function PermitComponent({
                   <Button
                     type="default"
                     onClick={() => {
-                      return modal.confirm({
+                      setCommentModal({
+                        open: true,
                         title: "Xác nhận đóng giấy phép",
-                        content: "Bạn có chắc chắn muốn đóng giấy phép không",
-                        okText: "Xác nhận",
-                        cancelText: "Hủy",
-                        onOk: async () => {
+                        onOk: async (comment: string) => {
                           await updateStatusMutation.mutateAsync({
                             permitId,
                             status: PERMIT_STATUS.CLOSED,
+                            comment,
                           });
 
                           form.setFieldsValue({
@@ -422,6 +434,8 @@ export default function PermitComponent({
                             message: "Thành công",
                             description: "Đóng giấy phép thành công",
                           });
+
+                          setCommentModal(null);
                         },
                       });
                     }}
@@ -798,6 +812,30 @@ export default function PermitComponent({
               state={fileState}
               dispatch={fileDispatch}
               isDisabled={isDisabled}
+            />
+
+            {/* Comment Modal for status updates */}
+            <CommentModal
+              open={!!commentModal?.open}
+              title={commentModal?.title || ""}
+              required={commentModal?.required}
+              loading={
+                updateStatusMutation.isPending ||
+                rejectPermitMutation.isPending
+              }
+              onOk={async (comment) => {
+                if (commentModal?.onOk) {
+                  await commentModal.onOk(comment);
+                }
+              }}
+              onCancel={() => setCommentModal(null)}
+            />
+
+            {/* Permit Log Drawer */}
+            <PermitLogDrawer
+              open={logDrawerOpen}
+              permitId={permitId}
+              onClose={() => setLogDrawerOpen(false)}
             />
           </div>
         )}

@@ -55,7 +55,7 @@ axiosInstance.interceptors.response.use(
       } catch (err: any) {
         console.log("refreshToken is expired", error.response.status);
 
-        if (err.response && err.response.status === 400) {
+        if (err.response && err.response.status === 401) {
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
           window.location.href = "/auth";
