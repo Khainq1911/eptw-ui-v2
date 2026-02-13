@@ -48,7 +48,7 @@ export default function CommentModal({
       onOk={handleOk}
       onCancel={handleCancel}
       confirmLoading={loading || submitting}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
         <Form.Item

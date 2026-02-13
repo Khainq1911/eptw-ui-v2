@@ -54,8 +54,12 @@ export const useGetDetailPermit = () => {
 };
 
 export const useCreatePermit = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createPermit,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["list-permits"] });
+    },
   });
 };
 

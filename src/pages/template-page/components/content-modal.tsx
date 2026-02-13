@@ -52,7 +52,7 @@ export default function ContentModal({
   // Removed handleValuesChange (moved logic to SectionItem)
 
   useEffect(() => {
-    if (action.edit) {
+    if (action.edit || action.view) {
       inforForm.setFieldsValue({
         name: state.name,
         description: state.description,

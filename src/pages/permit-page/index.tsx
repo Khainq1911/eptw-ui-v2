@@ -165,6 +165,8 @@ export default function PermitPage() {
           | "Expired"
           | "Cancelled"
           | "Closed"
+          | "Inprogress"
+          | "Completed"
       ) => {
         const status = PERMIT_STATUS.find((x) => x.value === text);
         return (
