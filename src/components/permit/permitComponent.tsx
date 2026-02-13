@@ -35,6 +35,7 @@ import ErrorPage from "@/pages/error-page";
 import SignButton from "./signButton";
 import { uploadUpdatedFiles } from "@/services/upload-file.service";
 import { PERMIT_STATUS } from "@/common/constant";
+import { AuthCommonService } from "@/common/authentication";
 
 const { Panel } = Collapse;
 
@@ -117,6 +118,17 @@ export default function PermitComponent({
       form.getFieldValue("status") !== PERMIT_STATUS.PENDING
     );
   }, [location?.pathname, form.getFieldValue("status")]);
+
+  const currentUserId = AuthCommonService.getUser()?.id;
+
+  const isCreator = useMemo(() => {
+    console.log(getDetailPermitMutation.data, currentUserId);
+    return getDetailPermitMutation.data?.createdBy?.id === currentUserId;
+  }, [getDetailPermitMutation.data?.createdBy?.id, currentUserId]);
+
+  const isSigner = useMemo(() => {
+    return signs.some((s: any) => s.signerId === currentUserId);
+  }, [signs, currentUserId]);
 
   const handleGetPermit = async () => {
     setLoading(true);
@@ -347,7 +359,7 @@ export default function PermitComponent({
                   </Button>
                 )}
 
-                {status === PERMIT_STATUS.APPROVED && (
+                {status === PERMIT_STATUS.APPROVED && isCreator && (
                   <Button
                     color="cyan"
                     variant="solid"
@@ -380,7 +392,7 @@ export default function PermitComponent({
                   </Button>
                 )}
 
-                {status === PERMIT_STATUS.INPROGRESS && (
+                {status === PERMIT_STATUS.INPROGRESS && isCreator && (
                   <Button
                     type="primary"
                     onClick={() => {
@@ -412,7 +424,7 @@ export default function PermitComponent({
                   </Button>
                 )}
 
-                {status === PERMIT_STATUS.COMPLETED && (
+                {status === PERMIT_STATUS.COMPLETED && isSigner && (
                   <Button
                     type="default"
                     onClick={() => {

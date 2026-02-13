@@ -98,6 +98,8 @@ export const usePermitHooks = () => {
     Cancelled: "volcano",
     Expired: "purple",
     Closed: "blue",
+    Inprogress: "blue",
+    Completed: "cyan",
   };
 
   return {

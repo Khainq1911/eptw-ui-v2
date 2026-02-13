@@ -41,8 +41,12 @@ export const useGetListApprovalTypes = () => {
 };
 
 export const useCreateTemplateMutation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: any) => createTemplate(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["list-template"] });
+    },
   });
 };
 
