@@ -78,3 +78,17 @@ export const useGetListDeviceLocation = () => {
     enabled: true,
   });
 };
+
+
+export const getListNotificationService = async (params: { limit: number; page: number }) => {
+  const res = await axiosInstance.get("device-notification", { params });
+  return res.data;
+};
+
+export const useGetListNotification = (params: { limit: number; page: number }) => {
+  return useQuery({
+    queryKey: ["get-list-notification", params],
+    queryFn: () => getListNotificationService(params),
+    enabled: true,
+  });
+};
