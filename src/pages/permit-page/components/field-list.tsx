@@ -5,6 +5,7 @@ import RadioField from "./ui/radio";
 import HeadingField from "./ui/heading";
 import TextAreaField from "./ui/textarea";
 import ParagraphField from "./ui/paragraph";
+import SelectField from "./ui/select";
 import type { Field, Section } from "@/pages/template-page/template-type";
 import React from "react";
 
@@ -36,6 +37,10 @@ export const handleRender = (
     case "textarea":
       return (
         <TextAreaField section={section} field={field} dispatch={dispatch} isDisable={isDisable}/>
+      );
+    case "select":
+      return (
+        <SelectField section={section} field={field} dispatch={dispatch} isDisable={isDisable}/>
       );
     default:
       return;

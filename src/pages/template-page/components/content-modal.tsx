@@ -70,7 +70,7 @@ export default function ContentModal({
       field: Field,
       fieldName: string
     ) => {
-      const value = event.target.value || event.target.checked;
+      const value = event.target.value !== undefined ? event.target.value : event.target.checked;
       dispatch({
         type: "UPDATE_FIELD",
         payload: { section, field, [fieldName]: value },

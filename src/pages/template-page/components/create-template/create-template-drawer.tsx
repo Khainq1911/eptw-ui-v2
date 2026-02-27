@@ -15,6 +15,7 @@ import CheckboxField from "../ui/checkbox";
 import RadioField from "../ui/radio";
 import HeadingField from "../ui/heading";
 import ParagraphField from "../ui/paragraph";
+import SelectField from "../ui/select";
 import { App } from "antd";
 
 export default function AddTemplateModal({
@@ -77,6 +78,9 @@ export default function AddTemplateModal({
         }
         case "paragraph": {
           return <ParagraphField {...commonProps} />;
+        }
+        case "select": {
+          return <SelectField {...commonProps} dispatch={dispatch} />;
         }
         default:
           return null;

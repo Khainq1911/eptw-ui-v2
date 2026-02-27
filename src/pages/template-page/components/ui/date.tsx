@@ -11,10 +11,10 @@ export default function Date({
 }: props) {
   // Debounce 300ms cho label
   const debouncedUpdateLabel = useCallback(
-    debounce((e) => {
-      handleUpdateField(e, section, field, "label");
-    }, 100),
-    []
+    debounce((value: string) => {
+      handleUpdateField({ target: { value } }, section, field, "label");
+    }, 300),
+    [handleUpdateField, section, field]
   );
 
   if (isPreview) {
@@ -47,8 +47,8 @@ export default function Date({
             <Input
               size="small"
               placeholder="Nhập label"
-              value={field.label}
-              onChange={(e) => debouncedUpdateLabel(e)}
+              defaultValue={field.label}
+              onChange={(e) => debouncedUpdateLabel(e.target.value)}
             />
           </div>
         </Col>

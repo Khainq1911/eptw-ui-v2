@@ -4,7 +4,7 @@ import {
   useGetListDeviceLocation,
   useGetListNotification,
 } from "@/services/device.service";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 // Fix icon leaflet
@@ -17,6 +17,7 @@ import {
   EnvironmentOutlined,
   BellOutlined,
   AlertOutlined,
+  WarningOutlined,
   ClockCircleOutlined,
   MobileOutlined,
 } from "@ant-design/icons";
@@ -143,14 +144,44 @@ function NotificationTabContent({
         tagColor: "blue",
       };
     }
+    if (type === "warning") {
+      return {
+        color: "#ff4d4f",
+        bg: "#fff2f0",
+        border: "#ffccc7",
+        icon: <WarningOutlined style={{ fontSize: 22, color: "#ff4d4f" }} />,
+        label: "Cảnh báo",
+        tagColor: "red",
+      };
+    }
     return {
       color: "#fa8c16",
       bg: "#fff7e6",
       border: "#ffd591",
       icon: <AlertOutlined style={{ fontSize: 22, color: "#fa8c16" }} />,
-      label: "Cảnh báo",
+      label: "Thông báo",
       tagColor: "orange",
     };
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case "high":
+        return "red";
+      case "medium":
+        return "orange";
+      case "low":
+        return "green";
+      default:
+        return "default";
+    }
+  };
+
+  const renderDetailValue = (key: string, value: any) => {
+    if (key === "severity") {
+      return <Tag color={getSeverityColor(value)}>{String(value).toUpperCase()}</Tag>;
+    }
+    return <span>{String(value)}</span>;
   };
 
   if (isLoading) {
@@ -243,9 +274,76 @@ function NotificationTabContent({
                     >
                       <b>Chi tiết:</b>
                       {item.type === "location" && item.detail?.lat ? (
-                        <div style={{ marginTop: 4 }}>
-                          <div>📍 Lat: <code>{item.detail.lat}</code></div>
-                          <div>📍 Lng: <code>{item.detail.lng}</code></div>
+                        <div style={{ marginTop: 8 }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: 16,
+                              marginBottom: 8,
+                              fontSize: 13,
+                            }}
+                          >
+                            <span>📍 Lat: <code>{item.detail.lat}</code></span>
+                            <span>📍 Lng: <code>{item.detail.lng}</code></span>
+                          </div>
+                          <div
+                            style={{
+                              borderRadius: 8,
+                              overflow: "hidden",
+                              border: "1px solid #d9d9d9",
+                            }}
+                          >
+                            <MapContainer
+                              key={`notify-map-${item.id}-${item.detail.lat}-${item.detail.lng}`}
+                              center={[item.detail.lat, item.detail.lng]}
+                              zoom={15}
+                              style={{ height: 200, width: "100%" }}
+                              scrollWheelZoom={false}
+                              dragging={false}
+                              zoomControl={false}
+                              attributionControl={false}
+                            >
+                              <TileLayer
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                              />
+                              <Marker
+                                position={[item.detail.lat, item.detail.lng]}
+                              >
+                                <Popup>
+                                  <b>Device #{item.deviceId}</b>
+                                  <br />
+                                  Lat: {item.detail.lat}, Lng: {item.detail.lng}
+                                </Popup>
+                              </Marker>
+                            </MapContainer>
+                          </div>
+                        </div>
+                      ) : typeof item.detail === "object" && item.detail !== null ? (
+                        <div
+                          style={{
+                            marginTop: 8,
+                            display: "grid",
+                            gridTemplateColumns: "auto 1fr",
+                            gap: "6px 12px",
+                            alignItems: "center",
+                          }}
+                        >
+                          {Object.entries(item.detail).map(([key, value]) => (
+                            <React.Fragment key={key}>
+                              <span
+                                style={{
+                                  fontWeight: 600,
+                                  color: "#595959",
+                                  textTransform: "capitalize",
+                                }}
+                              >
+                                {key}:
+                              </span>
+                              <span style={{ color: "#262626" }}>
+                                {renderDetailValue(key, value)}
+                              </span>
+                            </React.Fragment>
+                          ))}
                         </div>
                       ) : (
                         <pre
