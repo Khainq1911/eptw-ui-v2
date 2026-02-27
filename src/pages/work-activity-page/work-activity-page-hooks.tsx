@@ -126,7 +126,7 @@ export const useWorkActivityPageHook = (form: FormInstance) => {
     high: "Cao",
   };
 
-  const categoryColorMap: Record<string, string> = {
+  const categoryLabelMap: Record<string, string> = {
     construction: "Xây dựng",
     maintenance: "Bảo trì",
     inspection: "Kiểm tra",
@@ -134,6 +134,16 @@ export const useWorkActivityPageHook = (form: FormInstance) => {
     mechanical: "Cơ khí",
     chemical: "Hóa chất",
     other: "Khác",
+  };
+
+  const categoryColorMap: Record<string, string> = {
+    construction: "green",
+    maintenance: "orange",
+    inspection: "red",
+    electrical: "blue",
+    mechanical: "purple",
+    chemical: "yellow",
+    other: "gray",
   };
 
   const columns: TableProps<WorkActivityType>["columns"] = React.useMemo(() => {
@@ -168,7 +178,7 @@ export const useWorkActivityPageHook = (form: FormInstance) => {
           if (!category) return "-";
           return (
             <Tag color={categoryColorMap[category] || "gray"}>
-              {categoryColorMap[category] || category}
+              {categoryLabelMap[category] || category}
             </Tag>
           );
         },

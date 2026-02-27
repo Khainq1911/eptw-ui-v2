@@ -148,7 +148,7 @@ export default function DevicePage() {
             );
           }}
           pagination={{
-            pageSizeOptions: ["5", "10", "20"],
+            pageSizeOptions: ["1", "5", "10", "20"],
             pageSize: filter.limit,
             total: data?.countAll,
             showSizeChanger: true,

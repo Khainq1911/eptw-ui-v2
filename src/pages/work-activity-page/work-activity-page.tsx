@@ -149,7 +149,7 @@ export default function WorkActivityPage() {
                 pageSizeOptions: ["5", "10", "20"],
             pageSize: filter.limit,
             current: filter.page,
-            total: data?.count,
+            total: data?.total,
             showSizeChanger: true,
             showTotal: (total, range) =>
                 `${range[0]}-${range[1]} của ${total} mục`,
