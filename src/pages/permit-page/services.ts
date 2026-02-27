@@ -32,6 +32,14 @@ const PERMIT_STATUS = [
     value: "Cancelled",
   },
   {
+    label: "INPROGRESS",
+    value: "Inprogress",
+  },
+  {
+    label: "COMPLETED",
+    value: "Completed",
+  },
+  {
     label: "EXPIRED",
     value: "Expired",
   },
