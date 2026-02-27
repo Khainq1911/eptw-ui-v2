@@ -126,6 +126,16 @@ export const useWorkActivityPageHook = (form: FormInstance) => {
     high: "Cao",
   };
 
+  const categoryColorMap: Record<string, string> = {
+    construction: "Xây dựng",
+    maintenance: "Bảo trì",
+    inspection: "Kiểm tra",
+    electrical: "Điện",
+    mechanical: "Cơ khí",
+    chemical: "Hóa chất",
+    other: "Khác",
+  };
+
   const columns: TableProps<WorkActivityType>["columns"] = React.useMemo(() => {
     return [
       {
@@ -154,6 +164,14 @@ export const useWorkActivityPageHook = (form: FormInstance) => {
         dataIndex: "category",
         key: "category",
         width: 150,
+        render: (category: string) => {
+          if (!category) return "-";
+          return (
+            <Tag color={categoryColorMap[category] || "gray"}>
+              {categoryColorMap[category] || category}
+            </Tag>
+          );
+        },
       },
       {
         title: "Mức độ rủi ro",
