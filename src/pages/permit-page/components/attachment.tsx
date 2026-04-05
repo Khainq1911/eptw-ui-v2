@@ -122,7 +122,7 @@ export default function AttachmentFile({ dispatch, state }: any) {
   }, [state]);
 
   return (
-    <div className="w-[70%] bg-white p-6 mx-auto rounded-lg shadow-lg my-6">
+    <div className="w-full max-w-[1200px] bg-white p-4 sm:p-6 mx-auto rounded-lg shadow-lg my-6">
       <div className="flex justify-between items-center">
         <h2 className="font-bold">File đính kèm</h2>
         <Button
@@ -139,7 +139,7 @@ export default function AttachmentFile({ dispatch, state }: any) {
         dataSource={dataSource}
         pagination={false}
         rowKey={"uid"}
-        scroll={{ x: "full-screen" }}
+        scroll={{ x: "max-content" }}
       />
       <AddFileModal
         open={openAddFileModal}

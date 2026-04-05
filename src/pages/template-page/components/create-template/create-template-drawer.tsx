@@ -1,4 +1,5 @@
 import { Button, Drawer, Form, Space } from "antd";
+import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import SidebarModal from "../sidebar-modal";
 import ContentModal from "../content-modal";
@@ -116,18 +117,18 @@ export default function AddTemplateModal({
             {!action.view && (
               <>
                 <Button
-                  icon={<span>✏️</span>}
+                  icon={<EditOutlined />}
                   onClick={() => setIsPreview(false)}
                   type={`${isPreview ? "default" : "primary"}`}
                 >
-                  Chỉnh sửa
+                  <span className="hidden sm:inline">Chỉnh sửa</span>
                 </Button>
                 <Button
                   type={`${isPreview ? "primary" : "default"}`}
-                  icon={<span>👁️</span>}
+                  icon={<EyeOutlined />}
                   onClick={() => setIsPreview(true)}
                 >
-                  Xem trước
+                  <span className="hidden sm:inline">Xem trước</span>
                 </Button>
               </>
             )}
@@ -202,7 +203,7 @@ export default function AddTemplateModal({
         </div>
       }
     >
-      <div className="flex h-full">
+      <div className="flex flex-col lg:flex-row h-full overflow-hidden">
         <SidebarModal />
         <ContentModal
           isPreview={isPreview}

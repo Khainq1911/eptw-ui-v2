@@ -53,8 +53,8 @@ const SectionItem = React.memo(function SectionItem({
       <div
         className="w-full bg-white rounded-lg shadow-sm p-6 border border-gray-200"
       >
-        <Row gutter={16} align="top" className="mb-4">
-          <Col span={8}>
+        <Row gutter={[16, 16]} align="top" className="mb-4">
+          <Col xs={24} md={8}>
             <div className="flex flex-col gap-1">
               <label className="font-medium text-gray-700">
                 Tên nhóm thông tin
@@ -68,7 +68,7 @@ const SectionItem = React.memo(function SectionItem({
             </div>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} md={12}>
             <div className="flex flex-col gap-1">
               <label className="font-medium text-gray-700">
                 Mô tả nhóm thông tin
@@ -85,9 +85,9 @@ const SectionItem = React.memo(function SectionItem({
             </div>
           </Col>
 
-          <Col span={4}>
+          <Col xs={24} md={4}>
             <div className="flex flex-col gap-1">
-              <label className="font-medium text-gray-700">Thao tác</label>
+              <label className="font-medium text-gray-700 md:block hidden">Thao tác</label>
               {!isPreview && (
                 <Button
                   size="large"
@@ -95,6 +95,7 @@ const SectionItem = React.memo(function SectionItem({
                   style={{ fontSize: 18 }}
                   danger
                   type="text"
+                  className="w-fit"
                   onClick={() =>
                     dispatch({
                       type: "DELETE_SECTION",

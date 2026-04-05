@@ -48,8 +48,8 @@ const CheckboxField = React.memo(function CheckboxField({
         {upperCase(field.type) || "Chưa đặt tên trường"}
       </div>
 
-      <Row gutter={16} className="items-start">
-        <Col span={8}>
+      <Row gutter={[16, 16]} className="items-start">
+        <Col xs={24} sm={8}>
           <div className="flex flex-col gap-1">
             <span className="text-sm font-semibold text-gray-600">Nhãn</span>
             <Input
@@ -61,7 +61,7 @@ const CheckboxField = React.memo(function CheckboxField({
           </div>
         </Col>
 
-        <Col span={10}>
+        <Col xs={24} sm={10}>
           <div className="flex flex-col gap-1">
             <span className="text-sm font-semibold text-gray-600">
               Lựa chọn
@@ -125,7 +125,7 @@ const CheckboxField = React.memo(function CheckboxField({
           </div>
         </Col>
 
-        <Col span={6}>
+        <Col xs={24} sm={6}>
           <div className="flex flex-col gap-1">
             <span className="text-sm font-semibold text-gray-600">
               Bắt buộc

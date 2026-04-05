@@ -9,11 +9,9 @@ import {
 import {
   App,
   Button,
-  Col,
   DatePicker,
   Form,
   Input,
-  Row,
   Select,
   Space,
   Spin,
@@ -247,51 +245,65 @@ export default function PermitPage() {
 
   return (
     <Spin spinning={isLoadingTemplate}>
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 mb-6 md:mb-2">
-            Trang quản lý giấy phép
-          </h1>
-          <p>Theo dõi và quản lý danh sách giấy phép</p>
+      <div className="max-w-[1600px] mx-auto px-2 sm:px-4">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2 tracking-tight">
+              Quản lý giấy phép
+            </h1>
+            <p className="text-slate-500 font-medium">Theo dõi và quản lý danh sách giấy phép làm việc trong hệ thống</p>
+          </div>
+
+          <Tooltip
+            title={
+              AuthCommonService.isAdmin()
+                ? "Tạo giấy phép mới"
+                : "Chỉ quản trị viên mới có thể tạo giấy phép"
+            }
+          >
+            <Button
+              type="primary"
+              size="large"
+              icon={<PlusOutlined />}
+              onClick={handleOpenModalSelect}
+              className="h-10 sm:h-12 px-6 rounded-xl font-semibold shadow-md shadow-blue-100 transition-all hover:scale-[1.02] active:scale-95"
+            >
+              Tạo giấy phép mới
+            </Button>
+          </Tooltip>
         </div>
 
-        <Tooltip
-          title={
-            AuthCommonService.isAdmin()
-              ? "Tạo giấy phép mới"
-              : "Chỉ quản trị viên mới có thể tạo giấy phép"
-          }
-        >
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleOpenModalSelect}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+          <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-50">
+            <div className="w-1 h-5 bg-blue-600 rounded-full" />
+            <h2 className="text-base font-bold text-gray-800 tracking-tight">Bộ lọc & Tìm kiếm</h2>
+          </div>
+
+          <Form
+            form={searchForm}
+            layout="vertical"
+            onValuesChange={(_, values) => handleFilter(values)}
           >
-            Tạo giấy phép
-          </Button>
-        </Tooltip>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-6">
-        <Form
-          form={searchForm}
-          layout="vertical"
-          onValuesChange={(_, values) => handleFilter(values)}
-        >
-          <Row gutter={16}>
-            <Col sm={24} md={12} lg={6}>
-              <Form.Item label="Tên giấy phép:" name="name">
-                <Input placeholder="Nhập tên giấy phép" allowClear />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 mb-6">
+              <Form.Item 
+                label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tên giấy phép</span>} 
+                name="name" 
+                className="!mb-0"
+              >
+                <Input placeholder="Nhập tên giấy phép" allowClear style={{ height: '30px' }} />
               </Form.Item>
-            </Col>
 
-            <Col sm={24} md={12} lg={6}>
-              <Form.Item label="Loại bản mẫu:" name="templateName">
+              <Form.Item 
+                label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Loại bản mẫu</span>} 
+                name="templateName" 
+                className="!mb-0"
+              >
                 <Select
                   allowClear
                   showSearch
                   optionFilterProp="label"
-                  placeholder="Nhập loại bản mẫu"
+                  placeholder="Chọn bản mẫu"
+                  style={{ height: '30px' }}
                   options={
                     listTemplates?.map((item: any) => ({
                       label: item.name,
@@ -300,37 +312,42 @@ export default function PermitPage() {
                   }
                 />
               </Form.Item>
-            </Col>
 
-            <Col sm={24} md={12} lg={6}>
-              <Form.Item label="Ngày bắt đầu:" name="startTime">
+              <Form.Item 
+                label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Ngày bắt đầu</span>} 
+                name="startTime" 
+                className="!mb-0"
+              >
                 <DatePicker
                   format="YYYY-MM-DD"
-                  placeholder="Chọn ngày bắt đầu"
-                  style={{ width: "100%" }}
+                  placeholder="Chọn ngày"
+                  style={{ width: "100%", height: '30px' }}
                 />
               </Form.Item>
-            </Col>
 
-            <Col sm={24} md={12} lg={6}>
-              <Form.Item label="Ngày kết thúc:" name="endTime">
+              <Form.Item 
+                label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Ngày kết thúc</span>} 
+                name="endTime" 
+                className="!mb-0"
+              >
                 <DatePicker
                   format="YYYY-MM-DD"
-                  placeholder="Chọn ngày kết thúc"
-                  style={{ width: "100%" }}
+                  placeholder="Chọn ngày"
+                  style={{ width: "100%", height: '30px' }}
                 />
               </Form.Item>
-            </Col>
-          </Row>
 
-          <Row gutter={16}>
-            <Col sm={24} md={12} lg={6}>
-              <Form.Item label="Trạng thái:" name="status">
+              <Form.Item 
+                label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Trạng thái</span>} 
+                name="status" 
+                className="!mb-0"
+              >
                 <Select
                   allowClear
                   showSearch
                   optionFilterProp="label"
-                  placeholder="Nhập trạng thái"
+                  placeholder="Chọn trạng thái"
+                  style={{ height: '30px' }}
                   options={
                     PERMIT_STATUS.map((item) => ({
                       label: item.label,
@@ -339,15 +356,18 @@ export default function PermitPage() {
                   }
                 />
               </Form.Item>
-            </Col>
 
-            <Col sm={24} md={12} lg={6}>
-              <Form.Item label="Người tạo:" name="createdBy">
+              <Form.Item 
+                label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Người tạo</span>} 
+                name="createdBy" 
+                className="!mb-0"
+              >
                 <Select
                   allowClear
                   showSearch
                   optionFilterProp="label"
-                  placeholder="Nhập người tạo"
+                  placeholder="Chọn người tạo"
+                  style={{ height: '30px' }}
                   options={
                     listUsers?.map((item: any) => ({
                       label: item.name,
@@ -356,15 +376,18 @@ export default function PermitPage() {
                   }
                 />
               </Form.Item>
-            </Col>
 
-            <Col sm={24} md={12} lg={6}>
-              <Form.Item label="Thiết bị:" name="devices">
+              <Form.Item 
+                label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Thiết bị</span>} 
+                name="devices" 
+                className="!mb-0"
+              >
                 <Select
                   allowClear
                   showSearch
                   optionFilterProp="label"
-                  placeholder="Nhập thiết bị"
+                  placeholder="Chọn thiết bị"
+                  style={{ height: '30px' }}
                   options={
                     listDevices?.map((item: any) => ({
                       label: item.name,
@@ -373,15 +396,18 @@ export default function PermitPage() {
                   }
                 />
               </Form.Item>
-            </Col>
 
-            <Col sm={24} md={12} lg={6}>
-              <Form.Item label="Công việc:" name="workActivities">
+              <Form.Item 
+                label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Công việc</span>} 
+                name="workActivities" 
+                className="!mb-0"
+              >
                 <Select
                   allowClear
                   showSearch
                   optionFilterProp="label"
-                  placeholder="Nhập công việc"
+                  placeholder="Chọn công việc"
+                  style={{ height: '30px' }}
                   options={
                     listWorkActivities?.map((item: any) => ({
                       label: item.name,
@@ -390,64 +416,66 @@ export default function PermitPage() {
                   }
                 />
               </Form.Item>
-            </Col>
-          </Row>
-        </Form>
+            </div>
+          </Form>
 
-        <Space className="w-full flex justify-end">
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              handleRefreshSearch();
-            }}
-          >
-            Làm mới
-          </Button>
+          <div className="flex justify-end items-center gap-3">
+            <Button
+              onClick={() => {
+                handleRefreshSearch();
+              }}
+              className="h-8 px-4 rounded-lg font-semibold border-gray-200 hover:text-blue-600 hover:border-blue-600 flex items-center justify-center transition-colors"
+            >
+              Làm mới
+            </Button>
+            <Button
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={async () => await downloadFile("permit", message)}
+              className="h-8 px-6 bg-emerald-600 hover:bg-emerald-700 border-none rounded-lg font-semibold shadow-sm shadow-emerald-50 flex items-center justify-center transition-all active:scale-95"
+            >
+              Xuất Excel
+            </Button>
+          </div>
+        </div>
 
-          <Button
-            type="primary"
-            icon={<DownloadOutlined />}
-            style={{
-              backgroundColor: "#218A55",
-              color: "white",
-              borderColor: "#218A55",
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 overflow-hidden">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-1 h-5 bg-emerald-600 rounded-full" />
+            <h2 className="text-base font-bold text-gray-800 tracking-tight">Danh sách giấy phép</h2>
+          </div>
+          <Table
+            columns={columns}
+            bordered={false}
+            loading={
+              isLoading ||
+              deletePermitMutation.isPending ||
+              getDetailPermitMutation.isPending
+            }
+            scroll={{ x: 1400 }}
+            className="permit-table"
+            dataSource={
+              listPermits?.res?.map((item: any) => ({
+                ...item,
+                createdAt: formatDate(item.createdAt),
+                startDate: formatDate(item.startDate),
+                endDate: formatDate(item.endDate),
+              })) || []
+            }
+            rowKey="id"
+            pagination={{
+              pageSizeOptions: ["10", "20", "50", "100"],
+              pageSize: filter.limit,
+              total: listPermits?.count || 0,
+              current: filter.page,
+              showSizeChanger: true,
+              className: "py-4",
+              onChange: (page: number, pageSize: number) =>
+                setFilter((pre) => ({ ...pre, page, limit: pageSize })),
             }}
-            onClick={async () => await downloadFile("permit", message)}
-          >
-            Export
-          </Button>
-        </Space>
+          />
+        </div>
       </div>
-
-      <Table
-        columns={columns}
-        bordered
-        loading={
-          isLoading ||
-          deletePermitMutation.isPending ||
-          getDetailPermitMutation.isPending
-        }
-        scroll={{ x: "max-content" }}
-        dataSource={
-          listPermits?.res?.map((item: any) => ({
-            ...item,
-            createdAt: formatDate(item.createdAt),
-            startDate: formatDate(item.startDate),
-            endDate: formatDate(item.endDate),
-          })) || []
-        }
-        rowKey="id"
-        pagination={{
-          pageSizeOptions: ["1", "5", "10", "20", "50", "100"],
-          pageSize: filter.limit,
-          total: listPermits?.count || 10,
-          current: filter.page,
-          showSizeChanger: true,
-          onChange: (page: number, pageSize: number) =>
-            setFilter((pre) => ({ ...pre, page, limit: pageSize })),
-        }}
-      />
 
       <SelectTemplateModal
         dispatch={dispatch}

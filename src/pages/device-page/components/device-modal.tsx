@@ -33,8 +33,17 @@ export default function AddDeviceModal({
   }, [action]);
 
   const isView = action?.isView;
+
+  const modalTitle = useMemo(() => {
+    if (action.isCreate) return "Thêm thiết bị mới";
+    if (action.isEdit) return "Cập nhật thiết bị";
+    if (action.isView) return "Chi tiết thiết bị";
+    return "";
+  }, [action]);
+
   return (
     <Modal
+      title={<span className="text-xl font-bold text-gray-800">{modalTitle}</span>}
       open={open}
       onCancel={() => {
         onClose();
@@ -49,52 +58,64 @@ export default function AddDeviceModal({
           handleUpdateDevice(form.getFieldValue("id"), form);
         }
       }}
-      okButtonProps={{ style: isView ? { display: "none" } : {} }} 
+      okButtonProps={{ 
+        className: "h-10 px-6 rounded-lg font-medium",
+        style: isView ? { display: "none" } : {} 
+      }}
+      cancelButtonProps={{ className: "h-10 px-6 rounded-lg" }}
+      width={600}
+      centered
     >
-      <Form form={form} layout="vertical" disabled={isView}>
-        <Row gutter={16}>
+      <Form form={form} layout="vertical" disabled={isView} className="pt-4">
+        <Row gutter={24}>
           <Col span={12}>
             <Form.Item
-              label="Tên thiết bị"
+              label={<span className="font-semibold text-gray-700">Tên thiết bị</span>}
               name="name"
               rules={[
                 { required: true, message: "Vui lòng nhập tên thiết bị" },
               ]}
             >
-              <Input />
+              <Input placeholder="Nhập tên thiết bị (Vd: Máy hàn...)" className="h-10 rounded-lg border-gray-200" />
             </Form.Item>
           </Col>
 
           <Col span={12}>
             <Form.Item
-              label="Mã thiết bị"
+              label={<span className="font-semibold text-gray-700">Mã thiết bị</span>}
               name="code"
               rules={[{ required: true, message: "Vui lòng nhập mã thiết bị" }]}
             >
-              <Input />
+              <Input placeholder="Vd: DEV-001" className="h-10 rounded-lg border-gray-200 uppercase" />
             </Form.Item>
           </Col>
 
           <Col span={24}>
             <Form.Item
-              label="Trạng thái thiết bị"
+              label={<span className="font-semibold text-gray-700">Trạng thái hiện tại</span>}
               name="status"
               initialValue="active"
               rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}
             >
               <Select
                 options={statusOptions}
+                className="h-10 rounded-lg border-gray-200"
+                placeholder="Chọn trạng thái hoạt động"
               />
             </Form.Item>
           </Col>
 
           <Col span={24}>
             <Form.Item
-              label="Mô tả thiết bị (tùy chọn)"
+              label={<span className="font-semibold text-gray-700">Mô tả chi tiết</span>}
               name="description"
               rules={[{ required: false }]}
             >
-              <Input.TextArea placeholder="Mô tả thiết bị (tùy chọn)" />
+              <Input.TextArea 
+                placeholder="Nhập thêm các ghi chú về thiết bị nếu có..." 
+                rows={4} 
+                className="rounded-lg border-gray-200" 
+              />
             </Form.Item>
           </Col>
         </Row>

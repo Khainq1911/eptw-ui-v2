@@ -39,8 +39,8 @@ export default function DashboardPage() {
 
       <div className="bg-white border-gray-100 shadow-sm rounded p-4 my-6">
         <h2 className="text-lg font-bold mb-4">Tìm kiếm</h2>
-        <Row gutter={16}>
-          <Col span={8}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} md={8}>
             <Segmented
               options={SEGMENT_OPTIONS}
               className="w-full"
@@ -48,7 +48,7 @@ export default function DashboardPage() {
               onChange={(value) => setType(value.toString())}
             />
           </Col>
-          <Col span={8}>
+          <Col xs={24} md={8}>
             <DatePicker
               className="w-full"
               placeholder="Ngày bắt đầu"
@@ -58,7 +58,7 @@ export default function DashboardPage() {
               }
             />
           </Col>
-          <Col span={8}>
+          <Col xs={24} md={8}>
             <DatePicker
               className="w-full"
               placeholder="Ngày kết thúc"

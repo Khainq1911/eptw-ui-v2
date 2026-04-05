@@ -29,7 +29,7 @@ function DetailSection({ section, dispatch }: any) {
   }, [listUsers]);
 
   return (
-    <div className="w-[70%] bg-white p-6 mx-auto rounded-lg shadow-lg mt-6">
+    <div className="w-full max-w-[1200px] bg-white p-4 sm:p-6 mx-auto rounded-lg shadow-lg mt-6">
       <h2 className="font-bold">{section.name}</h2>
       <Divider />
 

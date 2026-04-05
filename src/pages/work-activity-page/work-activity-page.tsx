@@ -1,4 +1,4 @@
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Select, Table } from "antd";
 import { useWorkActivityPageHook } from "./work-activity-page-hooks";
 import type { WorkActivityType } from "@/common/types/work-activity.type";
@@ -42,36 +42,39 @@ export default function WorkActivityPage() {
   } = useWorkActivityPageHook(form);
 
   return (
-    <div>
+    <div className="max-w-[1600px] mx-auto px-2 sm:px-4">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">
-            Quản lý hoạt động công việc
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2 tracking-tight">
+            Hoạt động công việc
           </h1>
-          <p className="text-gray-500">
-            Theo dõi và quản lý danh sách các hoạt động công việc
+          <p className="text-slate-500 font-medium">
+            Thiết lập và quản lý các loại hình công việc trong hệ thống
           </p>
         </div>
 
         <Button
           disabled={!AuthCommonService.isAdmin()}
           type="primary"
+          size="large"
           icon={<PlusOutlined />}
           onClick={handleOpenCreateModal}
+          className="h-10 sm:h-12 px-6 rounded-xl font-semibold shadow-md shadow-blue-100 transition-all hover:scale-[1.02] active:scale-95"
         >
-          Thêm hoạt động
+          Thêm hoạt động mới
         </Button>
       </div>
 
       {/* Search Section */}
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-6">
-        <h2 className="text-lg font-semibold text-slate-700 mb-4">
-          Thông tin tìm kiếm
-        </h2>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-50">
+          <div className="w-1 h-5 bg-blue-600 rounded-full" />
+          <h2 className="text-base font-bold text-gray-800 tracking-tight">Bộ lọc & Tìm kiếm</h2>
+        </div>
         <Form
           form={searchForm}
-          layout="inline"
+          layout="vertical"
           onValuesChange={(_, allValues) => {
             setFilter((prev) => ({
               ...prev,
@@ -81,83 +84,87 @@ export default function WorkActivityPage() {
           }}
           className="w-full"
         >
-          {/* Filter inputs row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mb-4">
-            <Form.Item label={<span className="font-semibold">Tên hoạt động</span>} name="name" className="mb-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <Form.Item 
+                label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tên hoạt động</span>} 
+                name="name" 
+                className="!mb-0"
+            >
               <Input
-                prefix={<SearchOutlined />}
-                placeholder="Tìm kiếm theo tên"
-                variant="filled"
+                prefix={<SearchOutlined className="text-gray-400" />}
+                placeholder="Tìm kiếm theo tên..."
+                style={{ height: '30px' }}
                 allowClear
               />
             </Form.Item>
 
-            <Form.Item label={<span className="font-semibold">Danh mục</span>} name="category" className="mb-0">
+            <Form.Item 
+                label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Danh mục</span>} 
+                name="category" 
+                className="!mb-0"
+            >
               <Select
                 allowClear
                 placeholder="Chọn danh mục"
                 options={CATEGORY_OPTIONS}
-                variant="filled"
+                style={{ height: '30px' }}
               />
             </Form.Item>
 
-            <Form.Item label={<span className="font-semibold">Mức độ rủi ro</span>} name="riskLevel" className="mb-0">
+            <Form.Item 
+                label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Mức độ rủi ro</span>} 
+                name="riskLevel" 
+                className="!mb-0"
+            >
               <Select
                 allowClear
-                placeholder="Chọn mức độ rủi ro"
+                placeholder="Chọn mức độ"
                 options={RISK_LEVEL_OPTIONS}
-                variant="filled"
+                style={{ height: '30px' }}
               />
             </Form.Item>
           </div>
 
-          {/* Buttons row - aligned right */}
-          <div className="flex justify-end gap-2 w-full">
-            <Button
-              onClick={() => {
-                searchForm.resetFields();
-                setFilter({ limit: 10, page: 1 });
-              }}
-            >
-              Làm mới
-            </Button>
-            <Button
-              type="primary"
-              icon={<SearchOutlined />}
-              htmlType="submit"
-            >
-              Tìm kiếm
-            </Button>
+          <div className="flex justify-end items-center gap-3">
+             <Button
+                icon={<ReloadOutlined />}
+                onClick={() => {
+                  searchForm.resetFields();
+                  setFilter({ limit: 10, page: 1 });
+                }}
+                className="h-8 px-4 rounded-lg font-semibold border-gray-200 hover:text-blue-600 hover:border-blue-600 flex items-center justify-center transition-colors"
+              >
+                Làm mới
+              </Button>
           </div>
         </Form>
       </div>
 
       {/* Table Section */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-slate-700 mb-4">
-            Danh sách dữ liệu
-          </h2>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 overflow-hidden">
+        <div className="flex items-center gap-2 mb-6">
+          <div className="w-1 h-5 bg-emerald-600 rounded-full" />
+          <h2 className="text-base font-bold text-gray-800 tracking-tight">Danh sách hoạt động</h2>
+        </div>
         <Table<WorkActivityType>
             loading={isLoading}
-            scroll={{ x: "max-content" }}
-            bordered
+            scroll={{ x: 1200 }}
+            bordered={false}
             rowKey="id"
+            className="work-activity-table"
             dataSource={data?.items || []}
-            columns={columns}
+            columns={columns as any}
             pagination={{
-                pageSizeOptions: ["5", "10", "20"],
-            pageSize: filter.limit,
-            current: filter.page,
-            total: data?.total,
-            showSizeChanger: true,
-            showTotal: (total, range) =>
-                `${range[0]}-${range[1]} của ${total} mục`,
-            onChange: (page: number, pageSize: number) =>
-                setFilter((pre) => ({ ...pre, page: page, limit: pageSize })),
-        }}
+                pageSizeOptions: ["10", "20", "50", "100"],
+                pageSize: filter.limit,
+                current: filter.page,
+                total: data?.total,
+                showSizeChanger: true,
+                className: "py-4",
+                onChange: (page: number, pageSize: number) =>
+                    setFilter((pre) => ({ ...pre, page: page, limit: pageSize })),
+            }}
         />
-        </div>
       </div>
 
       {/* Modal */}

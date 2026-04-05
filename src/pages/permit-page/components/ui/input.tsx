@@ -6,6 +6,11 @@ function InputField({ field, section, dispatch, isDisable }: any) {
   const [error, setError] = useState("");
   const [localValue, setLocalValue] = useState(field.value || "");
 
+  // Đồng bộ localValue khi field.value thay đổi (ví dụ khi load dữ liệu mới)
+  React.useEffect(() => {
+    setLocalValue(field.value || "");
+  }, [field.value]);
+
   const debouncedDispatch = useMemo(
     () =>
       debounce(
@@ -14,7 +19,7 @@ function InputField({ field, section, dispatch, isDisable }: any) {
             type: "SET_FIELD_VALUE",
             payload: { section, field, value: val },
           }),
-        100
+        300
       ),
     [dispatch, section.id, field.id]
   );
@@ -32,26 +37,26 @@ function InputField({ field, section, dispatch, isDisable }: any) {
   };
 
   return (
-    <Row gutter={16} className="mb-2">
-      <Col span={8}>
-        <label className="font-medium mb-2">
+    <Row gutter={[16, 4]} className="mb-4">
+      <Col xs={24} sm={8}>
+        <label className="font-medium mb-1 inline-block text-gray-700">
           {field.label}{" "}
-          {field.required && <span style={{ color: "red" }}>*</span>}:
+          {field.required && <span className="text-red-500">*</span>}:
         </label>
       </Col>
-      <Col span={16}>
+      <Col xs={24} sm={16}>
         <Input
           disabled={isDisable}
-          placeholder="Nhập nội dung"
+          placeholder="Nhập nội dung..."
           value={localValue}
           onChange={(e) => handleChange(e.target.value)}
           onBlur={handleBlur}
-          style={{
-            borderColor: error ? "red" : undefined,
-            boxShadow: error ? "0 0 0 2px rgba(255,0,0,0.2)" : undefined,
-          }}
+          className={`transition-all duration-300 rounded-lg hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 ${
+            error ? "border-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.1)]" : "border-gray-200"
+          }`}
+          style={{ height: '38px' }}
         />
-        {error && <div style={{ color: "red", marginTop: 4 }}>{error}</div>}
+        {error && <div className="text-red-500 text-xs mt-1 animate-in fade-in slide-in-from-top-1">{error}</div>}
       </Col>
     </Row>
   );

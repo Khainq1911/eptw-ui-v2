@@ -61,7 +61,7 @@ export const fieldTemplates = [
 
 const SidebarModal = React.memo(function SidebarModal() {
   return (
-    <aside className="w-80 bg-slate-100 border-r border-slate-200 overflow-y-scroll p-6 h-full">
+    <aside className="hidden lg:block w-80 bg-slate-100 border-r border-slate-200 overflow-y-auto p-6 h-full shrink-0">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900 mb-2">
           Permit to Work

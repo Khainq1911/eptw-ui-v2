@@ -11,10 +11,8 @@ import {
 import {
   App,
   Button,
-  Col,
   Form,
   Input,
-  Row,
   Select,
   Space,
   Table,
@@ -235,116 +233,136 @@ export default function TemplatePage() {
   ];
 
   return (
-    <div>
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+    <div className="max-w-[1600px] mx-auto px-2 sm:px-4">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800 mb-6 md:mb-2 align-center">
-            Trang quản lý mẫu giấy phép
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2 tracking-tight">
+            Quản lý mẫu giấy phép
           </h1>
-          <p>Theo dõi và quản lý danh sách mẫu giấy phép</p>
+          <p className="text-slate-500 font-medium">Thiết kế và quản lý cấu trúc các bản mẫu giấy phép</p>
         </div>
         <Button
           disabled={!AuthCommonService.isAdmin()}
           type="primary"
+          size="large"
           icon={<PlusOutlined />}
           onClick={() => {
             setAction({ create: true, edit: false });
-            setOpenAddTemplateModal(true); // mở drawer ngay
-            setLoading(true); // bật spinner
-            setTimeout(() => setLoading(false), 200); // mô phỏng delay cho UX mượt
+            setOpenAddTemplateModal(true);
+            setLoading(true);
+            setTimeout(() => setLoading(false), 200);
           }}
+          className="h-10 sm:h-12 px-6 rounded-xl font-semibold shadow-md shadow-blue-100 transition-all hover:scale-[1.02] active:scale-95"
         >
-          Thêm mẫu
+          Thêm mẫu mới
         </Button>
       </div>
 
       {/* Filter */}
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200  mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-50">
+          <div className="w-1 h-5 bg-blue-600 rounded-full" />
+          <h2 className="text-base font-bold text-gray-800 tracking-tight">Bộ lọc & Tìm kiếm</h2>
+        </div>
         <Form
           form={form}
           layout="vertical"
           onValuesChange={(_, values) => debounceUpdateFilter(values)}
         >
-          <Row gutter={[16, 16]} align="middle">
-            <Col xs={24} sm={12} md={8}>
-              <Form.Item name="search" label="Tìm kiếm mẫu">
-                <Input
-                  placeholder="Nhập từ khóa..."
-                  prefix={<SearchOutlined />}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} md={8}>
-              <Form.Item name="templateTypeId" label="Danh mục">
-                <Select
-                  placeholder="Chọn danh mục"
-                  options={templateTypeData?.map((item: any) => ({
-                    label: item.name,
-                    value: item.id,
-                  }))}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} md={8}>
-              <Form.Item name="status" label="Trạng thái">
-                <Select
-                  placeholder="Chọn trạng thái"
-                  options={[
-                    { label: "Hoạt động", value: "active" },
-                    { label: "Không hoạt động", value: "inactive" },
-                  ]}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <Form.Item 
+              name="search" 
+              label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tìm kiếm mẫu</span>}
+              className="!mb-0"
+            >
+              <Input
+                placeholder="Nhập tên mẫu..."
+                prefix={<SearchOutlined className="text-gray-400" />}
+                allowClear
+                style={{ height: '30px' }}
+              />
+            </Form.Item>
+            <Form.Item 
+              name="templateTypeId" 
+              label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Danh mục</span>}
+              className="!mb-0"
+            >
+              <Select
+                placeholder="Chọn danh mục"
+                style={{ height: '30px' }}
+                options={templateTypeData?.map((item: any) => ({
+                  label: item.name,
+                  value: item.id,
+                }))}
+                allowClear
+              />
+            </Form.Item>
+            <Form.Item 
+              name="status" 
+              label={<span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Trạng thái</span>}
+              className="!mb-0"
+            >
+              <Select
+                placeholder="Chọn trạng thái"
+                style={{ height: '30px' }}
+                options={[
+                  { label: "Hoạt động", value: "active" },
+                  { label: "Không hoạt động", value: "inactive" },
+                ]}
+                allowClear
+              />
+            </Form.Item>
+          </div>
+
+          <div className="flex justify-end items-center gap-3">
+            <Button
+              onClick={() => {
+                form.resetFields();
+                const value = form.getFieldsValue();
+                setFilter((pre) => ({ ...pre, ...value }));
+              }}
+              className="h-8 px-4 rounded-lg font-semibold border-gray-200 hover:text-blue-600 hover:border-blue-600 flex items-center justify-center transition-colors"
+              icon={<ReloadOutlined />}
+            >
+              Làm mới
+            </Button>
+            <Button
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={() => downloadFile("template", message)}
+              className="h-8 px-6 bg-emerald-600 hover:bg-emerald-700 border-none rounded-lg font-semibold shadow-sm shadow-emerald-50 flex items-center justify-center transition-all active:scale-95"
+            >
+              Export
+            </Button>
+          </div>
         </Form>
-        <Space className="flex justify-end w-full ">
-          <Button
-            onClick={() => {
-              form.resetFields();
-              const value = form.getFieldsValue();
-              setFilter((pre) => ({ ...pre, ...value }));
-            }}
-            type="primary"
-            icon={<ReloadOutlined />}
-          >
-            Làm mới
-          </Button>
-          <Button
-            type="primary"
-            icon={<DownloadOutlined />}
-            style={{
-              backgroundColor: "#218A55",
-              color: "white",
-              borderColor: "#218A55",
-            }}
-            onClick={() => downloadFile("template", message)}
-          >
-            Export
-          </Button>
-        </Space>
       </div>
 
       {/* Table */}
-      <Table
-        columns={columns}
-        rowKey={"id"}
-        loading={isLoading}
-        dataSource={tableDatasource}
-        scroll={{ x: "max-content" }}
-        pagination={{
-          pageSizeOptions: ["1", "5", "10", "20", "50", "100"],
-          pageSize: filter.limit,
-          total: templateData?.count,
-          current: filter.page,
-          showSizeChanger: true,
-          onChange: (page: number, pageSize: number) =>
-            setFilter((pre) => ({ ...pre, page, limit: pageSize })),
-        }}
-      />
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 overflow-hidden">
+        <div className="flex items-center gap-2 mb-6">
+          <div className="w-1 h-5 bg-emerald-600 rounded-full" />
+          <h2 className="text-base font-bold text-gray-800 tracking-tight">Danh sách mẫu giấy phép</h2>
+        </div>
+        <Table
+          columns={columns}
+          rowKey={"id"}
+          loading={isLoading}
+          dataSource={tableDatasource}
+          scroll={{ x: "max-content" }}
+          bordered={false}
+          className="template-table"
+          pagination={{
+            pageSizeOptions: ["10", "20", "50", "100"],
+            pageSize: filter.limit,
+            total: templateData?.count,
+            current: filter.page,
+            showSizeChanger: true,
+            onChange: (page: number, pageSize: number) =>
+              setFilter((pre) => ({ ...pre, page, limit: pageSize })),
+          }}
+        />
+      </div>
 
       {/* Drawer */}
       <AddTemplateModal

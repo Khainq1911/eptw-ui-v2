@@ -82,10 +82,10 @@ export default function ContentModal({
   useEffect(() => console.log(state), [state]);
 
   return (
-    <main className="flex-1 overflow-y-auto p-8 bg-slate-50 h-full">
+    <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-50 h-full">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">
+          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-2">
             Permit to Work
           </h1>
           <p className="text-slate-600">
@@ -98,11 +98,9 @@ export default function ContentModal({
             Thông tin chung
           </h2>
           <Form
-            layout="horizontal"
+            layout="vertical"
             form={inforForm}
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
-            labelAlign="left"
+            className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-0"
           >
             <Form.Item
               label="Tên mẫu giấy phép"
@@ -162,7 +160,7 @@ export default function ContentModal({
               />
             </Form.Item>
 
-            <Form.Item label="Mô tả mẫu giấy phép" name="description">
+            <Form.Item label="Mô tả mẫu giấy phép" name="description" className="md:col-span-2">
               <Input.TextArea disabled={isPreview} />
             </Form.Item>
           </Form>

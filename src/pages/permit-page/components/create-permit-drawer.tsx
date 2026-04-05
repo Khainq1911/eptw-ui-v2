@@ -134,7 +134,7 @@ export default function CreatePermitDrawer({
         },
       }}
     >
-      <div className="w-[70%] bg-white p-2 mx-auto rounded-lg shadow-lg mt-6">
+      <div className="w-full max-w-[1200px] bg-white p-2 sm:p-6 mx-auto rounded-lg shadow-lg sm:mt-6">
         <Collapse
           defaultActiveKey={["1"]}
           expandIconPosition="end"
@@ -151,14 +151,14 @@ export default function CreatePermitDrawer({
                 {/* 1 */}
 
                 {/* 2 */}
-                <Col span={8}>
+                <Col xs={24} sm={12} lg={8}>
                   <Form.Item label="Tên mẫu giấy phép">
                     <Input value={state?.template?.name} disabled />
                   </Form.Item>
                 </Col>
 
                 {/* 3 */}
-                <Col span={8}>
+                <Col xs={24} sm={12} lg={8}>
                   <Form.Item label="Hình thức ký">
                     <Input
                       value={state?.template?.approvalType?.name}
@@ -167,7 +167,7 @@ export default function CreatePermitDrawer({
                   </Form.Item>
                 </Col>
 
-                <Col span={8}>
+                <Col xs={24} sm={12} lg={8}>
                   <Form.Item label="Loại mẫu">
                     <Input
                       value={state?.template?.templateType?.name}
@@ -176,7 +176,7 @@ export default function CreatePermitDrawer({
                   </Form.Item>
                 </Col>
                 {/* 4 */}
-                <Col span={8}>
+                <Col xs={24} sm={12} lg={8}>
                   <Form.Item
                     label="Tên giấy phép"
                     name="name"
@@ -192,7 +192,7 @@ export default function CreatePermitDrawer({
                 </Col>
 
                 {/* 5 */}
-                <Col span={8}>
+                <Col xs={24} sm={12} lg={8}>
                   <Form.Item
                     label="Trạng thái"
                     name="status"
@@ -206,7 +206,7 @@ export default function CreatePermitDrawer({
                 </Col>
 
                 {/* 6 */}
-                <Col span={8}>
+                <Col xs={24} sm={12} lg={8}>
                   <Form.Item
                     label="Tên công ty"
                     name="companyName"
@@ -219,7 +219,7 @@ export default function CreatePermitDrawer({
                 </Col>
 
                 {/* 7 */}
-                <Col span={8}>
+                <Col xs={24} sm={12} lg={8}>
                   <Form.Item
                     label="Địa chỉ"
                     name="location"
@@ -232,7 +232,7 @@ export default function CreatePermitDrawer({
                 </Col>
 
                 {/* 8 */}
-                <Col span={8}>
+                <Col xs={24} sm={12} lg={8}>
                   <Form.Item
                     label="Bắt đầu"
                     name="startTime"
@@ -252,7 +252,7 @@ export default function CreatePermitDrawer({
                 </Col>
 
                 {/* 9 */}
-                <Col span={8}>
+                <Col xs={24} sm={12} lg={8}>
                   <Form.Item
                     label="Kết thúc"
                     name="endTime"
@@ -272,7 +272,7 @@ export default function CreatePermitDrawer({
                 </Col>
 
                 {/* 10 */}
-                <Col span={8}>
+                <Col xs={24} sm={12} lg={8}>
                   <Form.Item
                     label="Số lượng người tham gia"
                     name="peopleNumber"
@@ -292,7 +292,7 @@ export default function CreatePermitDrawer({
                 </Col>
 
                 {/* 11 */}
-                <Col span={8}>
+                <Col xs={24} sm={12} lg={8}>
                   <Form.Item label="Thiết bị tham gia" name="deviceIds">
                     <Select
                       mode="multiple"
@@ -311,7 +311,7 @@ export default function CreatePermitDrawer({
                 </Col>
 
                 {/* 12 */}
-                <Col span={8}>
+                <Col xs={24} sm={12} lg={8}>
                   <Form.Item
                     label="Công việc"
                     name="workActivityIds"

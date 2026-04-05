@@ -40,8 +40,8 @@ export default function Date({
         {upperCase(field.type) || "Chưa đặt tên trường"}
       </div>
 
-      <Row gutter={16} className="items-center">
-        <Col span={9}>
+      <Row gutter={[16, 16]} className="items-center">
+        <Col xs={24} sm={9}>
           <div className="flex flex-col gap-1">
             <span className="text-sm font-semibold text-gray-600">Nhãn</span>
             <Input
@@ -53,7 +53,7 @@ export default function Date({
           </div>
         </Col>
 
-        <Col span={9}>
+        <Col xs={24} sm={9}>
           <div className="flex flex-col gap-1">
             <span className="text-sm font-semibold text-gray-600">
               Chọn ngày
@@ -67,7 +67,7 @@ export default function Date({
           </div>
         </Col>
 
-        <Col span={6}>
+        <Col xs={24} sm={6}>
           <div className="flex flex-col gap-1">
             <span className="text-sm font-semibold text-gray-600">
               Bắt buộc

@@ -37,15 +37,15 @@ function SelectField({ section, field, dispatch, isDisable }: any) {
     touched && field.required && (localValue === undefined || localValue === null || localValue === "");
 
   return (
-    <Row gutter={16} className="mb-2">
-      <Col span={8}>
-        <label className="font-medium mb-2">
+    <Row gutter={[16, 4]} className="mb-4">
+      <Col xs={24} sm={8}>
+        <label className="font-medium mb-1 inline-block">
           {field.label}{" "}
           {field.required && <span style={{ color: "red" }}>*</span>}:
         </label>
       </Col>
 
-      <Col span={16}>
+      <Col xs={24} sm={16}>
         <Select
           disabled={isDisable}
           placeholder="Chọn một mục"
