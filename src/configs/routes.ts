@@ -10,5 +10,6 @@ export const routesConfig = {
   TemplateTypeRoute: "/template-types",
   WorkActivityRoute: "/work-activity",
   MapRoute: "/map",
+  ResetPasswordRoute: "/reset-password",
   Forbidden: "/result/403",
 };

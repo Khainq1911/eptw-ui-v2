@@ -1,11 +1,8 @@
 import type { NavigateFunction } from "react-router-dom";
 import type {
   LoginFormType,
-  RegisterDataType,
-  RegisterFormType,
 } from "@/common/types/auth.type";
 import type { NotificationInstance } from "antd/es/notification/interface";
-import type { SetStateAction } from "react";
 import { AxiosError } from "axios";
 import { routesConfig } from "@/configs/routes";
 import { authService } from "@/services/auth.service";
@@ -41,52 +38,99 @@ export const authHandler = {
     }
   },
 
-  register: async (
+  forgotPassword: async (
     e: React.FormEvent<HTMLFormElement>,
-    registerForm: RegisterFormType,
-    notification: NotificationInstance,
-    setauthOption: React.Dispatch<SetStateAction<"Login" | "Register">>
+    email: string,
+    notification: NotificationInstance
   ) => {
     e.preventDefault();
 
     try {
-      const { name, email, phone, password, confirmPassword } = registerForm;
-
-      if (password !== confirmPassword) {
+      if (!email) {
         notification.error({
-          message: "Mật khẩu không khớp",
-          description: "Vui lòng kiểm tra lại mật khẩu của bạn.",
+          message: "Lỗi",
+          description: "Vui lòng nhập email.",
           ...notifOptions,
         });
         return;
       }
 
-      const registerData: RegisterDataType = {
-        name,
-        email,
-        phone,
-        password,
-      };
+      await authService.forgotPassword(email);
 
-      await authService.register(registerData);
-
-      setauthOption("Login");
       notification.success({
-        message: "Đăng ký thành công",
-        description: "Bạn có thể đăng nhập ngay bây giờ.",
+        message: "Yêu cầu đã được gửi",
+        description: "Vui lòng kiểm tra hộp thư email của bạn để tiếp tục khôi phục mật khẩu.",
         ...notifOptions,
       });
+
     } catch (error: unknown) {
       if (error instanceof AxiosError && error.response) {
         const errorMessage = error.response.data?.message || "Đã xảy ra lỗi";
         notification.error({
-          message: "Đăng ký thất bại",
+          message: "Lỗi",
           description: errorMessage,
           ...notifOptions,
         });
       } else {
         notification.error({
-          message: "Đăng ký thất bại",
+          message: "Lỗi",
+          description: "Vui lòng thử lại sau.",
+          ...notifOptions,
+        });
+      }
+      throw error;
+    }
+  },
+
+  resetPassword: async (
+    e: React.FormEvent<HTMLFormElement>,
+    resetForm: any,
+    navigate: NavigateFunction,
+    notification: NotificationInstance
+  ) => {
+    e.preventDefault();
+
+    try {
+      const { token, password, confirmPassword } = resetForm;
+      
+      if (!token) {
+        notification.error({
+          message: "Lỗi",
+          description: "Thiếu mã xác thực (Token).",
+          ...notifOptions,
+        });
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        notification.error({
+          message: "Lỗi",
+          description: "Mật khẩu không khớp.",
+          ...notifOptions,
+        });
+        return;
+      }
+
+      await authService.resetPassword({ token, password });
+
+      notification.success({
+        message: "Thành công",
+        description: "Đã đổi mật khẩu thành công. Vui lòng đăng nhập lại.",
+        ...notifOptions,
+      });
+
+      navigate(routesConfig.AuthRoute);
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        const errorMessage = error.response.data?.message || "Đã xảy ra lỗi";
+        notification.error({
+          message: "Lỗi",
+          description: errorMessage,
+          ...notifOptions,
+        });
+      } else {
+        notification.error({
+          message: "Lỗi",
           description: "Vui lòng thử lại sau.",
           ...notifOptions,
         });

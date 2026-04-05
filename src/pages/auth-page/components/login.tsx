@@ -1,18 +1,19 @@
 import React, { type SetStateAction } from "react";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { Button, Divider, Input } from "antd";
-import { Link, type NavigateFunction } from "react-router-dom";
+import { type NavigateFunction } from "react-router-dom";
 import type { LoginFormType } from "@/common/types/auth.type";
 import type { NotificationInstance } from "antd/es/notification/interface";
 import { handleChangeInput } from "@/common/common-services/single-input-change";
 import { authHandler } from "../auth-page-service";
+import Logo from "@/components/logo";
 
 export default function Login({
   setAuthOption,
   navigate,
   notification,
 }: {
-  setAuthOption: React.Dispatch<SetStateAction<"Login" | "Register">>;
+  setAuthOption: React.Dispatch<SetStateAction<"Login" | "ForgotPassword">>;
   navigate: NavigateFunction;
   notification: NotificationInstance;
 }) {
@@ -20,20 +21,36 @@ export default function Login({
     username: "",
     password: "",
   });
+  const [loading, setLoading] = React.useState<boolean>(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    setLoading(true);
+    try {
+      await authHandler.login(e, loginForm, navigate, notification);
+    } catch (err) {
+      // Error is handled in authHandler's notification
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="w-full bg-white rounded-lg p-8">
-      <h2 className="text-2xl text-center font-bold">Đăng nhập</h2>
-      <p className="text-center text-gray-500">
-        Nhập thông tin để truy cập tài khoản của bạn
-      </p>
-
+    <div className="w-full bg-white rounded-2xl p-6 sm:p-8 shadow-xl shadow-blue-900/5">
+      <div className="flex flex-col items-center mb-8">
+        <div className="transform scale-[1.3] mb-4">
+          <Logo />
+        </div>
+        <h1 className="text-xl font-bold text-gray-800 tracking-wider">E-PTW</h1>
+        <p className="text-[10px] text-blue-600 font-bold tracking-[0.2em] uppercase mt-1">
+          ELECTRONIC PERMIT TO WORK
+        </p>
+      </div>
       <form
         className="gap-4 mt-4 flex flex-col"
-        onSubmit={(e) => authHandler.login(e, loginForm, navigate, notification)}
+        onSubmit={handleSubmit}
       >
         <div className="space-y-2">
-          <label htmlFor="login-username" className="font-bold">
+          <label htmlFor="login-username" className="font-bold text-gray-700">
             Email
           </label>
           <div className="relative">
@@ -43,7 +60,7 @@ export default function Login({
               type="text"
               name="username"
               placeholder="example@eptw.com"
-              className="!pl-10"
+              className="!pl-10 !h-10"
               required
               onChange={(e) =>
                 handleChangeInput<LoginFormType>(e, setLoginForm)
@@ -53,7 +70,7 @@ export default function Login({
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="login-password" className="font-bold">
+          <label htmlFor="login-password" className="font-bold text-gray-700">
             Password
           </label>
           <div className="relative">
@@ -62,7 +79,7 @@ export default function Login({
               id="login-password"
               name="password"
               placeholder="Mật khẩu"
-              className="!pl-10"
+              className="!pl-10 !h-10"
               required
               onChange={(e) =>
                 handleChangeInput<LoginFormType>(e, setLoginForm)
@@ -71,24 +88,31 @@ export default function Login({
           </div>
         </div>
 
-        <div className="text-black">
-          <Link to="/forgot-password" className="float-right">
+        <div className="text-black overflow-hidden">
+          <Button
+            type="link"
+            className="!p-0 !h-auto float-right text-gray-500 hover:text-blue-600"
+            onClick={() => setAuthOption("ForgotPassword")}
+          >
             Quên mật khẩu?
-          </Link>
+          </Button>
         </div>
 
-        <Button type="primary" size="large" htmlType="submit">
+        <Button 
+          type="primary" 
+          size="large" 
+          htmlType="submit" 
+          loading={loading}
+          className="!h-11 font-semibold shadow-lg shadow-blue-900/10"
+        >
           Đăng nhập
         </Button>
       </form>
 
-      <Divider />
-
-      <div className="text-center text-sm text-gray-600">
-        Chưa có tài khoản?
-        <Button type="link" onClick={() => setAuthOption("Register")}>
-          Đăng ký ngay
-        </Button>
+      <Divider className="!my-6" />
+      
+      <div className="text-center text-[10px] text-gray-400">
+        © 2024 EPTW. Tất cả quyền được bảo lưu.
       </div>
     </div>
   );
