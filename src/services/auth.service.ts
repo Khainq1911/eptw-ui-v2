@@ -11,4 +11,14 @@ export const authService = {
     const response = await axiosInstance.post("/auth/register", registerData);
     return response.data;
   },
+
+  forgotPassword: async (email: string) => {
+    const response = await axiosInstance.post("/auth/forget-password", { email });
+    return response.data;
+  },
+
+  resetPassword: async (resetData: any) => {
+    const response = await axiosInstance.post("/auth/reset-password", resetData);
+    return response.data;
+  },
 };

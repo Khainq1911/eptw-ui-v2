@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { routesConfig } from "./configs/routes";
 import AuthPage from "./pages/auth-page/auth-page";
+import ResetPasswordPage from "./pages/auth-page/reset-password-page";
 import DashboardPage from "./pages/dashboard-page/dashboard-page";
 import DevicePage from "./pages/device-page/device-page";
 import PermitPage from "./pages/permit-page";
@@ -50,6 +51,7 @@ import ErrorPage from "./pages/error-page";
 
 const publicRoutes: Route[] = [
   { path: routesConfig.AuthRoute, component: AuthPage },
+  { path: routesConfig.ResetPasswordRoute, component: ResetPasswordPage },
   {
     path: routesConfig.Forbidden,
     component: () => <ErrorPage status="403" />,
